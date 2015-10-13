@@ -1,5 +1,5 @@
-import logging
-import sdn_utils
+import logging, sdn_utils, glanceclient
+import os
 
 logger = logging.getLogger('create_image')
 
@@ -21,39 +21,37 @@ class CreateImage():
     def create(self):
         """
         Creates the image in OpenStack if it does not already exist
-        :return:void
+        :return: The OpenStack Image object
         """
-        if(self.__checkEnv()):
-            logger.info('Environment already setup')
-        else:
-            print
+        self.imageFile = self.__getImageFile()
+        glance = glanceclient.Client('1')
+        self.image = glance.images.create(name=self.name)
+        self.image.update(data=self.imageFile)
+        return self.image
 
     def cleanEnv(self):
         """
         Cleanse environment of all artifacts
         :return: void
         """
-        print
+        self.image.delete()
+        os.remove(self.imageFile.name)
 
-    def __checkEnv(self):
-        """
-        Returns True if environment is setup as configured else False
-        :return:boolean
-        """
-        return False
-
-    def __checkForImage(self):
+    def __getImageFile(self):
         """
         Returns True if the image file has already been downloaded
-        :return:
+        :return: the image file object
         """
-        return False
+        if not sdn_utils.fileExists(self.imageFilePath):
+            return open(self.imageFilePath, 'r')
+        else:
+            return self.__downloadImageFile()
 
     def __downloadImageFile(self):
         """
         Downloads the image file
-        :return: The fully qualified file object
+        :return: the image file object
         """
-        if(sdn_utils.fileExists(self.imageFilePath)):
-            print
+        if(not sdn_utils.fileExists(self.imageFilePath)):
+            return sdn_utils.download(self.url, self.destPath)
 
