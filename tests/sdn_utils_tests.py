@@ -43,7 +43,6 @@ class SdnUtilsTests(unittest.TestCase):
         if not os.path.exists(self.tmpFile):
             os.makedirs(self.tmpFile)
 
-        # os.open(self.tmpFile)
         result = sdn_utils.fileExists(self.tmpFile)
         self.assertTrue(result)
 
