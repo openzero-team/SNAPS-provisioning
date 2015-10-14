@@ -1,4 +1,9 @@
-import sdn_utils, os, unittest, shutil
+import os
+import unittest
+import shutil
+
+import sdn_utils
+
 
 class SdnUtilsTests(unittest.TestCase):
     """
@@ -15,9 +20,6 @@ class SdnUtilsTests(unittest.TestCase):
             open(self.tmpFile, 'wb')
 
     def tearDown(self):
-        # if os.path.exists(self.tmpFile) and os.path.isfile(self.tmpFile):
-        #     os.remove(self.tmpFile)
-
         if os.path.exists(self.tmpDir) and os.path.isdir(self.tmpDir):
             shutil.rmtree(self.tmpDir)
 
@@ -50,24 +52,22 @@ class SdnUtilsTests(unittest.TestCase):
         """
         Tests the sdn_util.download() method when given a bad URL
         """
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             sdn_utils.download('http://bunkUrl.com/foo/bar.iso', self.tmpDir)
 
     def testDownloadBadDir(self):
         """
         Tests the sdn_util.download() method when given a bad URL
         """
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             sdn_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img', '/foo/bar')
 
     def testCirrosImageDownload(self):
         """
         Tests the sdn_util.download() method when given a good Cirros QCOW2 URL
         """
-        file = sdn_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img', self.tmpDir)
-        self.assertIsNotNone(file)
-
-        fileName = file.name.rsplit('/')[-1]
-        # dest = dest_path + '/' + name
-        self.assertTrue(file.name.endswith("cirros-0.3.4-x86_64-disk.img"))
-        self.assertTrue(file.name.startswith(self.tmpDir))
+        imageFile = sdn_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
+                                       self.tmpDir)
+        self.assertIsNotNone(imageFile)
+        self.assertTrue(imageFile.name.endswith("cirros-0.3.4-x86_64-disk.img"))
+        self.assertTrue(imageFile.name.startswith(self.tmpDir))
