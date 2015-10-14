@@ -7,7 +7,8 @@ import shutil
 
 logger = logging.getLogger('create_image')
 
-class CreateImage():
+
+class CreateImage:
     """
     Class responsible for creating an image in OpenStack
     """
@@ -95,4 +96,3 @@ class CreateImage():
         """
         if not sdn_utils.fileExists(self.imageFilePath):
             return sdn_utils.download(self.imageUrl, self.destPath)
-
