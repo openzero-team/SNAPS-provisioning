@@ -2,12 +2,12 @@ import os
 import unittest
 import shutil
 
-import sdn_utils
+import file_utils
 
 
 class SdnUtilsTests(unittest.TestCase):
     """
-    Tests the methods in sdn_utils.py
+    Tests the methods in file_utils.py
     """
 
     def setUp(self):
@@ -27,7 +27,7 @@ class SdnUtilsTests(unittest.TestCase):
         """
         Ensure the sdn_util.fileExists() method returns false with a directory
         """
-        result = sdn_utils.fileExists(self.tmpDir)
+        result = file_utils.file_exists(self.tmpDir)
         self.assertFalse(result)
         # TODO - Cleanup directory
 
@@ -35,7 +35,7 @@ class SdnUtilsTests(unittest.TestCase):
         """
         Ensure the sdn_util.fileExists() method returns false with a bogus file
         """
-        result = sdn_utils.fileExists('/foo/bar.txt')
+        result = file_utils.file_exists('/foo/bar.txt')
         self.assertFalse(result)
 
     def testFileExists(self):
@@ -45,7 +45,7 @@ class SdnUtilsTests(unittest.TestCase):
         if not os.path.exists(self.tmpFile):
             os.makedirs(self.tmpFile)
 
-        result = sdn_utils.fileExists(self.tmpFile)
+        result = file_utils.file_exists(self.tmpFile)
         self.assertTrue(result)
 
     def testDownloadBadUrl(self):
@@ -53,20 +53,20 @@ class SdnUtilsTests(unittest.TestCase):
         Tests the sdn_util.download() method when given a bad URL
         """
         with self.assertRaises(Exception):
-            sdn_utils.download('http://bunkUrl.com/foo/bar.iso', self.tmpDir)
+            file_utils.download('http://bunkUrl.com/foo/bar.iso', self.tmpDir)
 
     def testDownloadBadDir(self):
         """
         Tests the sdn_util.download() method when given a bad URL
         """
         with self.assertRaises(Exception):
-            sdn_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img', '/foo/bar')
+            file_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img', '/foo/bar')
 
     def testCirrosImageDownload(self):
         """
         Tests the sdn_util.download() method when given a good Cirros QCOW2 URL
         """
-        imageFile = sdn_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
+        imageFile = file_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
                                        self.tmpDir)
         self.assertIsNotNone(imageFile)
         self.assertTrue(imageFile.name.endswith("cirros-0.3.4-x86_64-disk.img"))

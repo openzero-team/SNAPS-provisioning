@@ -1,16 +1,20 @@
 import os
 import urllib2
 
+"""
+Utilities for basic file handling
+"""
 
-def fileExists(filePath):
+
+def file_exists(file_path):
     """
     Returns True if the image file already exists and throws an exception if the path is a directory
     :return:
     """
-    if os.path.exists(filePath):
-        if os.path.isdir(filePath):
+    if os.path.exists(file_path):
+        if os.path.isdir(file_path):
             return False
-        return os.path.isfile(filePath)
+        return os.path.isfile(file_path)
     return False
 
 
