@@ -29,28 +29,29 @@ class CreateNetwork:
         self.network = None
         self.subnet = None
         self.router = None
+        self.interface_router = None
 
     def create(self):
         """
         Responsible for creating not only the network but then a private subnet, router, and an interface to the router.
         """
         logger.info('Creating neutron network %s...' % self.priv_net_name)
-        self.network = neutron_utils.create_neutron_net(self.neutron, self.priv_net_name)
+        self.network = neutron_utils.create_network(self.neutron, self.priv_net_name)
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
         logger.debug('Creating Subnet....')
-        self.subnet = neutron_utils.create_neutron_subnet(self.neutron, self.network, self.priv_subnet_name,
+        self.subnet = neutron_utils.create_subnet(self.neutron, self.network, self.priv_subnet_name,
                                                           self.priv_subnet_cidr)
 
         logger.debug("Subnet '%s' created successfully" % self.subnet['subnets'][0]['id'])
         logger.debug('Creating Router...')
-        self.router = neutron_utils.create_neutron_router(self.neutron, self.router_name)
+        self.router = neutron_utils.create_router(self.neutron, self.router_name)
 
         logger.debug("Router '%s' created successfully" % self.router['router']['id'])
         logger.debug('Adding router to subnet...')
 
-        result = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
+        self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
 
-        if not result:
+        if not self.interface_router:
             raise Exception
 
     def clean(self):
@@ -58,6 +59,6 @@ class CreateNetwork:
         Removes and deletes all items created in reverse order.
         """
         neutron_utils.remove_interface_router(self.neutron, self.router, self.subnet)
-        neutron_utils.delete_neutron_router(self.neutron, self.router)
-        neutron_utils.delete_neutron_subnet(self.neutron, self.subnet)
-        neutron_utils.delete_neutron_net(self.neutron, self.network)
+        neutron_utils.delete_router(self.neutron, self.router)
+        neutron_utils.delete_subnet(self.neutron, self.subnet)
+        neutron_utils.delete_network(self.neutron, self.network)

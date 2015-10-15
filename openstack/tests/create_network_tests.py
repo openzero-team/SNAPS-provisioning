@@ -1,5 +1,6 @@
 import unittest
 import openstack.create_network as create_network
+import neutron_utils_tests
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -33,40 +34,34 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         """
         self.net_creator.clean()
 
-    def test1(self):
+        if self.net_creator.subnet:
+            # Validate subnet has been deleted
+            neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.priv_subnet_name,
+                                                self.net_creator.priv_subnet_cidr, False)
+
+        if self.net_creator.network:
+            # Validate network has been deleted
+            neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.priv_net_name, False)
+
+    def test_create_network(self):
         """
-        Tests the creation of an OpenStack image when the download directory does not exist.
+        Tests the creation of an OpenStack network.
         """
         # Create Image
         self.net_creator.create()
 
-        neutron = self.net_creator.neutron
-
-        # Validate network
-        networks = neutron.list_networks()
-        found = False
-        for network, netInsts in networks.iteritems():
-            for inst in netInsts:
-                if inst.get('name') == self.net_creator.priv_net_name:
-                    found = True
-        self.assertEquals(True, found)
+        # Validate network was created
+        neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.priv_net_name, True)
 
         # Validate subnets
-        subnets = neutron.list_subnets()
-        found = False
-        for subnet, subInsts in subnets.iteritems():
-            for inst in subInsts:
-                if inst.get('name') == self.net_creator.priv_subnet_name:
-                    found = True
-        self.assertEquals(True, found)
+        neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.priv_subnet_name,
+                                            self.net_creator.priv_subnet_cidr, True)
 
-        # Validate subnets
-        routers = neutron.list_routers()
-        found = False
-        for router, routerInsts in routers.iteritems():
-            for inst in routerInsts:
-                if inst.get('name') == self.net_creator.router_name:
-                    found = True
-        self.assertEquals(True, found)
+        # Validate routers
+        neutron_utils_tests.validate_router(self.net_creator.neutron, self.net_creator.router_name, True)
+
+        # Validate interface routers
+        neutron_utils_tests.validate_interface_router(self.net_creator.interface_router, self.net_creator.router,
+                                                      self.net_creator.subnet)
 
         # TODO - Expand tests especially negative ones.

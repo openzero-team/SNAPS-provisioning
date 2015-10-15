@@ -18,7 +18,7 @@ def neutron_client(username, password, os_auth_url, tenant_name):
     return neutronclient.Client(**creds)
 
 
-def create_neutron_net(neutron, network_name):
+def create_network(neutron, network_name):
     """
     Creates a network for OpenStack
     :return: the network object
@@ -36,7 +36,7 @@ def create_neutron_net(neutron, network_name):
         raise Exception
 
 
-def delete_neutron_net(neutron, network):
+def delete_network(neutron, network):
     """
     Deletes a network for OpenStack
     """
@@ -48,7 +48,7 @@ def delete_neutron_net(neutron, network):
             raise Exception
 
 
-def create_neutron_subnet(neutron, network, subnet_name, subnet_cidr):
+def create_subnet(neutron, network, subnet_name, subnet_cidr):
     """
     Creates a network subnet for OpenStack
     :return: the subnet object
@@ -66,7 +66,7 @@ def create_neutron_subnet(neutron, network, subnet_name, subnet_cidr):
         raise Exception
 
 
-def delete_neutron_subnet(neutron, subnet):
+def delete_subnet(neutron, subnet):
     """
     Deletes a network subnet for OpenStack
     """
@@ -78,7 +78,7 @@ def delete_neutron_subnet(neutron, subnet):
             raise Exception
 
 
-def create_neutron_router(neutron, router_name):
+def create_router(neutron, router_name):
     """
     Creates a router for OpenStack
     :return: the router object
@@ -95,7 +95,7 @@ def create_neutron_router(neutron, router_name):
         raise Exception
 
 
-def delete_neutron_router(neutron, router):
+def delete_router(neutron, router):
     """
     Deletes a router for OpenStack
     """
