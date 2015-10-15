@@ -1,4 +1,5 @@
 import logging
+from neutronclient.v2_0 import client as neutronclient
 
 logger = logging.getLogger('neutron_utils')
 
@@ -6,13 +7,36 @@ logger = logging.getLogger('neutron_utils')
 Utilities for basic neutron API calls
 """
 
-def create_neutron_net(neutron, netName):
+
+def neutron_client(username, password, os_auth_url, tenant_name):
+    """
+    Instantiates and returns a client for communications with OpenStack's Neutron server
+    :return: the client object
+    """
+    creds = __get_credentials(username, password, os_auth_url, tenant_name)
+    return neutronclient.Client(**creds)
+
+
+def __get_credentials(username, password, os_auth_url, tenant_name):
+    """
+    Returns a creds dictionary object
+    :return: the credentials
+    """
+    return {
+        'username': username,
+        'password': password,
+        'auth_url': os_auth_url,
+        'tenant_name': tenant_name,
+    }
+
+
+def create_neutron_net(neutron, network_name):
     """
     Creates a network for OpenStack
     :return: the network object
     """
     if neutron:
-        json_body = {'network': {'name': netName,
+        json_body = {'network': {'name': network_name,
                                  'admin_state_up': True}}
         try:
             return neutron.create_network(body=json_body)
@@ -36,13 +60,13 @@ def delete_neutron_net(neutron, network):
             raise Exception
 
 
-def create_neutron_subnet(neutron, network, subName, subCidr):
+def create_neutron_subnet(neutron, network, subnet_name, subnet_cidr):
     """
     Creates a network subnet for OpenStack
     :return: the subnet object
     """
     if neutron and network:
-        json_body = {'subnets': [{'name': subName, 'cidr': subCidr, 'ip_version': 4,
+        json_body = {'subnets': [{'name': subnet_name, 'cidr': subnet_cidr, 'ip_version': 4,
                                   'network_id': network['network']['id']}]}
         try:
             return neutron.create_subnet(body=json_body)
@@ -66,13 +90,13 @@ def delete_neutron_subnet(neutron, subnet):
             raise Exception
 
 
-def create_neutron_router(neutron, routerName):
+def create_neutron_router(neutron, router_name):
     """
     Creates a router for OpenStack
     :return: the router object
     """
     if neutron:
-        json_body = {'router': {'name': routerName, 'admin_state_up': True}}
+        json_body = {'router': {'name': router_name, 'admin_state_up': True}}
         try:
             return neutron.create_router(json_body)
         except:

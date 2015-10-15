@@ -7,14 +7,14 @@ osAuthUrl = 'http://10.197.123.37:5000/v2.0'
 
 username = 'admin'
 password = 'octopus'
-tenantName = 'admin'
-privNetName = 'test-priv-net'
-privSubName = 'test-priv-subnet'
-privSubCidr = '10.197.122.0/24'
-routerName = 'test-router'
+tenant_name = 'admin'
+priv_net_name = 'test-priv-net'
+priv_subnet_name = 'test-priv-subnet'
+priv_subnet_cidr = '10.197.122.0/24'
+router_name = 'test-router'
 
 
-class CreateImageSuccessTests(unittest.TestCase):
+class CreateNetworkSuccessTests(unittest.TestCase):
     """
     Test for the CreateImage class defined in create_image.py
     """
@@ -24,30 +24,30 @@ class CreateImageSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.createNetwork = create_network.CreateNetwork(username, password, osAuthUrl, tenantName, privNetName,
-                                                          privSubName, privSubCidr, routerName)
+        self.net_creator = create_network.CreateNetwork(username, password, osAuthUrl, tenant_name, priv_net_name,
+                                                          priv_subnet_name, priv_subnet_cidr, router_name)
 
     def tearDown(self):
         """
         Cleans the image and downloaded image file
         """
-        self.createNetwork.clean()
+        self.net_creator.clean()
 
     def test1(self):
         """
         Tests the creation of an OpenStack image when the download directory does not exist.
         """
         # Create Image
-        self.createNetwork.create()
+        self.net_creator.create()
 
-        neutron = self.createNetwork.neutron_client()
+        neutron = self.net_creator.neutron
 
         # Validate network
         networks = neutron.list_networks()
         found = False
         for network, netInsts in networks.iteritems():
             for inst in netInsts:
-                if inst.get('name') == self.createNetwork.privNetName:
+                if inst.get('name') == self.net_creator.priv_net_name:
                     found = True
         self.assertEquals(True, found)
 
@@ -56,7 +56,7 @@ class CreateImageSuccessTests(unittest.TestCase):
         found = False
         for subnet, subInsts in subnets.iteritems():
             for inst in subInsts:
-                if inst.get('name') == self.createNetwork.privSubName:
+                if inst.get('name') == self.net_creator.priv_subnet_name:
                     found = True
         self.assertEquals(True, found)
 
@@ -65,7 +65,7 @@ class CreateImageSuccessTests(unittest.TestCase):
         found = False
         for router, routerInsts in routers.iteritems():
             for inst in routerInsts:
-                if inst.get('name') == self.createNetwork.routerName:
+                if inst.get('name') == self.net_creator.router_name:
                     found = True
         self.assertEquals(True, found)
 

@@ -1,6 +1,5 @@
 import logging
 import neutron_utils
-from neutronclient.v2_0 import client as neutronclient
 
 logger = logging.getLogger('NeutronNetwork')
 
@@ -14,34 +13,34 @@ class CreateNetwork:
     should probably make their way into a file named something like neutron_utils.py.
     """
 
-    def __init__(self, username, password, osAuthUrl, tenantName, privNetName, privSubName, privSubCidr, routerName):
+    def __init__(self, username, password, os_auth_url, tenant_name, priv_net_name, priv_subnet_name, priv_subnet_cidr,
+                 router_name):
         """Constructor"""
         self.username = username
         self.password = password
-        self.osAuthUrl = osAuthUrl
-        self.tenantName = tenantName
-        self.privNetName = privNetName
-        self.privSubName = privSubName
-        self.privSubCidr = privSubCidr
-        self.routerName = routerName
-        self.neutron = None
+        self.os_auth_url = os_auth_url
+        self.tenant_name = tenant_name
+        self.priv_net_name = priv_net_name
+        self.priv_subnet_name = priv_subnet_name
+        self.priv_subnet_cidr = priv_subnet_cidr
+        self.router_name = router_name
+        self.neutron = neutron_utils.neutron_client(self.username, self.password, self.os_auth_url, self.tenant_name)
+        self.neutron.format = 'json'
         self.network = None
         self.subnet = None
         self.router = None
 
     def create(self):
-        self.neutron = self.neutron_client()
-        self.neutron.format = 'json'
-        logger.info('Creating neutron network %s...' % self.privNetName)
-        self.network = neutron_utils.create_neutron_net(self.neutron, self.privNetName)
+        logger.info('Creating neutron network %s...' % self.priv_net_name)
+        self.network = neutron_utils.create_neutron_net(self.neutron, self.priv_net_name)
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
         logger.debug('Creating Subnet....')
-        self.subnet = neutron_utils.create_neutron_subnet(self.neutron, self.network, self.privSubName,
-                                                          self.privSubCidr)
+        self.subnet = neutron_utils.create_neutron_subnet(self.neutron, self.network, self.priv_subnet_name,
+                                                          self.priv_subnet_cidr)
 
         logger.debug("Subnet '%s' created successfully" % self.subnet['subnets'][0]['id'])
         logger.debug('Creating Router...')
-        self.router = neutron_utils.create_neutron_router(self.neutron, self.routerName)
+        self.router = neutron_utils.create_neutron_router(self.neutron, self.router_name)
 
         logger.debug("Router '%s' created successfully" % self.router['router']['id'])
         logger.debug('Adding router to subnet...')
@@ -56,23 +55,3 @@ class CreateNetwork:
         neutron_utils.delete_neutron_router(self.neutron, self.router)
         neutron_utils.delete_neutron_subnet(self.neutron, self.subnet)
         neutron_utils.delete_neutron_net(self.neutron, self.network)
-
-    def neutron_client(self):
-        """
-        Instantiates and returns a client for communications with OpenStack's Neutron server
-        :return: the client object
-        """
-        creds = self.__get_credentials()
-        return neutronclient.Client(**creds)
-
-    def __get_credentials(self):
-        """
-        Returns a creds dictionary object
-        :return: the credentials
-        """
-        return {
-            'username': self.username,
-            'password': self.password,
-            'auth_url': self.osAuthUrl,
-            'tenant_name': self.tenantName,
-        }
