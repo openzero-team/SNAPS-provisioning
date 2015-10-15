@@ -11,7 +11,7 @@ import shutil
 logger = logging.getLogger('create_image')
 
 
-class CreateImage:
+class OpenStackImage:
     """
     Class responsible for creating an image in OpenStack
     """

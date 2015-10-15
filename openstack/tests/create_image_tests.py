@@ -27,7 +27,7 @@ class CreateImageSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.createImage = create_image.CreateImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
+        self.createImage = create_image.OpenStackImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
                                                     image_name, download_path)
 
     def tearDown(self):
@@ -113,7 +113,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the download destination path cannot be created
         """
-        self.createImage = create_image.CreateImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
+        self.createImage = create_image.OpenStackImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
                                                     image_name, '/foo')
         with self.assertRaises(Exception):
             self.createImage.create()
@@ -122,7 +122,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image name is None
         """
-        self.createImage = create_image.CreateImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
+        self.createImage = create_image.OpenStackImage(username, password, osAuthUrl, tenant_name, image_format, image_url,
                                                     None, download_path)
         with self.assertRaises(Exception):
             self.createImage.create()
@@ -131,7 +131,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image download url is bad
         """
-        self.createImage = create_image.CreateImage(username, password, osAuthUrl, tenant_name, image_format,
+        self.createImage = create_image.OpenStackImage(username, password, osAuthUrl, tenant_name, image_format,
                                                     'http://bad.url.com/bad.iso', image_name, download_path)
         with self.assertRaises(Exception):
             self.createImage.create()
@@ -141,7 +141,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.CreateImage(username, password, osAuthUrl, None, image_format,
+            self.createImage = create_image.OpenStackImage(username, password, osAuthUrl, None, image_format,
                                                         image_url, image_name, download_path)
 
     def testNoneAuthUrl(self):
@@ -149,7 +149,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.CreateImage(username, password, None, tenant_name, image_format,
+            self.createImage = create_image.OpenStackImage(username, password, None, tenant_name, image_format,
                                                         image_url, image_name, download_path)
 
     def testNonePassword(self):
@@ -157,7 +157,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.CreateImage(username, None, osAuthUrl, tenant_name, image_format,
+            self.createImage = create_image.OpenStackImage(username, None, osAuthUrl, tenant_name, image_format,
                                                         image_url, image_name, download_path)
 
     def testNoneUser(self):
@@ -165,5 +165,5 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.CreateImage(None, password, osAuthUrl, tenant_name, image_format,
+            self.createImage = create_image.OpenStackImage(None, password, osAuthUrl, tenant_name, image_format,
                                                         image_url, image_name, download_path)
