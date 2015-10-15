@@ -25,7 +25,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.CreateNetwork(username, password, os_auth_url, tenant_name, priv_net_name,
+        self.net_creator = create_network.OpenStackNetwork(username, password, os_auth_url, tenant_name, priv_net_name,
                                                         priv_subnet_name, priv_subnet_cidr, router_name)
 
     def tearDown(self):

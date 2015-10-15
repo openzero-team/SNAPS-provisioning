@@ -4,7 +4,7 @@ import neutron_utils
 logger = logging.getLogger('NeutronNetwork')
 
 
-class CreateNetwork:
+class OpenStackNetwork:
     """
     Class responsible for creating a network in OpenStack
 
