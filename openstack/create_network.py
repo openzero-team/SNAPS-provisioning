@@ -36,7 +36,7 @@ class OpenStackNetwork:
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
         logger.debug('Creating Subnet....')
         self.subnet = neutron_utils.create_subnet(self.neutron, self.network, self.priv_subnet_name,
-                                                          self.priv_subnet_cidr)
+                                                  self.priv_subnet_cidr)
 
         logger.debug("Subnet '%s' created successfully" % self.subnet['subnets'][0]['id'])
         logger.debug('Creating Router...')
