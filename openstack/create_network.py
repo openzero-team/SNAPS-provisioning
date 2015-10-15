@@ -61,4 +61,3 @@ class CreateNetwork:
         neutron_utils.delete_neutron_router(self.neutron, self.router)
         neutron_utils.delete_neutron_subnet(self.neutron, self.subnet)
         neutron_utils.delete_neutron_net(self.neutron, self.network)
-        self.neutron.disconnect_network_gateway
