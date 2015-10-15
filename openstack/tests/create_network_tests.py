@@ -26,7 +26,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         within OpenStack
         """
         self.net_creator = create_network.OpenStackNetwork(username, password, os_auth_url, tenant_name, priv_net_name,
-                                                        priv_subnet_name, priv_subnet_cidr, router_name)
+                                                           priv_subnet_name, priv_subnet_cidr, router_name)
 
     def tearDown(self):
         """
