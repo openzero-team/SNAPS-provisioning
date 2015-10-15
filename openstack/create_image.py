@@ -18,7 +18,18 @@ class OpenStackImage:
 
     def __init__(self, username, password, os_auth_url, tenant_name, image_format, image_url, image_name,
                  download_path):
-        """Constructor"""
+        """
+        Constructor
+        :param username: The user to the OpenStack API
+        :param password: The password to the OpenStack API
+        :param os_auth_url: The URL to the OpenStack API
+        :param tenant_name: The OpenStack tenant name
+        :param image_format: The type of image file
+        :param image_url: The download location of the image file
+        :param image_name: The name to register the image
+        :param download_path: The local filesystem location to where the image file will be downloaded
+        :return:
+        """
         self.username = username
         self.password = password
         self.os_auth_url = os_auth_url
