@@ -3,7 +3,7 @@ import openstack.create_network as create_network
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
-osAuthUrl = 'http://10.197.123.37:5000/v2.0'
+os_auth_url = 'http://10.197.123.37:5000/v2.0'
 
 username = 'admin'
 password = 'octopus'
@@ -24,8 +24,8 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.CreateNetwork(username, password, osAuthUrl, tenant_name, priv_net_name,
-                                                          priv_subnet_name, priv_subnet_cidr, router_name)
+        self.net_creator = create_network.CreateNetwork(username, password, os_auth_url, tenant_name, priv_net_name,
+                                                        priv_subnet_name, priv_subnet_cidr, router_name)
 
     def tearDown(self):
         """

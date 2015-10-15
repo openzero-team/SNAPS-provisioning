@@ -15,7 +15,8 @@ class CreateImage:
     Class responsible for creating an image in OpenStack
     """
 
-    def __init__(self, username, password, os_auth_url, tenant_name, image_format, image_url, image_name, download_path):
+    def __init__(self, username, password, os_auth_url, tenant_name, image_format, image_url, image_name,
+                 download_path):
         """Constructor"""
         self.username = username
         self.password = password
