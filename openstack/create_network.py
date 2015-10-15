@@ -31,6 +31,9 @@ class CreateNetwork:
         self.router = None
 
     def create(self):
+        """
+        Responsible for creating not only the network but then a private subnet, router, and an interface to the router.
+        """
         logger.info('Creating neutron network %s...' % self.priv_net_name)
         self.network = neutron_utils.create_neutron_net(self.neutron, self.priv_net_name)
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
@@ -51,6 +54,9 @@ class CreateNetwork:
             raise Exception
 
     def clean(self):
+        """
+        Removes and deletes all items created in reverse order.
+        """
         neutron_utils.remove_interface_router(self.neutron, self.router, self.subnet)
         neutron_utils.delete_neutron_router(self.neutron, self.router)
         neutron_utils.delete_neutron_subnet(self.neutron, self.subnet)
