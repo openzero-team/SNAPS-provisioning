@@ -140,34 +140,30 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the tenant name is None
         """
-        self.createImage = create_image.CreateImage(username, password, osAuthUrl, None, image_format,
-                                                    image_url, image_name, download_path)
         with self.assertRaises(Exception):
-            self.createImage.create()
+            self.createImage = create_image.CreateImage(username, password, osAuthUrl, None, image_format,
+                                                        image_url, image_name, download_path)
 
     def testNoneAuthUrl(self):
         """
         Expect an exception when the tenant name is None
         """
-        self.createImage = create_image.CreateImage(username, password, None, tenant_name, image_format,
-                                                    image_url, image_name, download_path)
         with self.assertRaises(Exception):
-            self.createImage.create()
+            self.createImage = create_image.CreateImage(username, password, None, tenant_name, image_format,
+                                                        image_url, image_name, download_path)
 
     def testNonePassword(self):
         """
         Expect an exception when the tenant name is None
         """
-        self.createImage = create_image.CreateImage(username, None, osAuthUrl, tenant_name, image_format,
-                                                    image_url, image_name, download_path)
         with self.assertRaises(Exception):
-            self.createImage.create()
+            self.createImage = create_image.CreateImage(username, None, osAuthUrl, tenant_name, image_format,
+                                                        image_url, image_name, download_path)
 
     def testNoneUser(self):
         """
         Expect an exception when the tenant name is None
         """
-        self.createImage = create_image.CreateImage(None, password, osAuthUrl, tenant_name, image_format,
-                                                    image_url, image_name, download_path)
         with self.assertRaises(Exception):
-            self.createImage.create()
+            self.createImage = create_image.CreateImage(None, password, osAuthUrl, tenant_name, image_format,
+                                                        image_url, image_name, download_path)

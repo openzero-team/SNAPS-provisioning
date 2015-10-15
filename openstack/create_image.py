@@ -33,6 +33,7 @@ class CreateImage:
 
         self.image = None
         self.image_file = None
+        self.glance = self.glance_client()
 
     def create(self):
         """
@@ -40,10 +41,9 @@ class CreateImage:
         :return: The OpenStack Image object
         """
         self.image_file = self.__get_image_file()
-        glance = self.glance_client()
-        self.image = glance.images.create(name=self.image_name, disk_format=self.image_format,
+        self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
                                           container_format="bare", data=self.image_file.name)
-        glance.images.upload(self.image.id, open(self.image_file.name, 'rb'))
+        self.glance.images.upload(self.image.id, open(self.image_file.name, 'rb'))
         return self.image
 
     def clean(self):
@@ -52,8 +52,7 @@ class CreateImage:
         :return: void
         """
         if self.image:
-            glance = self.glance_client()
-            glance.images.delete(self.image.id)
+            self.glance.images.delete(self.image.id)
 
         if self.image_file:
             shutil.rmtree(self.download_path)
