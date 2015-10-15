@@ -30,10 +30,6 @@ class OpenStackImage:
         :param download_path: The local filesystem location to where the image file will be downloaded
         :return:
         """
-        self.username = username
-        self.password = password
-        self.os_auth_url = os_auth_url
-        self.tenant_name = tenant_name
         self.image_format = image_format
         self.image_url = image_url
         self.image_name = image_name
@@ -44,7 +40,7 @@ class OpenStackImage:
 
         self.image = None
         self.image_file = None
-        self.glance = self.glance_client()
+        self.glance = glance_client(username, password, os_auth_url, tenant_name)
 
     def create(self):
         """
@@ -53,7 +49,7 @@ class OpenStackImage:
         """
         self.image_file = self.__get_image_file()
         self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
-                                          container_format="bare", data=self.image_file.name)
+                                               container_format="bare", data=self.image_file.name)
         self.glance.images.upload(self.image.id, open(self.image_file.name, 'rb'))
         return self.image
 
@@ -67,20 +63,6 @@ class OpenStackImage:
 
         if self.image_file:
             shutil.rmtree(self.download_path)
-
-    def glance_client(self):
-        """
-        Creates and returns a glance client object
-        :return: the glance client
-        """
-        creds = os_utils.get_credentials(self.username, self.password, self.os_auth_url, self.tenant_name)
-        keystone = ksclient.Client(**creds)
-        glance_endpoint = keystone.service_catalog.url_for(service_type='image', endpoint_type='publicURL')
-        auth = identity.Password(auth_url=self.os_auth_url, username=self.username, password=self.password,
-                                 tenant_name=self.tenant_name)
-        sess = session.Session(auth=auth)
-        token = auth.get_token(sess)
-        return Client('2', endpoint=glance_endpoint, token=token)
 
     def __get_image_file(self):
         """
@@ -101,3 +83,18 @@ class OpenStackImage:
         """
         if not file_utils.file_exists(self.image_file_path):
             return file_utils.download(self.image_url, self.download_path)
+
+
+def glance_client(username, password, os_auth_url, tenant_name):
+    """
+    Creates and returns a glance client object
+    :return: the glance client
+    """
+    creds = os_utils.get_credentials(username, password, os_auth_url, tenant_name)
+    keystone = ksclient.Client(**creds)
+    glance_endpoint = keystone.service_catalog.url_for(service_type='image', endpoint_type='publicURL')
+    auth = identity.Password(auth_url=os_auth_url, username=username, password=password,
+                             tenant_name=tenant_name)
+    sess = session.Session(auth=auth)
+    token = auth.get_token(sess)
+    return Client('2', endpoint=glance_endpoint, token=token)
