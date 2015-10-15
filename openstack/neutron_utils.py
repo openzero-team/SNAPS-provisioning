@@ -1,4 +1,5 @@
 import logging
+import os_utils
 from neutronclient.v2_0 import client as neutronclient
 
 logger = logging.getLogger('neutron_utils')
@@ -13,21 +14,8 @@ def neutron_client(username, password, os_auth_url, tenant_name):
     Instantiates and returns a client for communications with OpenStack's Neutron server
     :return: the client object
     """
-    creds = __get_credentials(username, password, os_auth_url, tenant_name)
+    creds = os_utils.get_credentials(username, password, os_auth_url, tenant_name)
     return neutronclient.Client(**creds)
-
-
-def __get_credentials(username, password, os_auth_url, tenant_name):
-    """
-    Returns a creds dictionary object
-    :return: the credentials
-    """
-    return {
-        'username': username,
-        'password': password,
-        'auth_url': os_auth_url,
-        'tenant_name': tenant_name,
-    }
 
 
 def create_neutron_net(neutron, network_name):

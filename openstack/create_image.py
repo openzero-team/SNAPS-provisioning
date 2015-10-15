@@ -1,5 +1,6 @@
 import logging
 import file_utils
+import os_utils
 import os
 from glanceclient import Client
 from keystoneclient.auth.identity import v2 as identity
@@ -62,7 +63,7 @@ class CreateImage:
         Creates and returns a glance client object
         :return: the glance client
         """
-        creds = self.__get_keystone_creds()
+        creds = os_utils.get_credentials(self.username, self.password, self.os_auth_url, self.tenant_name)
         keystone = ksclient.Client(**creds)
         glance_endpoint = keystone.service_catalog.url_for(service_type='image', endpoint_type='publicURL')
         auth = identity.Password(auth_url=self.os_auth_url, username=self.username, password=self.password,
@@ -82,15 +83,6 @@ class CreateImage:
             if not os.path.exists(self.download_path):
                 os.makedirs(self.download_path)
             return self.__download_image_file()
-
-    def __get_keystone_creds(self):
-        """
-        Creates the object to hold the credentials for Keystone
-        :return: the credentials
-        """
-        d = {'username': self.username, 'password': self.password, 'auth_url': self.os_auth_url,
-             'tenant_name': self.tenant_name}
-        return d
 
     def __download_image_file(self):
         """
