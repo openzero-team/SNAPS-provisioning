@@ -16,15 +16,11 @@ class OpenStackNetwork:
     def __init__(self, username, password, os_auth_url, tenant_name, priv_net_name, priv_subnet_name, priv_subnet_cidr,
                  router_name):
         """Constructor"""
-        self.username = username
-        self.password = password
-        self.os_auth_url = os_auth_url
-        self.tenant_name = tenant_name
         self.priv_net_name = priv_net_name
         self.priv_subnet_name = priv_subnet_name
         self.priv_subnet_cidr = priv_subnet_cidr
         self.router_name = router_name
-        self.neutron = neutron_utils.neutron_client(self.username, self.password, self.os_auth_url, self.tenant_name)
+        self.neutron = neutron_utils.neutron_client(username, password, os_auth_url, tenant_name)
         self.neutron.format = 'json'
         self.network = None
         self.subnet = None
