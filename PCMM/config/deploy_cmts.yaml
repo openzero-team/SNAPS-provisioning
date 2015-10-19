@@ -1,0 +1,25 @@
+---
+openstack:
+  connection:
+    username: admin
+    password: octopus
+    auth_url: http://10.197.123.37:5000/v2.0
+    tenant_name: admin
+  image:
+    name: cmts-image
+    format: qcow2
+    download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1503.qcow2
+    local_download_path: /tmp/create_image_tests
+  network:
+    private:
+      name: cmts-priv
+      subnet_name: cmts-priv-subnet
+      subnet_cidr: 10.197.122.0/24
+  instances:
+    instance:
+      name: cmts-inst1
+      flavor: m1.small
+      port:
+        name: cmts-inst-1-port
+        ip: 10.197.122.10
+ansible:
