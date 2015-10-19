@@ -49,6 +49,7 @@ class OpenStackVmInstance:
             flavor=self.flavor,
             image=self.image,
             nics=[{"port-id": self.port_id}])
+        return self.vm
 
     def clean(self):
         """

@@ -1,8 +1,11 @@
 import unittest
+import time
 from openstack import create_image
 import openstack.create_instance as create_instance
 import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
+
+VM_BOOT_TIMEOUT = 180
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -72,9 +75,30 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Tests the creation of an OpenStack network.
         """
         # Create Image
-        self.inst_creator.create()
+        vm_inst = self.inst_creator.create()
 
-        # TODO - wait for the VM to start (see vPing.py in functest)
-        # Add validation
+        self.assertTrue(vm_active(self.inst_creator.nova, vm_inst))
+        self.assertEquals(vm_inst, self.inst_creator.vm)
+        print vm_inst
 
-        # TODO - Expand tests especially negative ones.
+
+def vm_active(nova, vm):
+    """
+    Returns true when the VM status returns 'ACTIVE' prior to the VM_BOOT_TIMEOUT value
+    :param nova: The nova client
+    :param vm: The VM instance
+    :return: T/F
+    """
+
+    # sleep and wait for VM status change
+    sleep_time = 3
+    count = VM_BOOT_TIMEOUT / sleep_time
+    while count > 0:
+        count -= 1
+        instance = nova.servers.get(vm.id)
+        if instance.status == "ACTIVE":
+            return True
+        if instance.status == "ERROR" or count == 0:
+            return False
+        time.sleep(sleep_time)
+    return False
