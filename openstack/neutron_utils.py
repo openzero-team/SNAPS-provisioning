@@ -8,20 +8,17 @@ Utilities for basic neutron API calls
 """
 
 
-def neutron_client(username, password, os_auth_url, tenant_name):
+def neutron_client(os_creds):
     """
     Instantiates and returns a client for communications with OpenStack's Neutron server
-    :param username: the username for connecting to the OpenStack remote API
-    :param password: the password for connecting to the OpenStack remote API
-    :param os_auth_url: the endpoint for connecting to the OpenStack remote API
-    :param tenant_name: the tenant name for connecting to the OpenStack remote API
+    :param os_creds: the credentials for connecting to the OpenStack remote API
     :return: the client object
     """
     return neutronclient.Client(**{
-        'username': username,
-        'password': password,
-        'auth_url': os_auth_url,
-        'tenant_name': tenant_name})
+        'username': os_creds.username,
+        'password': os_creds.password,
+        'auth_url': os_creds.auth_url,
+        'tenant_name': os_creds.tenant_name})
 
 
 def create_network(neutron, network_name):
@@ -50,18 +47,16 @@ def delete_network(neutron, network):
         neutron.delete_network(network['network']['id'])
 
 
-def create_subnet(neutron, network, subnet_name, subnet_cidr):
+def create_subnet(neutron, subnet_settings, network=None):
     """
     Creates a network subnet for OpenStack
     :param neutron: the client
     :param network: the network object
-    :param subnet_name: the name of the subnet object
-    :param subnet_cidr: the subnet object's mask
+    :param subnet_settings: the object responsible for creating the subnet request JSON body
     :return: the subnet object
     """
-    if neutron and network:
-        json_body = {'subnets': [{'name': subnet_name, 'cidr': subnet_cidr, 'ip_version': 4,
-                                  'network_id': network['network']['id']}]}
+    if neutron and network and subnet_settings:
+        json_body = {'subnets': [subnet_settings.dict_for_neutron(network)]}
         return neutron.create_subnet(body=json_body)
     else:
         logger.error("Cannot create subnet without a neutron client or network")
@@ -131,22 +126,17 @@ def remove_interface_router(neutron, router, subnet):
         json_body = {"subnet_id": subnet['subnets'][0]['id']}
         neutron.remove_interface_router(router=router['router']['id'], body=json_body)
 
-def create_port(neutron, name, network, ip):
+
+def create_port(neutron, port_settings, network=None, subnet=None):
     """
     Creates a port for OpenStack
     :param neutron: the client
-    :param name: the port name
-    :param network: the network object
-    :param ip: the IP value
+    :param port_settings: the settings object for port configuration
+    :param network: (Optional) the associated network object
+    :param subnet: (Optional) the associated subnet object
     :return: the port object
     """
-    json_body = {'port': {
-        'admin_state_up': True,
-        'name': name,
-        'network_id': network['network']['id'],
-        'fixed_ips': [{"ip_address": ip}]
-    }}
-
+    json_body = port_settings.dict_for_neutron(network, subnet)
     return neutron.create_port(body=json_body)
 
 
@@ -158,4 +148,3 @@ def delete_port(neutron, port):
     :return:
     """
     neutron.delete_port(port['port']['id'])
-

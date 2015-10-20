@@ -4,6 +4,7 @@ from openstack import create_image
 import openstack.create_instance as create_instance
 import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
+from openstack import os_credentials
 
 VM_BOOT_TIMEOUT = 180
 
@@ -14,6 +15,8 @@ os_auth_url = 'http://10.197.123.37:5000/v2.0'
 username = 'admin'
 password = 'octopus'
 tenant_name = 'admin'
+os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+
 flavor = 'm1.small'
 image_format = 'qcow2'
 image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
@@ -40,22 +43,21 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         within OpenStack
         """
         # Create Image
-        self.image_creator = create_image.OpenStackImage(username, password, os_auth_url, tenant_name, image_format,
-                                                         image_url, image_name, download_path)
+        self.image_creator = create_image.OpenStackImage(os_creds, image_format, image_url, image_name, download_path)
         self.image_creator.create()
 
         # Create Network
-        self.network_creator = create_network.OpenStackNetwork(username, password, os_auth_url, tenant_name,
-                                                               priv_net_name, priv_subnet_name, priv_subnet_cidr,
+        self.network_creator = create_network.OpenStackNetwork(os_creds, priv_net_name,
+                                                               create_network.SubnetSettings(priv_subnet_cidr,
+                                                                                             name=priv_subnet_name),
                                                                router_name)
         self.network_creator.create()
 
-        self.port = neutron_utils.create_port(self.network_creator.neutron, port_name, self.network_creator.network,
-                                              ip_1)
+        port_settings = create_network.PortSettings(name=port_name, ip_address=ip_1)
+        self.port = neutron_utils.create_port(self.network_creator.neutron, port_settings, self.network_creator.network)
 
-        self.inst_creator = create_instance.OpenStackVmInstance(username, password, os_auth_url, tenant_name,
-                                                                vm_inst_name, flavor, self.image_creator.image,
-                                                                self.port)
+        self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
+                                                                self.image_creator.image, [self.port])
 
     def tearDown(self):
         """

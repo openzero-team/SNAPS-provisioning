@@ -4,6 +4,10 @@
 
 import sys
 import yaml
+import logging
+from openstack import os_credentials
+
+logger = logging.getLogger('deploy_cmts')
 
 
 def read_config(config_path):
@@ -18,39 +22,61 @@ def read_config(config_path):
     return config
 
 
-def create_image(image_config):
+def create_image(os_conn_config, image_config):
     """
     Creates an image in OpenStack if necessary
     :param image_config: The image configuration
-    :return: A reference to the image object
+    :return: A reference to the image creator object from which the image object can be accessed
     """
-    print image_config
-    # Check for OS for imgage existence
-    # If exists return image data
-    # Else, check for local image file copy
-    # If not download
-    # Create image in OS
-    # return instance data
+    from openstack.create_image import OpenStackImage
+    image_creator = OpenStackImage(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                          os_conn_config.get('password'),
+                                                          os_conn_config.get('auth_url'),
+                                                          os_conn_config.get('tenant_name')),
+                                   image_config.get('format'), image_config.get('download_url'),
+                                   image_config.get('name'), image_config.get('local_download_path'))
+    image_creator.create()
+    return image_creator
 
 
-def create_network(network_config):
+def create_network(os_conn_config, network_config):
     """
     Creates a network on which the CMTSs can attach
     :param network_config: The network configuration
-    :return: A reference to the network object
+    :return: A references to the network creator objects for each network from which network elements such as the
+             subnet, router, interface router, and network objects can be accessed.
     """
     # Check for OS for network existence
     # If exists return network instance data
     # Else, create network and return instance data
-    print network_config
+    from openstack.create_network import OpenStackNetwork
+    from openstack.create_network import SubnetSettings
+
+    out_networks = {}
+    for key, config in network_config.iteritems():
+        image_creator = OpenStackNetwork(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                                os_conn_config.get('password'),
+                                                                os_conn_config.get('auth_url'),
+                                                                os_conn_config.get('tenant_name')),
+                                         config.get('name'),
+                                         SubnetSettings(config.get('subnet_cidr'), name=config.get('subnet_name')),
+                                         config.get('router_name'))
+        try:
+            image_creator.create()
+            out_networks.update(key, image_creator)
+        except:
+            logger.error("Unable to create network with key - " + key)
+
+    return out_networks
 
 
-def create_instance(instance_config):
+def create_instance(os_conn_config, instance_config):
     """
     Creates a VM instance
     :param instance_config: The VM instance configuration
     :return: A reference to the VM instance object
     """
+    print os_conn_config
     print instance_config
 
 
@@ -73,14 +99,15 @@ def main():
 
     if config:
         os_config = config.get('openstack')
-        print os_config
-        create_image(os_config.get('image'))
+        os_conn_config = os_config.get('connection')
+        image = create_image(os_conn_config, os_config.get('image'))
+        print image
 
-        create_network(os_config.get('network'))
+        create_network(os_conn_config, os_config.get('network'))
 
         instances_config = os_config.get('instances')
         for instance in instances_config.iteritems():
-            create_instance(instance)
+            create_instance(os_conn_config, instance)
             config_cmts(instance, config.get('ansible'))
 
             # print 'Number of arguments:', len(sys.argv), 'arguments.'

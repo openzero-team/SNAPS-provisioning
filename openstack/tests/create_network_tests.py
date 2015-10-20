@@ -1,6 +1,7 @@
 import unittest
 import openstack.create_network as create_network
 import neutron_utils_tests
+from openstack import os_credentials
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -9,9 +10,10 @@ os_auth_url = 'http://10.197.123.37:5000/v2.0'
 username = 'admin'
 password = 'octopus'
 tenant_name = 'admin'
-priv_net_name = 'test-priv-net'
-priv_subnet_name = 'test-priv-subnet'
-priv_subnet_cidr = '10.197.122.0/24'
+os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+net_name = 'test-priv-net'
+subnet_name = 'test-priv-subnet'
+subnet_cidr = '10.197.122.0/24'
 router_name = 'test-router'
 
 
@@ -25,8 +27,9 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.OpenStackNetwork(username, password, os_auth_url, tenant_name, priv_net_name,
-                                                           priv_subnet_name, priv_subnet_cidr, router_name)
+        self.net_creator = create_network.OpenStackNetwork(os_creds, net_name,
+                                                           create_network.SubnetSettings(subnet_cidr, name=subnet_name),
+                                                           router_name)
 
     def tearDown(self):
         """
@@ -36,12 +39,12 @@ class CreateNetworkSuccessTests(unittest.TestCase):
 
         if self.net_creator.subnet:
             # Validate subnet has been deleted
-            neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.priv_subnet_name,
-                                                self.net_creator.priv_subnet_cidr, False)
+            neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.subnet_settings.name,
+                                                self.net_creator.subnet_settings.cidr, False)
 
         if self.net_creator.network:
             # Validate network has been deleted
-            neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.priv_net_name, False)
+            neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.name, False)
 
     def test_create_network(self):
         """
@@ -51,11 +54,11 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         self.net_creator.create()
 
         # Validate network was created
-        neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.priv_net_name, True)
+        neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.name, True)
 
         # Validate subnets
-        neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.priv_subnet_name,
-                                            self.net_creator.priv_subnet_cidr, True)
+        neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.subnet_settings.name,
+                                            self.net_creator.subnet_settings.cidr, True)
 
         # Validate routers
         neutron_utils_tests.validate_router(self.net_creator.neutron, self.net_creator.router_name, True)

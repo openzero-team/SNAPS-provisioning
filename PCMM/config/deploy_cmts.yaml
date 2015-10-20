@@ -6,15 +6,20 @@ openstack:
     auth_url: http://10.197.123.37:5000/v2.0
     tenant_name: admin
   image:
-    name: cmts-image
+    name: Centos 7
     format: qcow2
     download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1503.qcow2
     local_download_path: /tmp/create_image_tests
-  network:
-    private:
-      name: cmts-priv
-      subnet_name: cmts-priv-subnet
-      subnet_cidr: 10.197.122.0/24
+  networks:
+    - network:
+      name: net
+      router:
+        name: cm-pub-router
+      subnet:
+      - name: cmts-pub-subnet
+        cidr: 10.197.122.0/24
+      - name: cmts-priv-subnet
+        cidr: 10.197.123.0/24
   instances:
     instance:
       name: cmts-inst1
@@ -22,4 +27,4 @@ openstack:
       port:
         name: cmts-inst-1-port
         ip: 10.197.122.10
-ansible:
+      ansible:
