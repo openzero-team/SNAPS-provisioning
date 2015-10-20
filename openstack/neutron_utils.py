@@ -1,5 +1,4 @@
 import logging
-import os_utils
 from neutronclient.v2_0 import client as neutronclient
 
 logger = logging.getLogger('neutron_utils')
@@ -18,8 +17,11 @@ def neutron_client(username, password, os_auth_url, tenant_name):
     :param tenant_name: the tenant name for connecting to the OpenStack remote API
     :return: the client object
     """
-    creds = os_utils.get_credentials(username, password, os_auth_url, tenant_name)
-    return neutronclient.Client(**creds)
+    return neutronclient.Client(**{
+        'username': username,
+        'password': password,
+        'auth_url': os_auth_url,
+        'tenant_name': tenant_name})
 
 
 def create_network(neutron, network_name):

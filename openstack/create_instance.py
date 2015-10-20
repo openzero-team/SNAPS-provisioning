@@ -1,4 +1,4 @@
-import novaclient.v2.client as novaclient
+import nova_utils
 
 
 class OpenStackVmInstance:
@@ -23,16 +23,8 @@ class OpenStackVmInstance:
         self.image = image
         self.port = port
         self.port_id = port.get('port').get('id')
-
         self.vm = None
-
-        creds = {
-            'username': username,
-            'api_key': password,
-            'auth_url': os_auth_url,
-            'project_id': tenant_name,
-        }
-        self.nova = novaclient.Client(**creds)
+        self.nova = nova_utils.nova_client(username, password, os_auth_url, tenant_name)
 
         # Validate that the flavor is supported
         self.flavor = self.nova.flavors.find(name=flavor)

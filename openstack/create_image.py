@@ -1,12 +1,8 @@
 import logging
 import file_utils
-import os_utils
 import os
-from glanceclient import Client
-from keystoneclient.auth.identity import v2 as identity
-from keystoneclient import session
-import keystoneclient.v2_0.client as ksclient
 import shutil
+import glance_utils
 
 logger = logging.getLogger('create_image')
 
@@ -30,6 +26,10 @@ class OpenStackImage:
         :param download_path: The local filesystem location to where the image file will be downloaded
         :return:
         """
+        self.username = username
+        self.password = password
+        self.os_auth_url = os_auth_url
+        self.tenant_name = tenant_name
         self.image_format = image_format
         self.image_url = image_url
         self.image_name = image_name
@@ -40,13 +40,23 @@ class OpenStackImage:
 
         self.image = None
         self.image_file = None
-        self.glance = glance_client(username, password, os_auth_url, tenant_name)
+        self.glance = glance_utils.glance_client(username, password, os_auth_url, tenant_name)
 
     def create(self):
         """
         Creates the image in OpenStack if it does not already exist
         :return: The OpenStack Image object
         """
+        import nova_utils
+        nova = nova_utils.nova_client(self.username, self.password, self.os_auth_url, self.tenant_name)
+        try:
+            self.image = nova.images.find(name=self.image_name)
+            logger.info('Found image with name - ' + self.image_name)
+            return self.image
+        except:
+            logger.info('No existing image found with name - ' + self.image_name)
+            pass
+
         self.image_file = self.__get_image_file()
         self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
                                                container_format="bare", data=self.image_file.name)
@@ -66,7 +76,8 @@ class OpenStackImage:
 
     def __get_image_file(self):
         """
-        Returns True if the image file has already been downloaded
+        Returns the image file reference.
+        If the image file does not exist, download it
         :return: the image file object
         """
         if file_utils.file_exists(self.image_file_path):
@@ -83,18 +94,3 @@ class OpenStackImage:
         """
         if not file_utils.file_exists(self.image_file_path):
             return file_utils.download(self.image_url, self.download_path)
-
-
-def glance_client(username, password, os_auth_url, tenant_name):
-    """
-    Creates and returns a glance client object
-    :return: the glance client
-    """
-    creds = os_utils.get_credentials(username, password, os_auth_url, tenant_name)
-    keystone = ksclient.Client(**creds)
-    glance_endpoint = keystone.service_catalog.url_for(service_type='image', endpoint_type='publicURL')
-    auth = identity.Password(auth_url=os_auth_url, username=username, password=password,
-                             tenant_name=tenant_name)
-    sess = session.Session(auth=auth)
-    token = auth.get_token(sess)
-    return Client('2', endpoint=glance_endpoint, token=token)
