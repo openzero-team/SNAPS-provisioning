@@ -3,14 +3,16 @@ import os
 
 import file_utils
 import openstack.create_image as create_image
+from openstack import os_credentials
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
 os_auth_url = 'http://10.197.123.37:5000/v2.0'
-
 username = 'admin'
 password = 'octopus'
 tenant_name = 'admin'
+os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+
 image_format = 'qcow2'
 image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
 image_name = 'test-image'
@@ -27,8 +29,7 @@ class CreateImageSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.os_image = create_image.OpenStackImage(username, password, os_auth_url, tenant_name, image_format,
-                                                    image_url, image_name, download_path)
+        self.os_image = create_image.OpenStackImage(os_creds, image_format, image_url, image_name, download_path)
 
     def tearDown(self):
         """
@@ -113,8 +114,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the download destination path cannot be created
         """
-        self.createImage = create_image.OpenStackImage(username, password, os_auth_url, tenant_name, image_format,
-                                                       image_url, image_name, '/foo')
+        self.createImage = create_image.OpenStackImage(os_creds, image_format,image_url, image_name, '/foo')
         with self.assertRaises(Exception):
             self.createImage.create()
 
@@ -122,8 +122,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image name is None
         """
-        self.createImage = create_image.OpenStackImage(username, password, os_auth_url, tenant_name, image_format,
-                                                       image_url, None, download_path)
+        self.createImage = create_image.OpenStackImage(os_creds, image_format, image_url, None, download_path)
         with self.assertRaises(Exception):
             self.createImage.create()
 
@@ -131,8 +130,8 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image download url is bad
         """
-        self.createImage = create_image.OpenStackImage(username, password, os_auth_url, tenant_name, image_format,
-                                                       'http://bad.url.com/bad.iso', image_name, download_path)
+        self.createImage = create_image.OpenStackImage(os_creds, image_format, 'http://bad.url.com/bad.iso', image_name,
+                                                       download_path)
         with self.assertRaises(Exception):
             self.createImage.create()
 
@@ -141,29 +140,33 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(username, password, os_auth_url, None, image_format,
-                                                           image_url, image_name, download_path)
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, password, os_auth_url,
+                                                                                  None),
+                                                           image_format, image_url, image_name, download_path)
 
     def testNoneAuthUrl(self):
         """
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(username, password, None, tenant_name, image_format,
-                                                           image_url, image_name, download_path)
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, password, None,
+                                                                                  tenant_name),
+                                                           image_format, image_url, image_name, download_path)
 
     def testNonePassword(self):
         """
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(username, None, os_auth_url, tenant_name, image_format,
-                                                           image_url, image_name, download_path)
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, None, os_auth_url,
+                                                                                  tenant_name),
+                                                           image_format, image_url, image_name, download_path)
 
     def testNoneUser(self):
         """
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(None, password, os_auth_url, tenant_name, image_format,
-                                                           image_url, image_name, download_path)
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, password, os_auth_url,
+                                                                                  tenant_name),
+                                                           image_format, image_url, image_name, download_path)

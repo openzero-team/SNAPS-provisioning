@@ -8,19 +8,16 @@ Utilities for basic neutron API calls
 """
 
 
-def nova_client(username, password, os_auth_url, tenant_name):
+def nova_client(os_creds):
     """
     Instantiates and returns a client for communications with OpenStack's Nova server
-    :param username: the username for connecting to the OpenStack remote API
-    :param password: the password for connecting to the OpenStack remote API
-    :param os_auth_url: the endpoint for connecting to the OpenStack remote API
-    :param tenant_name: the tenant name for connecting to the OpenStack remote API
+    :param os_creds: The connection credentials to the OpenStack API
     :return: the client object
     """
     logger.info('Retrieving Nova Client')
     return novaclient.Client(**{
-        'username': username,
-        'api_key': password,
-        'auth_url': os_auth_url,
-        'project_id': tenant_name,
+        'username': os_creds.username,
+        'api_key': os_creds.password,
+        'auth_url': os_creds.auth_url,
+        'project_id': os_creds.tenant_name,
     })

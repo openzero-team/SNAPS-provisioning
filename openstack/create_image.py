@@ -12,24 +12,17 @@ class OpenStackImage:
     Class responsible for creating an image in OpenStack
     """
 
-    def __init__(self, username, password, os_auth_url, tenant_name, image_format, image_url, image_name,
-                 download_path):
+    def __init__(self, os_creds, image_format, image_url, image_name, download_path):
         """
         Constructor
-        :param username: The user to the OpenStack API
-        :param password: The password to the OpenStack API
-        :param os_auth_url: The URL to the OpenStack API
-        :param tenant_name: The OpenStack tenant name
+        :param os_creds: The OpenStack connection credentials
         :param image_format: The type of image file
         :param image_url: The download location of the image file
         :param image_name: The name to register the image
         :param download_path: The local filesystem location to where the image file will be downloaded
         :return:
         """
-        self.username = username
-        self.password = password
-        self.os_auth_url = os_auth_url
-        self.tenant_name = tenant_name
+        self.os_creds = os_creds
         self.image_format = image_format
         self.image_url = image_url
         self.image_name = image_name
@@ -40,7 +33,7 @@ class OpenStackImage:
 
         self.image = None
         self.image_file = None
-        self.glance = glance_utils.glance_client(username, password, os_auth_url, tenant_name)
+        self.glance = glance_utils.glance_client(os_creds)
 
     def create(self):
         """
@@ -48,7 +41,7 @@ class OpenStackImage:
         :return: The OpenStack Image object
         """
         import nova_utils
-        nova = nova_utils.nova_client(self.username, self.password, self.os_auth_url, self.tenant_name)
+        nova = nova_utils.nova_client(self.os_creds)
         try:
             self.image = nova.images.find(name=self.image_name)
             logger.info('Found image with name - ' + self.image_name)
