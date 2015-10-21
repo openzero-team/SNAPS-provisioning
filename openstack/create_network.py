@@ -42,15 +42,28 @@ class OpenStackNetwork:
         Responsible for creating not only the network but then a private subnet, router, and an interface to the router.
         """
         logger.info('Creating neutron network %s...' % self.network_settings.name)
-        self.network = neutron_utils.create_network(self.neutron, self.network_settings)
+        net_inst = neutron_utils.get_network_by_name(self.neutron, self.network_settings.name)
+        if net_inst:
+            self.network = net_inst
+        else:
+            self.network = neutron_utils.create_network(self.neutron, self.network_settings)
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
 
         logger.debug('Creating Subnet....')
-        self.subnet = neutron_utils.create_subnet(self.neutron, self.subnet_settings, self.network)
+        # TODO - Consider supporting multiple subnets for a single network
+        sub_inst = neutron_utils.get_subnet_by_name(self.neutron, self.subnet_settings.name)
+        if sub_inst:
+            self.subnet = sub_inst
+        else:
+            self.subnet = neutron_utils.create_subnet(self.neutron, self.subnet_settings, self.network)
         logger.debug("Subnet '%s' created successfully" % self.subnet['subnets'][0]['id'])
 
         logger.debug('Creating Router...')
-        self.router = neutron_utils.create_router(self.neutron, self.router_settings)
+        router_inst = neutron_utils.get_router_by_name(self.neutron, self.router_settings.name)
+        if router_inst:
+            self.router = router_inst
+        else:
+            self.router = neutron_utils.create_router(self.neutron, self.router_settings)
         logger.debug("Router '%s' created successfully" % self.router['router']['id'])
 
         logger.debug('Adding router to subnet...')

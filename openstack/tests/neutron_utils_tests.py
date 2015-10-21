@@ -1,7 +1,11 @@
+import logging
 import unittest
 import openstack.neutron_utils as neutron_utils
 from openstack import os_credentials
 from openstack import create_network
+
+# Initialize Logging
+logging.basicConfig(level=logging.DEBUG)
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -330,13 +334,12 @@ def validate_network(neutron, name, exists):
     :param exists: Whether or not the network name should exist or not
     :return: True/False
     """
-    networks = neutron.list_networks()
-    found = False
-    for network, netInsts in networks.iteritems():
-        for inst in netInsts:
-            if inst.get('name') == name:
-                found = True
-    return exists == found
+    network = neutron_utils.get_network_by_name(neutron, name)
+    if exists and network:
+        return True
+    if not exists and not network:
+        return True
+    return False
 
 
 def validate_subnet(neutron, name, cidr, exists):
@@ -349,13 +352,12 @@ def validate_subnet(neutron, name, cidr, exists):
     :param exists: Whether or not the network name should exist or not
     :return: True/False
     """
-    subnets = neutron.list_subnets()
-    found = False
-    for subnet, subInsts in subnets.iteritems():
-        for inst in subInsts:
-            if inst.get('name') == name and inst.get('cidr') == cidr:
-                found = True
-    return exists == found
+    subnet = neutron_utils.get_subnet_by_name(neutron, name)
+    if exists and subnet:
+        return subnet.get('cidr') == cidr
+    if not exists and not subnet:
+        return True
+    return False
 
 
 def validate_router(neutron, name, exists):
@@ -367,13 +369,10 @@ def validate_router(neutron, name, exists):
     :param exists: Whether or not the network name should exist or not
     :return: True/False
     """
-    routers = neutron.list_routers()
-    found = False
-    for router, routerInsts in routers.iteritems():
-        for inst in routerInsts:
-            if inst.get('name') == name:
-                found = True
-    return exists == found
+    router = neutron_utils.get_router_by_name(neutron, name)
+    if exists and router:
+        return True
+    return False
 
 
 def validate_interface_router(interface_router, router, subnet):

@@ -47,6 +47,21 @@ def delete_network(neutron, network):
         neutron.delete_network(network['network']['id'])
 
 
+def get_network_by_name(neutron, network_name):
+    """
+    Returns a network object (dictionary) of the first network found with a given name
+    :param neutron: the client
+    :param network_name: the name of the network to retrieve
+    :return:
+    """
+    networks = neutron.list_networks()
+    for network, netInsts in networks.iteritems():
+        for inst in netInsts:
+            if inst.get('name') == network_name:
+                return {'network': inst}
+    return None
+
+
 def create_subnet(neutron, subnet_settings, network=None):
     """
     Creates a network subnet for OpenStack
@@ -72,6 +87,21 @@ def delete_subnet(neutron, subnet):
     """
     if neutron and subnet:
         neutron.delete_subnet(subnet['subnets'][0]['id'])
+
+
+def get_subnet_by_name(neutron, subnet_name):
+    """
+    Returns a subnet object (dictionary) of the first subnet found with a given name
+    :param neutron: the client
+    :param subnet_name: the name of the network to retrieve
+    :return:
+    """
+    subnets = neutron.list_subnets()
+    for subnet, subnetInst in subnets.iteritems():
+        for inst in subnetInst:
+            if inst.get('name') == subnet_name:
+                return {'subnets': [inst]}
+    return None
 
 
 def create_router(neutron, router_settings):
@@ -101,6 +131,21 @@ def delete_router(neutron, router):
         return True
 
 
+def get_router_by_name(neutron, router_name):
+    """
+    Returns a subnet object (dictionary) of the first subnet found with a given name
+    :param neutron: the client
+    :param router_name: the name of the network to retrieve
+    :return:
+    """
+    routers = neutron.list_routers()
+    for router, routerInst in routers.iteritems():
+        for inst in routerInst:
+            if inst.get('name') == router_name:
+                return {'router': [inst]}
+    return None
+
+
 def add_interface_router(neutron, router, subnet):
     """
     Adds an interface router for OpenStack
@@ -110,6 +155,7 @@ def add_interface_router(neutron, router, subnet):
     :return: the interface router object
     """
     if neutron and router and subnet:
+        # TODO - This will have to change if we are to support multiple subnets per router
         json_body = {"subnet_id": subnet['subnets'][0]['id']}
         return neutron.add_interface_router(router=router['router']['id'], body=json_body)
     else:
@@ -125,6 +171,7 @@ def remove_interface_router(neutron, router, subnet):
     :param subnet: the subnet object
     """
     if neutron and router and subnet:
+        # TODO - This will have to change if we are to support multiple subnets per router
         json_body = {"subnet_id": subnet['subnets'][0]['id']}
         neutron.remove_interface_router(router=router['router']['id'], body=json_body)
 

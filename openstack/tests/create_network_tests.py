@@ -1,7 +1,11 @@
 import unittest
 import openstack.create_network as create_network
 import neutron_utils_tests
+import logging
 from openstack import os_credentials
+
+# Initialize Logging
+logging.basicConfig(level=logging.DEBUG)
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
