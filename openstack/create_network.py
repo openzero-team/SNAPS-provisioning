@@ -14,18 +14,18 @@ class OpenStackNetwork:
     should probably make their way into a file named something like neutron_utils.py.
     """
 
-    def __init__(self, os_creds, name, subnet_settings, router_settings):
+    def __init__(self, os_creds, network_settings, subnet_settings, router_settings):
         """
         Constructor - all parameters are required
         :param os_creds: The credentials to connect with OpenStack
-        :param name: The network name
+        :param network_settings: The settings used to create a network
         :param subnet_settings: The settings used to create a subnet object (must be an instance of the
                                 SubnetSettings class)
         :param router_settings: The settings used to create a router object (must be an instance of the
                                 RouterSettings class)
         """
         self.os_creds = os_creds
-        self.name = name
+        self.network_settings = network_settings
         self.subnet_settings = subnet_settings
         self.router_settings = router_settings
         self.neutron = neutron_utils.neutron_client(os_creds)
@@ -41,8 +41,8 @@ class OpenStackNetwork:
         """
         Responsible for creating not only the network but then a private subnet, router, and an interface to the router.
         """
-        logger.info('Creating neutron network %s...' % self.name)
-        self.network = neutron_utils.create_network(self.neutron, self.name)
+        logger.info('Creating neutron network %s...' % self.network_settings.name)
+        self.network = neutron_utils.create_network(self.neutron, self.network_settings)
         logger.debug("Network '%s' created successfully" % self.network['network']['id'])
 
         logger.debug('Creating Subnet....')
@@ -67,6 +67,60 @@ class OpenStackNetwork:
         neutron_utils.delete_router(self.neutron, self.router)
         neutron_utils.delete_subnet(self.neutron, self.subnet)
         neutron_utils.delete_network(self.neutron, self.network)
+
+
+class NetworkSettings:
+    """
+    Class representing a network configuration
+    """
+
+    def __init__(self, config=None, name=None, admin_state_up=True, shared=True, tenant_id=None):
+        """
+        Constructor - all parameters are optional
+        :param config: Should be a dict object containing the configuration settings using the attribute names below
+                       as each member's the key and overrides any of the other parameters.
+        :param name: The network name.
+        :param admin_state_up: The administrative status of the network. True = up / False = down (default True)
+        :param shared: Boolean value indicating whether this network is shared across all tenants. By default, only
+                       administrative users can change this value.
+        :param tenant_id: Admin-only. The UUID of the tenant that will own the network. This tenant can be different
+                          from the tenant that makes the create network request. However, only administrative users can
+                          specify a tenant ID other than their own. You cannot change this value through authorization
+                          policies.
+        :return:
+        """
+
+        if config:
+            self.name = config.get('name')
+            self.admin_state_up = config.get('admin_state_up')
+            self.shared = config.get('shared')
+            self.tenant_id = config.get('tenant_id')
+        else:
+            self.name = name
+            self.admin_state_up = admin_state_up
+            self.shared = shared
+            self.tenant_id = tenant_id
+
+    def dict_for_neutron(self):
+        """
+        Returns a dictionary object representing this object.
+        This is meant to be converted into JSON designed for use by the Neutron API
+
+        TODO - expand automated testing to exercise all parameters
+
+        :return: the dictionary object
+        """
+        out = dict()
+
+        if self.name:
+            out['name'] = self.name
+        if self.admin_state_up:
+            out['admin_state_up'] = self.admin_state_up
+        # if self.shared:
+        #     out['shared'] = self.shared
+        if self.tenant_id:
+            out['tenant_id'] = self.tenant_id
+        return {'network': out}
 
 
 class SubnetSettings:
@@ -114,25 +168,25 @@ class SubnetSettings:
         if config:
             if config['cidr']:
                 self.cidr = config['cidr']
-                if config['ip_version']:
+                if config.get('ip_version'):
                     self.ip_version = config['ip_version']
                 else:
                     self.ip_version = 4
 
                 # Optional attributes that can be set after instantiation
-                self.name = config['name']
-                self.tenant_id = config['tenant_id']
-                self.allocation_pools = config['allocation_pools']
-                self.start = config['start']
-                self.end = config['end']
-                self.gateway_ip = config['gateway_ip']
-                self.enable_dhcp = config['enable_dhcp']
-                self.dns_nameservers = config['dns_nameservers']
-                self.host_routes = config['host_routes']
-                self.destination = config['destination']
-                self.nexthop = config['nexthop']
-                self.ipv6_ra_mode = config['ipv6_ra_mode']
-                self.ipv6_address_mode = config['ipv6_address_mode']
+                self.name = config.get('name')
+                self.tenant_id = config.get('tenant_id')
+                self.allocation_pools = config.get('allocation_pools')
+                self.start = config.get('start')
+                self.end = config.get('end')
+                self.gateway_ip = config.get('gateway_ip')
+                self.enable_dhcp = config.get('enable_dhcp')
+                self.dns_nameservers = config.get('dns_nameservers')
+                self.host_routes = config.get('host_routes')
+                self.destination = config.get('destination')
+                self.nexthop = config.get('nexthop')
+                self.ipv6_ra_mode = config.get('ipv6_ra_mode')
+                self.ipv6_address_mode = config.get('ipv6_address_mode')
             else:
                 raise Exception
         else:
@@ -236,18 +290,18 @@ class PortSettings:
         """
 
         if config:
-            self.name = config['name']
-            self.ip_address = config['ip_address']
-            self.admin_state_up = config['admin_state_up']
-            self.tenant_id = config['tenant_id']
-            self.mac_address = config['mac_address']
-            self.fixed_ips = config['fixed_ips']
-            self.security_groups = config['security_groups']
-            self.allowed_address_pairs = config['allowed_address_pairs']
-            self.opt_value = config['opt_value']
-            self.opt_name = config['opt_name']
-            self.device_owner = config['device_owner']
-            self.device_id = config['device_id']
+            self.name = config.get('name')
+            self.ip_address = config.get('ip_address')
+            self.admin_state_up = config.get('admin_state_up')
+            self.tenant_id = config.get('tenant_id')
+            self.mac_address = config.get('mac_address')
+            self.fixed_ips = config.get('fixed_ips')
+            self.security_groups = config.get('security_groups')
+            self.allowed_address_pairs = config.get('allowed_address_pairs')
+            self.opt_value = config.get('opt_value')
+            self.opt_name = config.get('opt_name')
+            self.device_owner = config.get('device_owner')
+            self.device_id = config.get('device_id')
         else:
             self.name = name
             self.ip_address = ip_address
@@ -334,11 +388,11 @@ class RouterSettings:
         """
 
         if config:
-            self.name = config['name']
-            self.admin_state_up = config['admin_state_up']
-            self.external_gateway_info = config['external_gateway_info']
-            self.enable_snat = config['enable_snat']
-            self.external_fixed_ips = config['external_fixed_ips']
+            self.name = config.get('name')
+            self.admin_state_up = config.get('admin_state_up')
+            self.external_gateway_info = config.get('external_gateway_info')
+            self.enable_snat = config.get('enable_snat')
+            self.external_fixed_ips = config.get('external_fixed_ips')
         else:
             self.name = name
             self.admin_state_up = admin_state_up

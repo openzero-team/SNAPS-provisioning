@@ -21,16 +21,16 @@ def neutron_client(os_creds):
         'tenant_name': os_creds.tenant_name})
 
 
-def create_network(neutron, network_name):
+def create_network(neutron, network_settings):
     """
     Creates a network for OpenStack
     :param neutron: the client
-    :param network_name: the name of the network to create
+    :param network_settings: A dictionary containing the network configuration and is responsible for creating the
+                            network request JSON body
     :return: the network object
     """
-    if neutron:
-        json_body = {'network': {'name': network_name,
-                                 'admin_state_up': True}}
+    if neutron and network_settings:
+        json_body = network_settings.dict_for_neutron()
         return neutron.create_network(body=json_body)
     else:
         logger.error("Failed to create network")

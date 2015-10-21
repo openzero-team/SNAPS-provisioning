@@ -26,6 +26,7 @@ priv_net_name = 'test-priv-net'
 priv_subnet_name = 'test-priv-subnet'
 priv_subnet_cidr = '10.197.122.0/24'
 router_name = 'test-router'
+router_settings = create_network.RouterSettings(name=router_name)
 port_name = 'test-port'
 ip_1 = '10.197.122.10'
 ip_2 = '10.197.122.20'
@@ -47,10 +48,11 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         self.image_creator.create()
 
         # Create Network
-        self.network_creator = create_network.OpenStackNetwork(os_creds, priv_net_name,
-                                                               create_network.SubnetSettings(priv_subnet_cidr,
+        self.network_creator = create_network.OpenStackNetwork(os_creds,
+                                                               create_network.NetworkSettings(name=priv_net_name),
+                                                               create_network.SubnetSettings(cidr=priv_subnet_cidr,
                                                                                              name=priv_subnet_name),
-                                                               router_name)
+                                                               router_settings)
         self.network_creator.create()
 
         port_settings = create_network.PortSettings(name=port_name, ip_address=ip_1)

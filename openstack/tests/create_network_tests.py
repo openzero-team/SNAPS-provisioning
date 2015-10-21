@@ -12,6 +12,7 @@ password = 'octopus'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 net_name = 'test-priv-net'
+network_settings = create_network.NetworkSettings(name=net_name)
 subnet_name = 'test-priv-subnet'
 subnet_cidr = '10.197.122.0/24'
 router_name = 'test-router'
@@ -28,7 +29,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.OpenStackNetwork(os_creds, net_name,
+        self.net_creator = create_network.OpenStackNetwork(os_creds, network_settings,
                                                            create_network.SubnetSettings(cidr=subnet_cidr,
                                                                                          name=subnet_name),
                                                            router_settings)
@@ -46,7 +47,8 @@ class CreateNetworkSuccessTests(unittest.TestCase):
 
         if self.net_creator.network:
             # Validate network has been deleted
-            neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.name, False)
+            neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.network_settings.name,
+                                                 False)
 
     def test_create_network(self):
         """
@@ -56,7 +58,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         self.net_creator.create()
 
         # Validate network was created
-        neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.name, True)
+        neutron_utils_tests.validate_network(self.net_creator.neutron, self.net_creator.network_settings.name, True)
 
         # Validate subnets
         neutron_utils_tests.validate_subnet(self.net_creator.neutron, self.net_creator.subnet_settings.name,

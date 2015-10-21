@@ -10,15 +10,18 @@ from openstack import os_credentials
 logger = logging.getLogger('deploy_cmts')
 
 
-def read_config(config_path):
+def read_config(config_file_path):
     """
     Reads the config file
-    :param config_path: The file path to config
+    :param config_file_path: The file path to config
     :return: The config
     """
-    with open(config_path) as config_file:
+    logger.info('Attempting to load configuration file - ' + config_file_path)
+    with open(config_file_path) as config_file:
         config = yaml.safe_load(config_file)
+        logger.info('Loaded configuration')
     config_file.close()
+    logger.info('Closing configuration file')
     return config
 
 
@@ -42,6 +45,7 @@ def create_image(os_conn_config, image_config):
 def create_network(os_conn_config, network_config):
     """
     Creates a network on which the CMTSs can attach
+    :param os_conn_config: The OpenStack credentials object
     :param network_config: The network configuration
     :return: A references to the network creator objects for each network from which network elements such as the
              subnet, router, interface router, and network objects can be accessed.
@@ -50,24 +54,28 @@ def create_network(os_conn_config, network_config):
     # If exists return network instance data
     # Else, create network and return instance data
     from openstack.create_network import OpenStackNetwork
+    from openstack.create_network import NetworkSettings
     from openstack.create_network import SubnetSettings
+    from openstack.create_network import RouterSettings
 
-    out_networks = {}
-    for key, config in network_config.iteritems():
-        image_creator = OpenStackNetwork(os_credentials.OSCreds(os_conn_config.get('username'),
-                                                                os_conn_config.get('password'),
-                                                                os_conn_config.get('auth_url'),
-                                                                os_conn_config.get('tenant_name')),
-                                         config.get('name'),
-                                         SubnetSettings(config.get('subnet_cidr'), name=config.get('subnet_name')),
-                                         config.get('router_name'))
-        try:
-            image_creator.create()
-            out_networks.update(key, image_creator)
-        except:
-            logger.error("Unable to create network with key - " + key)
+    config = network_config['network']
 
-    return out_networks
+    logger.info('Attempting to create network with name - ' + config.get('name'))
+
+    try:
+        network_creator = OpenStackNetwork(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                                  os_conn_config.get('password'),
+                                                                  os_conn_config.get('auth_url'),
+                                                                  os_conn_config.get('tenant_name')),
+                                           NetworkSettings(name=config.get('name')),
+                                           SubnetSettings(config.get('subnet')),
+                                           RouterSettings(config.get('router')))
+        network_creator.create()
+        return network_creator
+    except:
+        logger.error('Unable to create network with name - ' + config.get('name'))
+
+    logger.info('Created network ')
 
 
 def create_instance(os_conn_config, instance_config):
@@ -93,8 +101,11 @@ def config_cmts(instance, ansible_config):
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
+    logger.info('Starting to Deploy')
     config = None
     if len(sys.argv) > 1:
+        logger.info('Reading configuration')
         config = read_config(sys.argv[1])
 
     if config:
@@ -103,10 +114,12 @@ def main():
         image = create_image(os_conn_config, os_config.get('image'))
         print image
 
-        create_network(os_conn_config, os_config.get('network'))
+        network_dict = dict()
+        for network_conf in os_config['networks']:
+            network_dict[network_conf.get('name')] = create_network(os_conn_config, network_conf)
 
         instances_config = os_config.get('instances')
-        for instance in instances_config.iteritems():
+        for instance in instances_config:
             create_instance(os_conn_config, instance)
             config_cmts(instance, config.get('ansible'))
 
@@ -114,6 +127,7 @@ def main():
             # print 'Argument List:', str(sys.argv)
             # print 'Argument 2:', str(sys.argv[1])
     else:
+        logger.error('Unable to read configuration file - ' + sys.argv[1])
         exit(1)
     exit(0)
 
