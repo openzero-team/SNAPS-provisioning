@@ -104,9 +104,9 @@ class NeutronUtilsTests(unittest.TestCase):
         self.assertEqual(network_name, self.network['network']['name'])
         self.assertTrue(validate_network(self.neutron, network_name, True))
 
-        with self.assertRaises(Exception):
-            sub_sets = create_network.SubnetSettings(subnet_cidr)
-            neutron_utils.create_subnet(self.neutron, sub_sets, network=self.network)
+        sub_sets = create_network.SubnetSettings(subnet_cidr)
+        self.subnet = neutron_utils.create_subnet(self.neutron, sub_sets, network=self.network)
+        validate_subnet(self.neutron, subnet_name, subnet_cidr, True)
 
     def test_create_subnet_empty_name(self):
         """
