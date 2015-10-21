@@ -12,19 +12,19 @@ openstack:
     local_download_path: /tmp/create_image_tests
   networks:
     - network:
-      name: net
-      router:
-        name: cm-pub-router
-      subnet:
-      - name: cmts-pub-subnet
-        cidr: 10.197.122.0/24
-      - name: cmts-priv-subnet
-        cidr: 10.197.123.0/24
+        name: public
+        subnet:
+          name: cmts-pub-subnet
+          cidr: 10.197.122.0/24
+        router:
+          name: cm-pub-router
   instances:
     instance:
       name: cmts-inst1
       flavor: m1.small
-      port:
-        name: cmts-inst-1-port
-        ip: 10.197.122.10
+      ports:
+        - port:
+            name: cmts-inst-1-port
+            network_name: public
+            ip: 10.197.122.10
       ansible:

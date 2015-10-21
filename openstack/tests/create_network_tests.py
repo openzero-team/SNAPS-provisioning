@@ -15,6 +15,7 @@ net_name = 'test-priv-net'
 subnet_name = 'test-priv-subnet'
 subnet_cidr = '10.197.122.0/24'
 router_name = 'test-router'
+router_settings = create_network.RouterSettings(name=router_name)
 
 
 class CreateNetworkSuccessTests(unittest.TestCase):
@@ -28,8 +29,9 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         within OpenStack
         """
         self.net_creator = create_network.OpenStackNetwork(os_creds, net_name,
-                                                           create_network.SubnetSettings(subnet_cidr, name=subnet_name),
-                                                           router_name)
+                                                           create_network.SubnetSettings(cidr=subnet_cidr,
+                                                                                         name=subnet_name),
+                                                           router_settings)
 
     def tearDown(self):
         """
@@ -61,7 +63,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
                                             self.net_creator.subnet_settings.cidr, True)
 
         # Validate routers
-        neutron_utils_tests.validate_router(self.net_creator.neutron, self.net_creator.router_name, True)
+        neutron_utils_tests.validate_router(self.net_creator.neutron, self.net_creator.router_settings.name, True)
 
         # Validate interface routers
         neutron_utils_tests.validate_interface_router(self.net_creator.interface_router, self.net_creator.router,

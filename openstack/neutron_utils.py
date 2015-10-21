@@ -33,7 +33,7 @@ def create_network(neutron, network_name):
                                  'admin_state_up': True}}
         return neutron.create_network(body=json_body)
     else:
-        logger.error("No Neutron client, failed to create network")
+        logger.error("Failed to create network")
         raise Exception
 
 
@@ -52,14 +52,15 @@ def create_subnet(neutron, subnet_settings, network=None):
     Creates a network subnet for OpenStack
     :param neutron: the client
     :param network: the network object
-    :param subnet_settings: the object responsible for creating the subnet request JSON body
+    :param subnet_settings: A dictionary containing the subnet configuration and is responsible for creating the subnet
+                            request JSON body
     :return: the subnet object
     """
     if neutron and network and subnet_settings:
         json_body = {'subnets': [subnet_settings.dict_for_neutron(network)]}
         return neutron.create_subnet(body=json_body)
     else:
-        logger.error("Cannot create subnet without a neutron client or network")
+        logger.error("Failed to create subnet.")
         raise Exception
 
 
@@ -73,18 +74,19 @@ def delete_subnet(neutron, subnet):
         neutron.delete_subnet(subnet['subnets'][0]['id'])
 
 
-def create_router(neutron, router_name):
+def create_router(neutron, router_settings):
     """
     Creates a router for OpenStack
     :param neutron: the client
-    :param router_name: the name of the router to create
+    :param router_settings: A dictionary containing the router configuration and is responsible for creating the subnet
+                            request JSON body
     :return: the router object
     """
     if neutron:
-        json_body = {'router': {'name': router_name, 'admin_state_up': True}}
+        json_body = router_settings.dict_for_neutron()
         return neutron.create_router(json_body)
     else:
-        logger.error("Cannot create router without a neutron client")
+        logger.error("Failed to create router.")
         raise Exception
 
 

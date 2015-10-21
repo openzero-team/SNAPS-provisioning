@@ -13,10 +13,11 @@ tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 network_name = 'test-neutron-utils-network'
 router_name = 'test-neutron-utils-router'
+router_settings = create_network.RouterSettings(name=router_name)
 
 subnet_name = 'test-neutron-utils-subnet'
 subnet_cidr = '10.197.122.0/24'
-subnet_settings = create_network.SubnetSettings(subnet_cidr, name=subnet_name)
+subnet_settings = create_network.SubnetSettings(cidr=subnet_cidr, name=subnet_name)
 
 port_name = 'test-port-name'
 ip_1 = '10.197.122.100'
@@ -104,7 +105,7 @@ class NeutronUtilsTests(unittest.TestCase):
         self.assertEqual(network_name, self.network['network']['name'])
         self.assertTrue(validate_network(self.neutron, network_name, True))
 
-        sub_sets = create_network.SubnetSettings(subnet_cidr)
+        sub_sets = create_network.SubnetSettings(cidr=subnet_cidr)
         self.subnet = neutron_utils.create_subnet(self.neutron, sub_sets, network=self.network)
         validate_subnet(self.neutron, subnet_name, subnet_cidr, True)
 
@@ -128,7 +129,7 @@ class NeutronUtilsTests(unittest.TestCase):
         self.assertTrue(validate_network(self.neutron, network_name, True))
 
         with self.assertRaises(Exception):
-            sub_sets = create_network.SubnetSettings(None, name=subnet_name)
+            sub_sets = create_network.SubnetSettings(cidr=None, name=subnet_name)
             neutron_utils.create_subnet(self.neutron, sub_sets, network=self.network)
 
     def test_create_subnet_empty_cidr(self):
@@ -140,29 +141,31 @@ class NeutronUtilsTests(unittest.TestCase):
         self.assertTrue(validate_network(self.neutron, network_name, True))
 
         with self.assertRaises(Exception):
-            sub_sets = create_network.SubnetSettings('', name=subnet_name)
+            sub_sets = create_network.SubnetSettings(cidr='', name=subnet_name)
             neutron_utils.create_subnet(self.neutron, sub_sets, network=self.network)
 
     def test_create_router(self):
         """
         Tests the neutron_utils.create_neutron_net() function
         """
-        self.router = neutron_utils.create_router(self.neutron, router_name)
+        self.router = neutron_utils.create_router(self.neutron, router_settings)
         validate_router(self.neutron, router_name, True)
 
     def test_create_router_empty_name(self):
         """
         Tests the neutron_utils.create_neutron_net() function
         """
-        self.router = neutron_utils.create_router(self.neutron, '')
+        this_router_settings = create_network.RouterSettings(name='')
+        self.router = neutron_utils.create_router(self.neutron, this_router_settings)
         validate_router(self.neutron, '', True)
 
     def test_create_router_null_name(self):
         """
-        Tests the neutron_utils.create_neutron_subnet() function for an Exception when the subnet CIDR value is None
+        Tests the neutron_utils.create_neutron_subnet() function when the subnet CIDR value is None
         """
-        with self.assertRaises(Exception):
-            self.router = neutron_utils.create_router(self.neutron, None)
+        this_router_settings = create_network.RouterSettings()
+        self.router = neutron_utils.create_router(self.neutron, this_router_settings)
+        validate_router(self.neutron, None, True)
 
     def test_add_interface_router(self):
         """
@@ -175,7 +178,7 @@ class NeutronUtilsTests(unittest.TestCase):
         self.subnet = neutron_utils.create_subnet(self.neutron, subnet_settings, self.network)
         validate_subnet(self.neutron, subnet_name, subnet_cidr, True)
 
-        self.router = neutron_utils.create_router(self.neutron, router_name)
+        self.router = neutron_utils.create_router(self.neutron, router_settings)
         validate_router(self.neutron, router_name, True)
 
         self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
@@ -203,7 +206,7 @@ class NeutronUtilsTests(unittest.TestCase):
         self.assertEqual(network_name, self.network['network']['name'])
         self.assertTrue(validate_network(self.neutron, network_name, True))
 
-        self.router = neutron_utils.create_router(self.neutron, router_name)
+        self.router = neutron_utils.create_router(self.neutron, router_settings)
         validate_router(self.neutron, router_name, True)
 
         with self.assertRaises(Exception):
