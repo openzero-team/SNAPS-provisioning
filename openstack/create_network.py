@@ -1,4 +1,5 @@
 import logging
+import neutronclient
 
 import neutron_utils
 
@@ -35,7 +36,7 @@ class OpenStackNetwork:
         self.network = None
         self.subnet = None
         self.router = None
-        self.interface_router = None
+        # self.interface_router = None
 
     def create(self):
         """
@@ -67,10 +68,10 @@ class OpenStackNetwork:
         logger.debug("Router '%s' created successfully" % self.router['router']['id'])
 
         logger.debug('Adding router to subnet...')
-        self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
-
-        if not self.interface_router:
-            raise Exception
+        try:
+            neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
+        except neutronclient.common.exceptions.BadRequest:
+            pass
 
     def clean(self):
         """
@@ -302,19 +303,22 @@ class PortSettings:
         :return:
         """
 
-        if config:
-            self.name = config.get('name')
-            self.ip_address = config.get('ip_address')
-            self.admin_state_up = config.get('admin_state_up')
-            self.tenant_id = config.get('tenant_id')
-            self.mac_address = config.get('mac_address')
-            self.fixed_ips = config.get('fixed_ips')
-            self.security_groups = config.get('security_groups')
-            self.allowed_address_pairs = config.get('allowed_address_pairs')
-            self.opt_value = config.get('opt_value')
-            self.opt_name = config.get('opt_name')
-            self.device_owner = config.get('device_owner')
-            self.device_id = config.get('device_id')
+        port_config = None
+        if config and config.get('port'):
+            port_config = config.get('port')
+        if port_config:
+            self.name = port_config.get('name')
+            self.ip_address = port_config.get('ip_address')
+            self.admin_state_up = port_config.get('admin_state_up')
+            self.tenant_id = port_config.get('tenant_id')
+            self.mac_address = port_config.get('mac_address')
+            self.fixed_ips = port_config.get('fixed_ips')
+            self.security_groups = port_config.get('security_groups')
+            self.allowed_address_pairs = port_config.get('allowed_address_pairs')
+            self.opt_value = port_config.get('opt_value')
+            self.opt_name = port_config.get('opt_name')
+            self.device_owner = port_config.get('device_owner')
+            self.device_id = port_config.get('device_id')
         else:
             self.name = name
             self.ip_address = ip_address
@@ -329,14 +333,14 @@ class PortSettings:
             self.device_owner = device_owner
             self.device_id = device_id
 
-    def dict_for_neutron(self, network=None, subnet=None):
+    def dict_for_neutron(self, network, subnet=None):
         """
         Returns a dictionary object representing this object.
         This is meant to be converted into JSON designed for use by the Neutron API
 
         TODO - expand automated testing to exercise all parameters
 
-        :param network: (Optional) the network object on which the port will be created
+        :param network: (Required) the network object on which the port will be created
         :param subnet: (Optional) the subnet object on which the port will be created
         :return: the dictionary object
         """

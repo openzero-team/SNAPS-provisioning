@@ -42,13 +42,18 @@ class OpenStackImage:
         """
         import nova_utils
         nova = nova_utils.nova_client(self.os_creds)
+        image_dict = None
         try:
-            self.image = nova.images.find(name=self.image_name)
-            logger.info('Found image with name - ' + self.image_name)
-            return self.image
+            image_dict = nova.images.find(name=self.image_name)
         except:
             logger.info('No existing image found with name - ' + self.image_name)
             pass
+
+        if image_dict:
+            self.image = self.glance.images.get(image_dict.id)
+            if self.image:
+                logger.info('Found image with name - ' + self.image_name)
+                return self.image
 
         self.image_file = self.__get_image_file()
         self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
@@ -62,7 +67,7 @@ class OpenStackImage:
         :return: void
         """
         if self.image:
-            self.glance.images.delete(self.image.id)
+            self.glance.images.delete(self.image['id'])
 
         if self.image_file:
             shutil.rmtree(self.download_path)

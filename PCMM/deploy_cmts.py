@@ -6,6 +6,7 @@ import sys
 import yaml
 import logging
 from openstack import os_credentials
+from openstack import neutron_utils
 
 logger = logging.getLogger('deploy_cmts')
 
@@ -62,33 +63,55 @@ def create_network(os_conn_config, network_config):
 
     logger.info('Attempting to create network with name - ' + config.get('name'))
 
-    try:
-        network_creator = OpenStackNetwork(os_credentials.OSCreds(os_conn_config.get('username'),
-                                                                  os_conn_config.get('password'),
-                                                                  os_conn_config.get('auth_url'),
-                                                                  os_conn_config.get('tenant_name')),
-                                           NetworkSettings(name=config.get('name')),
-                                           SubnetSettings(config.get('subnet')),
-                                           RouterSettings(config.get('router')))
-        network_creator.create()
-        return network_creator
-    except:
-        logger.error('Unable to create network with name - ' + config.get('name'))
-
+    # try:
+    network_creator = OpenStackNetwork(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                              os_conn_config.get('password'),
+                                                              os_conn_config.get('auth_url'),
+                                                              os_conn_config.get('tenant_name')),
+                                       NetworkSettings(name=config.get('name')),
+                                       SubnetSettings(config.get('subnet')),
+                                       RouterSettings(config.get('router')))
+    network_creator.create()
     logger.info('Created network ')
+    return network_creator
 
 
-def create_instance(os_conn_config, instance_config):
+def create_vm_instance(os_conn_config, instance_config, image, network_dict):
     """
     Creates a VM instance
+    :param os_conn_config: The OpenStack credentials
     :param instance_config: The VM instance configuration
+    :param image: The VM image
+    :param network_dict: A dictionary of network objects returned by OpenStack where the key contains the network name.
     :return: A reference to the VM instance object
     """
-    print os_conn_config
-    print instance_config
+    from openstack.create_network import PortSettings
+    from openstack.create_instance import OpenStackVmInstance
+
+    os_creds = os_credentials.OSCreds(os_conn_config['username'], os_conn_config['password'],
+                                      os_conn_config['auth_url'], os_conn_config['tenant_name'])
+    neutron = neutron_utils.neutron_client(os_creds)
+    config = instance_config['instance']
+    ports_config = config['ports']
+    ports = list()
+
+    for port_config in ports_config:
+        network_name = port_config['port']['network_name']
+        os_network_obj = network_dict.get(network_name)
+        if os_network_obj:
+            logger.info('Creating port [' + port_config['port']['name'] + '] for network name - ' + network_name)
+            port_setting = PortSettings(port_config)
+            ports.append(
+                neutron_utils.create_port(neutron, port_setting, os_network_obj.network, os_network_obj.subnet))
+        else:
+            logger.warn('Cannot create port as associated network name of [' + network_name + '] not configured.')
+            raise Exception
+
+    return OpenStackVmInstance(os_creds, instance_config['instance']['name'], instance_config['instance']['flavor'],
+                               image, ports)
 
 
-def config_cmts(instance, ansible_config):
+def setup_host(instance, ansible_config):
     """
     Configures a VM instance to run the CMTS
     :param instance: The instance object to which the CMTS will be deployed
@@ -111,17 +134,19 @@ def main():
     if config:
         os_config = config.get('openstack')
         os_conn_config = os_config.get('connection')
-        image = create_image(os_conn_config, os_config.get('image'))
-        print image
+        image_creator = create_image(os_conn_config, os_config.get('image'))
 
         network_dict = dict()
-        for network_conf in os_config['networks']:
-            network_dict[network_conf.get('name')] = create_network(os_conn_config, network_conf)
+        network_confs = os_config['networks']
+        for network_conf in network_confs:
+            net_name = network_conf['network']['name']
+            network_dict[net_name] = create_network(os_conn_config, network_conf)
 
         instances_config = os_config.get('instances')
-        for instance in instances_config:
-            create_instance(os_conn_config, instance)
-            config_cmts(instance, config.get('ansible'))
+        for instance_config in instances_config:
+            vm_inst = create_vm_instance(os_conn_config, instance_config, image_creator.image, network_dict)
+            vm_inst.create()
+            setup_host(instance_config, config.get('ansible'))
 
             # print 'Number of arguments:', len(sys.argv), 'arguments.'
             # print 'Argument List:', str(sys.argv)

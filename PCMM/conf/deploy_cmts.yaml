@@ -33,11 +33,11 @@ openstack:
         ports:
           - port:
               name: cmts-inst-1-private-port
-              network_name: private
+              network_name: cmts-private
               ip: 10.197.122.10
           - port:
               name: cmts-inst-1-pubic-port
-              network_name: public
+              network_name: cmts-public
               ip: 10.197.123.10
       ansible:
     - instance:
@@ -46,10 +46,10 @@ openstack:
         ports:
           - port:
               name: cmts-inst-2-private-port
-              network_name: private
+              network_name: cmts-private
               ip: 10.197.122.20
           - port:
               name: cmts-inst-2-pubic-port
-              network_name: public
+              network_name: cmts-public
               ip: 10.197.123.20
       ansible:

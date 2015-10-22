@@ -1,9 +1,13 @@
 import unittest
 import os
+import logging
 
 import file_utils
 import openstack.create_image as create_image
 from openstack import os_credentials
+
+# Initialize Logging
+logging.basicConfig(level=logging.DEBUG)
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -53,6 +57,16 @@ class CreateImageSuccessTests(unittest.TestCase):
                 found = True
 
         self.assertEquals(True, found)
+
+    def testCreateSameImage(self):
+        """
+        Tests the creation of an OpenStack image when the download directory does not exist.
+        """
+        # Create Image
+        image1 = self.os_image.create()
+        # Should be retrieving the instance data
+        image2 = self.os_image.create()
+        self.assertEquals(image1, image2)
 
     def testCreateImageWithExistingDownloadDirectory(self):
         """
@@ -114,7 +128,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the download destination path cannot be created
         """
-        self.createImage = create_image.OpenStackImage(os_creds, image_format,image_url, image_name, '/foo')
+        self.createImage = create_image.OpenStackImage(os_creds, image_format, image_url, image_name, '/foo')
         with self.assertRaises(Exception):
             self.createImage.create()
 

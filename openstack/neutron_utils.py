@@ -142,7 +142,7 @@ def get_router_by_name(neutron, router_name):
     for router, routerInst in routers.iteritems():
         for inst in routerInst:
             if inst.get('name') == router_name:
-                return {'router': [inst]}
+                return {'router': inst}
     return None
 
 
@@ -176,7 +176,7 @@ def remove_interface_router(neutron, router, subnet):
         neutron.remove_interface_router(router=router['router']['id'], body=json_body)
 
 
-def create_port(neutron, port_settings, network=None, subnet=None):
+def create_port(neutron, port_settings, network, subnet=None):
     """
     Creates a port for OpenStack
     :param neutron: the client

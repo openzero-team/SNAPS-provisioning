@@ -1,3 +1,4 @@
+import logging
 import unittest
 import time
 from openstack import create_image
@@ -7,6 +8,9 @@ import openstack.neutron_utils as neutron_utils
 from openstack import os_credentials
 
 VM_BOOT_TIMEOUT = 180
+
+# Initialize Logging
+logging.basicConfig(level=logging.DEBUG)
 
 # This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
 # connectivity to this location.
@@ -33,7 +37,7 @@ ip_2 = '10.197.122.20'
 vm_inst_name = 'test-openstack-vm-instance-1'
 
 
-class CreateNetworkSuccessTests(unittest.TestCase):
+class CreateInstanceTests(unittest.TestCase):
     """
     Test for the CreateImage class defined in create_image.py
     """
