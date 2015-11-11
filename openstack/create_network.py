@@ -36,7 +36,7 @@ class OpenStackNetwork:
         self.network = None
         self.subnet = None
         self.router = None
-        # self.interface_router = None
+        self.interface_router = None
 
     def create(self):
         """
@@ -69,7 +69,7 @@ class OpenStackNetwork:
 
         logger.debug('Adding router to subnet...')
         try:
-            neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
+            self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
         except neutronclient.common.exceptions.BadRequest:
             pass
 
@@ -308,7 +308,7 @@ class PortSettings:
             port_config = config.get('port')
         if port_config:
             self.name = port_config.get('name')
-            self.ip_address = port_config.get('ip_address')
+            self.ip_address = port_config.get('ip')
             self.admin_state_up = port_config.get('admin_state_up')
             self.tenant_id = port_config.get('tenant_id')
             self.mac_address = port_config.get('mac_address')

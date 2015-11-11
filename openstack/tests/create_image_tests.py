@@ -9,11 +9,10 @@ from openstack import os_credentials
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
-# connectivity to this location.
-os_auth_url = 'http://10.197.123.37:5000/v2.0'
+# This is currently pointing to a development VM environment.
+os_auth_url = 'http://os-controller-1:5000/v2.0'
 username = 'admin'
-password = 'octopus'
+password = 'cable123'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 
@@ -60,13 +59,13 @@ class CreateImageSuccessTests(unittest.TestCase):
 
     def testCreateSameImage(self):
         """
-        Tests the creation of an OpenStack image when the download directory does not exist.
+        Tests the creation of an OpenStack image when the image already exists.
         """
         # Create Image
         image1 = self.os_image.create()
         # Should be retrieving the instance data
         image2 = self.os_image.create()
-        self.assertEquals(image1, image2)
+        self.assertEquals(image1['id'], image2['id'])
 
     def testCreateImageWithExistingDownloadDirectory(self):
         """

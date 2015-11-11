@@ -12,16 +12,15 @@ VM_BOOT_TIMEOUT = 180
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# This is currently pointing to the CL OPNFV Lab 2 environment and these tests will break should there not be network
-# connectivity to this location.
-os_auth_url = 'http://10.197.123.37:5000/v2.0'
+# This is currently pointing to a development VM environment.
+os_auth_url = 'http://os-controller-1:5000/v2.0'
 
 username = 'admin'
-password = 'octopus'
+password = 'cable123'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 
-flavor = 'm1.small'
+flavor = 'm1.tiny'
 image_format = 'qcow2'
 image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
 image_name = 'test-image'
