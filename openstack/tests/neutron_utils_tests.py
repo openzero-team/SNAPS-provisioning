@@ -1,7 +1,6 @@
 import logging
 import unittest
 import openstack.neutron_utils as neutron_utils
-from openstack import os_credentials
 from openstack import create_network
 import openstack_tests
 
