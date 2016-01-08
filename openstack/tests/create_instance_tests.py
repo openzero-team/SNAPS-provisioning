@@ -12,27 +12,29 @@ VM_BOOT_TIMEOUT = 180
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# This is currently pointing to a development VM environment.
-os_auth_url = 'http://os-controller-1:5000/v2.0'
+# TODO - Find means to make this configurable
+# From packstack Lab 1
+# Change http_proxy to localhost:3128
+os_auth_url = 'http://10.197.103.22:5000/v2.0/'
+password = 'cable123'
 
 username = 'admin'
-password = 'cable123'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 
 flavor = 'm1.tiny'
 image_format = 'qcow2'
 image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
-image_name = 'test-image'
+image_name = 't1'
 download_path = '/tmp/create_image_tests'
 priv_net_name = 'test-priv-net'
 priv_subnet_name = 'test-priv-subnet'
-priv_subnet_cidr = '10.197.122.0/24'
+priv_subnet_cidr = '10.0.1.0/24'
 router_name = 'test-router'
 router_settings = create_network.RouterSettings(name=router_name)
 port_name = 'test-port'
-ip_1 = '10.197.122.10'
-ip_2 = '10.197.122.20'
+ip_1 = '10.0.1.100'
+ip_2 = '10.0.1.200'
 vm_inst_name = 'test-openstack-vm-instance-1'
 
 
@@ -48,7 +50,10 @@ class CreateInstanceTests(unittest.TestCase):
         """
         # Create Image
         self.image_creator = create_image.OpenStackImage(os_creds, image_format, image_url, image_name, download_path)
-        self.image_creator.create()
+        try:
+            self.image_creator.create()
+        except:
+            self.image_creator.clean()
 
         # Create Network
         self.network_creator = create_network.OpenStackNetwork(os_creds,
@@ -56,10 +61,22 @@ class CreateInstanceTests(unittest.TestCase):
                                                                create_network.SubnetSettings(cidr=priv_subnet_cidr,
                                                                                              name=priv_subnet_name),
                                                                router_settings)
-        self.network_creator.create()
+        try:
+            self.network_creator.create()
+        except:
+            self.network_creator.clean()
+            self.image_creator.clean()
 
         port_settings = create_network.PortSettings(name=port_name, ip_address=ip_1)
-        self.port = neutron_utils.create_port(self.network_creator.neutron, port_settings, self.network_creator.network)
+        try:
+            self.port = neutron_utils.create_port(self.network_creator.neutron, port_settings,
+                                                  self.network_creator.network)
+        except:
+            neutron_utils.delete_port(self.network_creator.neutron, port_settings)
+            self.network_creator.clean()
+            # Removed for now as create instance sometimes intermittently works but the creator
+            # will not attempt to upload a new image when one with the same name already exists
+            # self.image_creator.clean()
 
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
                                                                 self.image_creator.image, [self.port])

@@ -7,11 +7,13 @@ from openstack import os_credentials
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# This is currently pointing to a development VM environment.
-os_auth_url = 'http://os-controller-1:5000/v2.0'
+# TODO - Find means to make this configurable
+# From packstack Lab 1
+# Change http_proxy to localhost:3128
+os_auth_url = 'http://10.197.103.22:5000/v2.0/'
+password = 'cable123'
 
 username = 'admin'
-password = 'cable123'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 net_name = 'test-priv-net'

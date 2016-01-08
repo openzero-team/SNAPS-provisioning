@@ -9,10 +9,13 @@ from openstack import os_credentials
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# This is currently pointing to a development VM environment.
-os_auth_url = 'http://os-controller-1:5000/v2.0'
-username = 'admin'
+# TODO - Find means to make this configurable
+# From packstack Lab 1
+# Change http_proxy to localhost:3128
+os_auth_url = 'http://10.197.103.22:5000/v2.0'
 password = 'cable123'
+
+username = 'admin'
 tenant_name = 'admin'
 os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 
@@ -45,17 +48,17 @@ class CreateImageSuccessTests(unittest.TestCase):
         Tests the creation of an OpenStack image when the download directory does not exist.
         """
         # Create Image
-        self.os_image.create()
+        created_image = self.os_image.create()
         glance = self.os_image.glance
         images = glance.images.list()
 
         # Validate
-        found = False
         for image in images:
             if image.name == self.os_image.image_name:
-                found = True
-
-        self.assertEquals(True, found)
+                self.assertEquals(created_image.id, image.id)
+                self.assertEquals('active', image.status)
+                return
+        self.fail("Created image not found")
 
     def testCreateSameImage(self):
         """
@@ -75,17 +78,17 @@ class CreateImageSuccessTests(unittest.TestCase):
         os.makedirs(download_path)
 
         # Create Image
-        self.os_image.create()
+        created_image = self.os_image.create()
         glance = self.os_image.glance
         images = glance.images.list()
 
         # Validate
-        found = False
         for image in images:
             if image.name == self.os_image.image_name:
-                found = True
-
-        self.assertEquals(True, found)
+                self.assertEquals('active', image.status)
+                self.assertEquals(created_image.id, image.id)
+                return
+        self.fail("Created image not found")
 
     def testCreateImageWithExistingImageFile(self):
         """
@@ -98,17 +101,17 @@ class CreateImageSuccessTests(unittest.TestCase):
         file_utils.download(image_url, download_path)
 
         # Create Image
-        self.os_image.create()
+        created_image = self.os_image.create()
         glance = self.os_image.glance
         images = glance.images.list()
 
         # Validate
-        found = False
         for image in images:
             if image.name == self.os_image.image_name:
-                found = True
-
-        self.assertEquals(True, found)
+                self.assertEquals('active', image.status)
+                self.assertEquals(created_image.id, image.id)
+                return
+        self.fail("Created image not found")
 
 
 class CreateImageNegativeTests(unittest.TestCase):

@@ -57,7 +57,7 @@ class OpenStackImage:
 
         self.image_file = self.__get_image_file()
         self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
-                                               container_format="bare", data=self.image_file.name)
+                                               container_format="bare")
         self.glance.images.upload(self.image.id, open(self.image_file.name, 'rb'))
         return self.image
 

@@ -26,6 +26,10 @@ def download(url, dest_path):
     name = url.rsplit('/')[-1]
     dest = dest_path + '/' + name
     try:
+        # Override proxy settings to use localhost to download file
+        proxy_handler = urllib2.ProxyHandler({})
+        opener = urllib2.build_opener(proxy_handler)
+        urllib2.install_opener(opener)
         response = urllib2.urlopen(url)
     except (urllib2.HTTPError, urllib2.URLError):
         raise Exception
