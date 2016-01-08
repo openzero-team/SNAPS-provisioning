@@ -2,13 +2,13 @@
 openstack:
   connection:
     username: admin
-    password: octopus
-    auth_url: http://os-controller-1:5000/v2.0
+    password: cable123
+    auth_url: http://10.197.103.22:5000/v2.0/
     tenant_name: admin
   image:
-    name: Centos 7 w/ root/cable123
+    name: cirros-vnf-deploy
     format: qcow2
-    download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1503.qcow2
+    download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
     local_download_path: /tmp/create_image_tests
   networks:
     - network:
