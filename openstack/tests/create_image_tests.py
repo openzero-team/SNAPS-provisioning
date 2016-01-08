@@ -5,19 +5,12 @@ import logging
 import file_utils
 import openstack.create_image as create_image
 from openstack import os_credentials
+import openstack_tests
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# TODO - Find means to make this configurable
-# From packstack Lab 1
-# Change http_proxy to localhost:3128
-os_auth_url = 'http://10.197.103.22:5000/v2.0'
-password = 'cable123'
-
-username = 'admin'
-tenant_name = 'admin'
-os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+os_creds = openstack_tests.get_credentials()
 
 image_format = 'qcow2'
 image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'

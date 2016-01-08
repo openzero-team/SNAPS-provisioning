@@ -2,24 +2,17 @@ import unittest
 import openstack.create_network as create_network
 import neutron_utils_tests
 import logging
-from openstack import os_credentials
+import openstack_tests
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-# TODO - Find means to make this configurable
-# From packstack Lab 1
-# Change http_proxy to localhost:3128
-os_auth_url = 'http://10.197.103.22:5000/v2.0/'
-password = 'cable123'
+os_creds = openstack_tests.get_credentials()
 
-username = 'admin'
-tenant_name = 'admin'
-os_creds = os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
 net_name = 'test-priv-net'
 network_settings = create_network.NetworkSettings(name=net_name)
 subnet_name = 'test-priv-subnet'
-subnet_cidr = '10.197.122.0/24'
+subnet_cidr = '10.0.1.0/24'
 router_name = 'test-router'
 router_settings = create_network.RouterSettings(name=router_name)
 
