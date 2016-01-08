@@ -15,10 +15,9 @@ logging.basicConfig(level=logging.DEBUG)
 os_creds = openstack_tests.get_credentials()
 
 flavor = 'm1.tiny'
-image_format = 'qcow2'
-image_url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
-image_name = 't1'
-download_path = '/tmp/create_image_tests'
+
+os_image_settings = openstack_tests.get_image_settings()
+
 priv_net_name = 'test-priv-net'
 priv_subnet_name = 'test-priv-subnet'
 priv_subnet_cidr = '10.0.1.0/24'
@@ -41,7 +40,8 @@ class CreateInstanceTests(unittest.TestCase):
         within OpenStack
         """
         # Create Image
-        self.image_creator = create_image.OpenStackImage(os_creds, image_format, image_url, image_name, download_path)
+        self.image_creator = create_image.OpenStackImage(os_creds, os_image_settings.format, os_image_settings.url,
+                                                         os_image_settings.name, os_image_settings.download_file_path)
         try:
             self.image_creator.create()
         except:

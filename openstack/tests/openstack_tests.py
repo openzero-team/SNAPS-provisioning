@@ -14,3 +14,19 @@ def get_credentials():
     # From packstack Lab 1
     # Change http_proxy to localhost:3128
     return os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+
+
+def get_image_settings():
+    return OSImageSettings('qcow2', 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
+                           'test-image', '/tmp/create_image_tests')
+
+
+class OSImageSettings:
+    """
+    Represents the settings required for creating an image in OpenStack
+    """
+    def __init__(self, format, url, name, download_file_path):
+        self.format = format
+        self.url = url
+        self.name = name
+        self.download_file_path = download_file_path
