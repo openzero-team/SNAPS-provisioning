@@ -149,7 +149,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, password, os_auth_url,
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username,
+                                                                                  openstack_tests.password,
+                                                                                  openstack_tests.os_auth_url,
                                                                                   None),
                                                            image_format, image_url, image_name, download_path)
 
@@ -158,8 +160,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, password, None,
-                                                                                  tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username,
+                                                                                  openstack_tests.password, None,
+                                                                                  openstack_tests.tenant_name),
                                                            image_format, image_url, image_name, download_path)
 
     def testNonePassword(self):
@@ -167,8 +170,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(username, None, os_auth_url,
-                                                                                  tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username, None,
+                                                                                  openstack_tests.os_auth_url,
+                                                                                  openstack_tests.tenant_name),
                                                            image_format, image_url, image_name, download_path)
 
     def testNoneUser(self):
@@ -176,6 +180,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, password, os_auth_url,
-                                                                                  tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, openstack_tests.password,
+                                                                                  openstack_tests.os_auth_url,
+                                                                                  openstack_tests.tenant_name),
                                                            image_format, image_url, image_name, download_path)
