@@ -9,12 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 os_creds = openstack_tests.get_credentials()
 
-net_name = 'test-priv-net'
-network_settings = create_network.NetworkSettings(name=net_name)
-subnet_name = 'test-priv-subnet'
-subnet_cidr = '10.0.1.0/24'
-router_name = 'test-router'
-router_settings = create_network.RouterSettings(name=router_name)
+net_config = openstack_tests.get_network_config()
 
 
 class CreateNetworkSuccessTests(unittest.TestCase):
@@ -27,10 +22,9 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.OpenStackNetwork(os_creds, network_settings,
-                                                           create_network.SubnetSettings(cidr=subnet_cidr,
-                                                                                         name=subnet_name),
-                                                           router_settings)
+        self.net_creator = create_network.OpenStackNetwork(os_creds, net_config.network_settings,
+                                                           net_config.subnet_settings,
+                                                           net_config.router_settings)
 
     def tearDown(self):
         """

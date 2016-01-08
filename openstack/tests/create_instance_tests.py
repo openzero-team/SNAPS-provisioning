@@ -13,16 +13,11 @@ VM_BOOT_TIMEOUT = 180
 logging.basicConfig(level=logging.DEBUG)
 
 os_creds = openstack_tests.get_credentials()
+os_image_settings = openstack_tests.get_image_settings()
+priv_net_config = openstack_tests.get_network_config()
 
 flavor = 'm1.tiny'
 
-os_image_settings = openstack_tests.get_image_settings()
-
-priv_net_name = 'test-priv-net'
-priv_subnet_name = 'test-priv-subnet'
-priv_subnet_cidr = '10.0.1.0/24'
-router_name = 'test-router'
-router_settings = create_network.RouterSettings(name=router_name)
 port_name = 'test-port'
 ip_1 = '10.0.1.100'
 ip_2 = '10.0.1.200'
@@ -44,15 +39,13 @@ class CreateInstanceTests(unittest.TestCase):
                                                          os_image_settings.name, os_image_settings.download_file_path)
         try:
             self.image_creator.create()
-        except:
+        except Exception:
             self.image_creator.clean()
 
         # Create Network
-        self.network_creator = create_network.OpenStackNetwork(os_creds,
-                                                               create_network.NetworkSettings(name=priv_net_name),
-                                                               create_network.SubnetSettings(cidr=priv_subnet_cidr,
-                                                                                             name=priv_subnet_name),
-                                                               router_settings)
+        self.network_creator = create_network.OpenStackNetwork(os_creds, priv_net_config.network_settings,
+                                                               priv_net_config.subnet_settings,
+                                                               priv_net_config.router_settings)
         try:
             self.network_creator.create()
         except:
