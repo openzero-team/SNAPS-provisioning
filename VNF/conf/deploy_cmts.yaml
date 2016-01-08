@@ -2,7 +2,7 @@
 openstack:
   connection:
     username: admin
-    password: cable123
+    password: octopus
     auth_url: http://os-controller-1:5000/v2.0
     tenant_name: admin
   image:
@@ -15,15 +15,15 @@ openstack:
         name: cmts-private
         subnet:
           name: cmts-private-subnet
-          cidr: 10.0.2.0/24
+          cidr: 10.10.2.0/24
         router:
           name: cmts-private-router
     - network:
         name: cmts-public
         subnet:
           name: cmts-pub-subnet
-          cidr: 10.0.3.0/24
-          gateway_ip: 10.0.3.1
+          cidr: 10.10.3.0/24
+          gateway_ip: 10.10.3.1
         router:
           name: cmts-public-router
   instances:
@@ -34,11 +34,11 @@ openstack:
           - port:
               name: cmts-inst-1-private-port
               network_name: cmts-private
-              ip: 10.0.2.10
+              ip: 10.10.2.10
           - port:
               name: cmts-inst-1-pubic-port
               network_name: cmts-public
-              ip: 10.0.3.10
+              ip: 10.10.3.10
       ansible:
     - instance:
         name: cmts-inst2
@@ -47,9 +47,9 @@ openstack:
           - port:
               name: cmts-inst-2-private-port
               network_name: cmts-private
-              ip: 10.0.2.20
+              ip: 10.10.2.20
           - port:
               name: cmts-inst-2-pubic-port
               network_name: cmts-public
-              ip: 10.0.3.20
+              ip: 10.10.3.20
       ansible:
