@@ -24,15 +24,15 @@ def nova_client(os_creds):
     })
 
 
-def upload_keypair_file(nova, name, filePath):
+def upload_keypair_file(nova, name, file_path):
     """
     Uploads a public key from a file
     :param nova: the Nova client
     :param name: the keypair name
-    :param filePath: the path to the public key file
+    :param file_path: the path to the public key file
     :return: the keypair object
     """
-    with open(os.path.expanduser(filePath)) as fpubkey:
+    with open(os.path.expanduser(file_path)) as fpubkey:
         return upload_keypair(nova, name, fpubkey.read())
 
 
