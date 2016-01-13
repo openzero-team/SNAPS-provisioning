@@ -3,7 +3,7 @@ import neutronclient
 
 import neutron_utils
 
-logger = logging.getLogger('NeutronNetwork')
+logger = logging.getLogger('OpenStackNetwork')
 
 
 class OpenStackNetwork:

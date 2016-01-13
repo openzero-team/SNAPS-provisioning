@@ -47,7 +47,7 @@ class NovaUtilsKeypairTests(unittest.TestCase):
             pass
 
         try:
-            os.remove(priv_key_file_path + '.pub')
+            os.remove(pub_key_file_path)
         except:
             pass
 
@@ -80,7 +80,7 @@ class NovaUtilsKeypairTests(unittest.TestCase):
         Tests that the generated RSA keys are properly saved to files
         :return:
         """
-        nova_utils.save_keys_to_files(self.keys, priv_key_file_path, pub_key_file_path)
+        nova_utils.save_keys_to_files(self.keys, pub_key_file_path, priv_key_file_path)
         self.keypair = nova_utils.upload_keypair_file(self.nova, self.keypair_name, pub_key_file_path)
         pub_key = open(os.path.expanduser(pub_key_file_path)).read()
         self.assertEquals(self.keypair.public_key, pub_key)

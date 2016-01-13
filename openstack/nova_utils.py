@@ -24,7 +24,7 @@ def nova_client(os_creds):
     })
 
 
-def save_keys_to_files(keys, pub_file_path, priv_file_path):
+def save_keys_to_files(keys=None, pub_file_path=None, priv_file_path=None):
     """
     Saves the generated RSA generated keys to the filesystem
     :param keys: the keys to save
@@ -32,13 +32,16 @@ def save_keys_to_files(keys, pub_file_path, priv_file_path):
     :param pub_file_path: the path to the private keys
     :return: None
     """
-    private_handle = open(priv_file_path, 'wb')
-    private_handle.write(keys.exportKey())
-    private_handle.close()
+    if keys:
+        if pub_file_path:
+            public_handle = open(pub_file_path, 'wb')
+            public_handle.write(keys.publickey().exportKey('OpenSSH'))
+            public_handle.close()
 
-    public_handle = open(pub_file_path + '.pub', 'wb')
-    public_handle.write(keys.publickey().exportKey('OpenSSH'))
-    public_handle.close()
+        if priv_file_path:
+            private_handle = open(priv_file_path, 'wb')
+            private_handle.write(keys.exportKey())
+            private_handle.close()
 
 
 def upload_keypair_file(nova, name, file_path):

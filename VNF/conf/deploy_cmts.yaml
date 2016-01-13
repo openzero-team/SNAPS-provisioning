@@ -3,13 +3,15 @@ openstack:
   connection:
     username: admin
     password: cable123
+#    auth_url: http://laptop-lab:5000/v2.0/
     auth_url: http://10.197.103.22:5000/v2.0/
     tenant_name: admin
-  image:
-    name: cirros-vnf-deploy
-    format: qcow2
-    download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
-    local_download_path: /tmp/create_image_tests
+  images:
+    - image:
+        name: cirros-vnf-deploy
+        format: qcow2
+        download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+        local_download_path: /tmp/create_image_tests
   networks:
     - network:
         name: cmts-private
@@ -26,10 +28,21 @@ openstack:
           gateway_ip: 10.10.3.1
         router:
           name: cmts-public-router
+  keypairs:
+    # Generate w/o saving
+    - keypair:
+        name: kp1
+    # Generate and save
+    - keypair:
+        name: kp2
+        public_filepath: /tmp/kp2.pub
+        private_filepath: /tmp/kp2
   instances:
     - instance:
         name: cmts-inst1
         flavor: m1.small
+        imageName: cirros-vnf-deploy
+        keypair_name: kp1
         ports:
           - port:
               name: cmts-inst-1-private-port
@@ -43,6 +56,8 @@ openstack:
     - instance:
         name: cmts-inst2
         flavor: m1.small
+        imageName: cirros-vnf-deploy
+        keypair_name: kp2
         ports:
           - port:
               name: cmts-inst-2-private-port
