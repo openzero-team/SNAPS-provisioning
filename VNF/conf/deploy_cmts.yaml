@@ -28,6 +28,7 @@ openstack:
           gateway_ip: 10.10.3.1
         router:
           name: cmts-public-router
+          external_gateway: public
   keypairs:
     # Generate w/o saving
     - keypair:

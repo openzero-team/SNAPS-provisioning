@@ -1,4 +1,5 @@
 import logging
+
 import neutronclient
 
 import neutron_utils
@@ -388,7 +389,7 @@ class RouterSettings:
     Class representing a router configuration
     """
 
-    def __init__(self, config=None, name=None, admin_state_up=True, external_gateway_info=None, enable_snat=True,
+    def __init__(self, config=None, name=None, admin_state_up=True, external_gateway=None, enable_snat=True,
                  external_fixed_ips=None):
         """
         Constructor - all parameters are optional
@@ -396,7 +397,7 @@ class RouterSettings:
                        as each member's the key and overrides any of the other parameters.
         :param name: The router name.
         :param admin_state_up: The administrative status of the router. True = up / False = down (default True)
-        :param external_gateway_info: Dictionary containing the external gateway parameters, which include the
+        :param external_gateway: Dictionary containing the external gateway parameters, which include the
                                       network_id, enable_snat and external_fixed_ips parameters..
         :param enable_snat: Boolean value. Enable Source NAT (SNAT) attribute. Default is True. To persist this
                             attribute value, set the enable_snat_by_default option in the neutron.conf file.
@@ -407,23 +408,23 @@ class RouterSettings:
         if config:
             self.name = config.get('name')
             self.admin_state_up = config.get('admin_state_up')
-            self.external_gateway_info = config.get('external_gateway_info')
+            self.external_gateway = config.get('external_gateway')
             self.enable_snat = config.get('enable_snat')
             self.external_fixed_ips = config.get('external_fixed_ips')
         else:
             self.name = name
             self.admin_state_up = admin_state_up
-            self.external_gateway_info = external_gateway_info
+            self.external_gateway = external_gateway
             self.enable_snat = enable_snat
             self.external_fixed_ips = external_fixed_ips
 
-    def dict_for_neutron(self):
+    def dict_for_neutron(self, neutron):
         """
         Returns a dictionary object representing this object.
         This is meant to be converted into JSON designed for use by the Neutron API
 
         TODO - expand automated testing to exercise all parameters
-
+        :param neutron: The neutron client to retrieve external network information if necessary
         :return: the dictionary object
         """
         out = dict()
@@ -432,8 +433,10 @@ class RouterSettings:
             out['name'] = self.name
         if self.admin_state_up:
             out['admin_state_up'] = self.admin_state_up
-        if self.external_gateway_info and len(self.external_gateway_info) > 0:
-            out['external_gateway_info'] = self.external_gateway_info
+        if self.external_gateway:
+            ext_net = neutron_utils.get_network_by_name(neutron, self.external_gateway)
+            if ext_net:
+                out['external_gateway_info'] = {'network_id': ext_net['network']['id']}
 
         # TODO/FIXME - specs say this is key/value is optional but the API call fails
         # if self.enable_snat:

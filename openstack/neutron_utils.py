@@ -1,4 +1,5 @@
 import logging
+
 from neutronclient.v2_0 import client as neutronclient
 
 logger = logging.getLogger('neutron_utils')
@@ -113,7 +114,7 @@ def create_router(neutron, router_settings):
     :return: the router object
     """
     if neutron:
-        json_body = router_settings.dict_for_neutron()
+        json_body = router_settings.dict_for_neutron(neutron)
         return neutron.create_router(json_body)
     else:
         logger.error("Failed to create router.")
