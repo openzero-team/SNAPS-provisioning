@@ -3,8 +3,10 @@
 # This script is responsible for deploying a VM running virtual CMTS emulator instances
 
 import sys
-import yaml
 import logging
+
+import yaml
+
 from openstack import os_credentials
 from openstack import neutron_utils
 
@@ -132,8 +134,8 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict):
                 logger.warn('Cannot create port as associated network name of [' + network_name + '] not configured.')
                 raise Exception
 
-    vm_inst = OpenStackVmInstance(os_creds, instance_config['instance']['name'], instance_config['instance']['flavor'],
-                                  image, ports, instance_config['instance'].get('keypair_name'))
+    vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image, ports, config.get('keypair_name'),
+                                  config.get('floating_ip'))
     vm_inst.create()
     return vm_inst
 

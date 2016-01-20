@@ -1,5 +1,6 @@
 import os
 import logging
+
 import novaclient.v2.client as novaclient
 
 logger = logging.getLogger('nova_utils')
@@ -96,3 +97,51 @@ def delete_keypair(nova, key):
     :param key: the keypair object to delete
     """
     nova.keypairs.delete(key)
+
+
+def get_floating_ip_pools(nova):
+    """
+    Returns all of the available floating IP pools
+    :param nova: the Nova client
+    :return: a list of pools
+    """
+    return nova.floating_ip_pools.list()
+
+
+def get_floating_ips(nova):
+    """
+    Returns all of the floating IPs
+    :param nova: the Nova client
+    :return: a list of floating IPs
+    """
+    return nova.floating_ips.list()
+
+
+def create_floating_ip(nova, ext_net_name):
+    """
+    Returns the floating IP object that was created with this call
+    :param nova: the Nova client
+    :param ext_net_name: the name of the external network on which to apply the floating IP address
+    :return: the floating IP object
+    """
+    return nova.floating_ips.create(ext_net_name)
+
+
+def get_floating_ip(nova, floating_ip):
+    """
+    Returns a floating IP object that should be identical to the floating_ip parameter
+    :param nova: the Nova client
+    :param floating_ip: the floating IP object to lookup
+    :return: hopefully the same floating IP object input
+    """
+    return nova.floating_ips.get(floating_ip)
+
+
+def delete_floating_ip(nova, floating_ip):
+    """
+    Responsible for deleting a floating IP
+    :param nova: the Nova client
+    :param floating_ip: the floating IP object to delete
+    :return:
+    """
+    return nova.floating_ips.delete(floating_ip)

@@ -1,9 +1,12 @@
 import unittest
-import openstack.nova_utils as nova_utils
 import logging
-import openstack_tests
-from Crypto.PublicKey import RSA
 import os
+
+from Crypto.PublicKey import RSA
+
+import openstack.nova_utils as nova_utils
+import openstack_tests
+
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,6 +16,8 @@ os_creds = openstack_tests.get_credentials()
 
 priv_key_file_path = '/tmp/testKey'
 pub_key_file_path = priv_key_file_path + '.pub'
+
+ext_net_name = 'external'
 
 
 class NovaUtilsKeypairTests(unittest.TestCase):
@@ -30,6 +35,7 @@ class NovaUtilsKeypairTests(unittest.TestCase):
         self.public_key = self.keys.publickey().exportKey('OpenSSH')
         self.keypair_name = 'testKP'
         self.keypair = None
+        self.floating_ip = None
 
     def tearDown(self):
         """
@@ -50,6 +56,9 @@ class NovaUtilsKeypairTests(unittest.TestCase):
             os.remove(pub_key_file_path)
         except:
             pass
+
+        if self.floating_ip:
+            nova_utils.delete_floating_ip(self.nova, self.floating_ip)
 
     def test_create_keypair(self):
         """
@@ -84,3 +93,15 @@ class NovaUtilsKeypairTests(unittest.TestCase):
         self.keypair = nova_utils.upload_keypair_file(self.nova, self.keypair_name, pub_key_file_path)
         pub_key = open(os.path.expanduser(pub_key_file_path)).read()
         self.assertEquals(self.keypair.public_key, pub_key)
+
+    def test_floating_ips(self):
+        """
+        Tests the creation of a floating IP
+        :return:
+        """
+        ips = nova_utils.get_floating_ips(self.nova)
+        self.assertIsNotNone(ips)
+
+        self.floating_ip = nova_utils.create_floating_ip(self.nova, ext_net_name)
+        returned = nova_utils.get_floating_ip(self.nova, self.floating_ip)
+        self.assertEquals(self.floating_ip, returned)
