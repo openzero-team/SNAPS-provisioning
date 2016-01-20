@@ -3,9 +3,9 @@ openstack:
   connection:
     username: admin
     password: cable123
-#    auth_url: http://laptop-lab:5000/v2.0/
     auth_url: http://10.197.103.22:5000/v2.0/
     tenant_name: admin
+    http_proxy: localhost:3128
   images:
     - image:
         name: cirros-vnf-deploy
@@ -14,20 +14,20 @@ openstack:
         local_download_path: /tmp/create_image_tests
   networks:
     - network:
-        name: cmts-private
+        name: test-private
         subnet:
-          name: cmts-private-subnet
+          name: test-private-subnet
           cidr: 10.10.2.0/24
         router:
-          name: cmts-private-router
+          name: test-private-router
     - network:
-        name: cmts-public
+        name: test-public
         subnet:
-          name: cmts-pub-subnet
+          name: test-pub-subnet
           cidr: 10.10.3.0/24
           gateway_ip: 10.10.3.1
         router:
-          name: cmts-public-router
+          name: test-public-router
           external_gateway: public
   keypairs:
     # Generate w/o saving
@@ -40,32 +40,38 @@ openstack:
         private_filepath: /tmp/kp2
   instances:
     - instance:
-        name: cmts-inst1
+        name: test-inst1
         flavor: m1.small
         imageName: cirros-vnf-deploy
         keypair_name: kp1
         ports:
           - port:
-              name: cmts-inst-1-private-port
-              network_name: cmts-private
+              name: test-inst-1-private-port
+              network_name: test-private
               ip: 10.10.2.10
           - port:
-              name: cmts-inst-1-pubic-port
-              network_name: cmts-public
+              name: test-inst-1-pubic-port
+              network_name: test-public
               ip: 10.10.3.10
+        floating_ip:
+          ext_net: public
+          port_name: test-inst-1-pubic-port
       ansible:
     - instance:
-        name: cmts-inst2
+        name: test-inst2
         flavor: m1.small
         imageName: cirros-vnf-deploy
         keypair_name: kp2
         ports:
           - port:
-              name: cmts-inst-2-private-port
-              network_name: cmts-private
+              name: test-inst-2-private-port
+              network_name: test-private
               ip: 10.10.2.20
           - port:
-              name: cmts-inst-2-pubic-port
-              network_name: cmts-public
+              name: test-inst-2-pubic-port
+              network_name: test-public
               ip: 10.10.3.20
+        floating_ip:
+          ext_net: public
+          port_name: test-inst-2-pubic-port
       ansible:

@@ -5,6 +5,7 @@ openstack:
     password: zYkpJCC4TVYFpeaXsEvUZ8eeg
     auth_url: http://10.197.123.50:5000/v2.0/
     tenant_name: admin
+    http_proxy:
   images:
     - image:
         name: cirros-vnf-deploy

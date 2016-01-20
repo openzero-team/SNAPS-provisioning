@@ -4,8 +4,10 @@ import os
 
 from Crypto.PublicKey import RSA
 
+import file_utils
 import openstack.nova_utils as nova_utils
 import openstack_tests
+
 
 
 # Initialize Logging
@@ -17,7 +19,12 @@ os_creds = openstack_tests.get_credentials()
 priv_key_file_path = '/tmp/testKey'
 pub_key_file_path = priv_key_file_path + '.pub'
 
-ext_net_name = 'external'
+test_conf = file_utils.read_yaml('conf/os_env.yaml')
+
+if test_conf.get('ext_net'):
+    ext_net_name = test_conf['ext_net']
+else:
+    ext_net_name = 'external'
 
 
 class NovaUtilsKeypairTests(unittest.TestCase):

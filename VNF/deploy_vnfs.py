@@ -4,28 +4,13 @@
 
 import sys
 import logging
-
-import yaml
+import os
 
 from openstack import os_credentials
 from openstack import neutron_utils
+import file_utils
 
 logger = logging.getLogger('deploy_cmts')
-
-
-def read_config(config_file_path):
-    """
-    Reads the config file
-    :param config_file_path: The file path to config
-    :return: The config
-    """
-    logger.info('Attempting to load configuration file - ' + config_file_path)
-    with open(config_file_path) as config_file:
-        config = yaml.safe_load(config_file)
-        logger.info('Loaded configuration')
-    config_file.close()
-    logger.info('Closing configuration file')
-    return config
 
 
 def get_os_credentials(os_conn_config):
@@ -158,11 +143,14 @@ def main():
     config = None
     if len(sys.argv) > 1:
         logger.info('Reading configuration')
-        config = read_config(sys.argv[1])
+        config = file_utils.read_yaml(sys.argv[1])
 
     if config:
         os_config = config.get('openstack')
         os_conn_config = os_config.get('connection')
+
+        if os_conn_config.get('http_proxy'):
+            os.environ['HTTP_PROXY'] = os_conn_config['http_proxy']
 
         # Create images
         images = {}

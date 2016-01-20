@@ -1,9 +1,14 @@
 import os
 import urllib2
+import logging
+
+import yaml
 
 """
 Utilities for basic file handling
 """
+
+logger = logging.getLogger('file_utils')
 
 
 def file_exists(file_path):
@@ -37,3 +42,18 @@ def download(url, dest_path):
     with open(dest, 'wb') as f:
         f.write(response.read())
     return f
+
+
+def read_yaml(config_file_path):
+    """
+    Reads the yaml file and returns a dictionary object representation
+    :param config_file_path: The file path to config
+    :return: a dictionary
+    """
+    logger.info('Attempting to load configuration file - ' + config_file_path)
+    with open(config_file_path) as config_file:
+        config = yaml.safe_load(config_file)
+        logger.info('Loaded configuration')
+    config_file.close()
+    logger.info('Closing configuration file')
+    return config

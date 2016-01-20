@@ -1,22 +1,18 @@
+import os
+
 from openstack import create_network
-
 from openstack import os_credentials
-
-# TODO - deal with proxy settings here too
-
-os_auth_url = 'http://10.197.103.22:5000/v2.0/'
-# os_auth_url = 'http://laptop-lab:5000/v2.0/'
-password = 'cable123'
+import file_utils
 
 username = 'admin'
 tenant_name = 'admin'
 
 
 def get_credentials():
-    # TODO - Find means to make this configurable
-    # From packstack Lab 1
-    # Change http_proxy to localhost:3128
-    return os_credentials.OSCreds(username, password, os_auth_url, tenant_name)
+    config = file_utils.read_yaml('conf/os_env.yaml')
+    if config.get('http_proxy'):
+        os.environ['HTTP_PROXY'] = config['http_proxy']
+    return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'])
 
 
 def get_image_settings():
@@ -25,7 +21,8 @@ def get_image_settings():
 
 
 def get_network_config():
-    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.0.1.0/24', 'test-router')
+    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.0.1.0/24', 'test-router',
+                           external_gateway='external')
 
 
 class OSImageSettings:
