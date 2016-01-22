@@ -10,7 +10,7 @@ from openstack import os_credentials
 from openstack import neutron_utils
 import file_utils
 
-logger = logging.getLogger('deploy_cmts')
+logger = logging.getLogger('deploy_vnfs')
 
 
 def get_os_credentials(os_conn_config):
