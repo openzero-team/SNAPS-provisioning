@@ -1,0 +1,19 @@
+---
+# Creates a new VM and attaches to a network and passes metadata to the instance
+ hosts:
+  - test1
+ - nova_compute:
+        state: present
+        login_username: admin
+        login_password: admin
+        login_tenant_name: admin
+        name: vm1
+        image_id: 4f905f38-e52a-43d2-b6ec-754a13ffb529
+        key_name: ansible_key
+        wait_for: 200
+        flavor_id: 4
+        nics:
+          - net-id: 34605f38-e52a-25d2-b6ec-754a13ffb723
+        meta:
+          hostname: test1
+          group: uge_master

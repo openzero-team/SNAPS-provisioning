@@ -1,0 +1,9 @@
+---
+# ansible-playbook -i ansible/conf/inventory -k ansible/playbooks/java8.yaml
+- name: Install Open JDK 1.7 for RPM linux
+  hosts: all
+  remote_user: root
+  tasks:
+
+   - name: Retreiving OpenJDK RPM and Installing for RPM managed machines
+     yum: name=java-1.7.0-openjdk.x86_64

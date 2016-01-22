@@ -1,0 +1,18 @@
+tasks:
+  - name: foo
+    os_image:
+      auth:
+        auth_url: http://10.197.123.37:5000/v2.0
+        username: admin
+        password: octopus
+        project_name: admin
+      name: cirros
+      container_format: bare
+      disk_format: qcow2
+      state: present
+      filename: cirros-0.3.0-x86_64-disk.img
+      kernel: cirros-vmlinuz
+      ramdisk: cirros-initrd
+      properties:
+        cpu_arch: x86_64
+        distro: ubuntu

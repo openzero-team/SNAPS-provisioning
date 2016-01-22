@@ -1,0 +1,18 @@
+- os_server:
+  state: present
+  auth:
+    auth_url: http://10.197.123.37:5000/v2.0
+    username: admin
+    password: octopus
+    project_name: admin
+  name: vm1
+  image: f1db6a61-8979-42f2-9e63-1ba9e0746f36
+  key_name: ansible_key
+  timeout: 200
+  flavor: 4
+  nics:
+   - net-id: 34605f38-e52a-25d2-b6ec-754a13ffb723
+   - net-name: another_network
+  meta:
+   hostname: test1
+   group: uge_master
