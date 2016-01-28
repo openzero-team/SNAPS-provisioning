@@ -8,6 +8,7 @@ import os
 
 from openstack import os_credentials
 from openstack import neutron_utils
+from openstack import nova_utils
 import file_utils
 
 logger = logging.getLogger('deploy_vnfs')
@@ -163,7 +164,7 @@ def main():
 
         # Create network
         network_dict = {}
-        network_confs = os_config['networks']
+        network_confs = os_config.get('networks')
         if network_confs:
             for network_conf in network_confs:
                 net_name = network_conf['network']['name']
@@ -185,7 +186,14 @@ def main():
             for instance_config in instances_config:
                 instance = instance_config.get('instance')
                 if instance:
-                    inst_image = images.get(instance.get('imageName')).image
+                    if images:
+                        inst_image = images.get(instance.get('imageName')).image
+                    else:
+                        nova = nova_utils.nova_client(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                                             os_conn_config.get('password'),
+                                                                             os_conn_config.get('auth_url'),
+                                                                             os_conn_config.get('tenant_name')))
+                        inst_image = nova.images.find(name=instance.get('imageName'))
                     if inst_image:
                         vm_dict[instance['name']] = create_vm_instance(os_conn_config, instance_config,
                                                                        inst_image, network_dict)
