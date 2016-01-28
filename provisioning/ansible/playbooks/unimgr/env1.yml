@@ -1,0 +1,21 @@
+---
+- hosts: all
+  remote_user: vbcpe
+  become: yes
+  become_user: vbcpe
+
+  tasks:
+   - name: Transfer the script
+     copy: src=~/Downloads/new_ansible/setEnvironmentVariables.sh dest=/home/vbcpe/setEnvironmentVariables.sh mode=0777
+
+   - name: Execute the script
+     command: sh /home/vbcpe/setEnvironmentVariables.sh
+
+   - name: restart machine
+     command: shutdown -r now "Rebooting after updating environment variables"
+     async: 0
+     poll: 0
+     ignore_errors: true
+     become: yes
+     become_user: root
+     become_method: sudo

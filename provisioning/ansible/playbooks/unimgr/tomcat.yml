@@ -1,0 +1,13 @@
+---
+- hosts: all
+  remote_user: vbcpe
+  become: yes
+  become_user: root
+
+  tasks:
+   - name: Transfer the script
+     copy: src=~/Downloads/new_ansible/startTomcatWithGui.sh dest=/home/vbcpe/startTomcatWithGui.sh mode=0777
+
+   - name: Execute the script
+     command: sh /home/vbcpe/startTomcatWithGui.sh
+
