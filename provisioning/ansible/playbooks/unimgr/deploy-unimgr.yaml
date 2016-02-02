@@ -30,7 +30,7 @@ openstack:
         name: manager-int-net
         subnet:
           name: manager-int-subnet
-          cidr: 10.0.1.0/24
+          cidr: 10.1.1.0/24
         router:
           name: manager-int-router
     - network:
