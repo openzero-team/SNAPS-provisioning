@@ -7,12 +7,14 @@ import openstack.create_image as create_image
 from openstack import os_credentials
 import openstack_tests
 
+
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
 os_creds = openstack_tests.get_credentials()
 
-os_image_settings = openstack_tests.get_image_settings()
+os_image_settings = openstack_tests.get_image_test_settings()
 
 
 class CreateImageSuccessTests(unittest.TestCase):
@@ -149,9 +151,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username,
-                                                                                  openstack_tests.password,
-                                                                                  openstack_tests.os_auth_url,
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
+                                                                                  os_creds.password,
+                                                                                  os_creds.auth_url,
                                                                                   None),
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
@@ -161,9 +163,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username,
-                                                                                  openstack_tests.password, None,
-                                                                                  openstack_tests.tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
+                                                                                  os_creds.password, None,
+                                                                                  os_creds.tenant_name),
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -172,9 +174,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(openstack_tests.username, None,
-                                                                                  openstack_tests.os_auth_url,
-                                                                                  openstack_tests.tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username, None,
+                                                                                  os_creds.os_auth_url,
+                                                                                  os_creds.tenant_name),
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -183,8 +185,8 @@ class CreateImageNegativeTests(unittest.TestCase):
         Expect an exception when the tenant name is None
         """
         with self.assertRaises(Exception):
-            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, openstack_tests.password,
-                                                                                  openstack_tests.os_auth_url,
-                                                                                  openstack_tests.tenant_name),
+            self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, os_creds.password,
+                                                                                  os_creds.os_auth_url,
+                                                                                  os_creds.tenant_name),
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)

@@ -6,6 +6,8 @@ from openstack import create_network
 import openstack_tests
 
 
+
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,7 +34,7 @@ class NeutronUtilsTests(unittest.TestCase):
         self.port = None
         self.router = None
         self.interface_router = None
-        self.net_config = openstack_tests.get_network_config()
+        self.net_config = openstack_tests.get_pub_net_config()
 
     def tearDown(self):
         """

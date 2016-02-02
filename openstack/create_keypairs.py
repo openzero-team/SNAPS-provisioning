@@ -1,7 +1,9 @@
 import logging
-import nova_utils
 import os
+
 from Crypto.PublicKey import RSA
+
+import nova_utils
 
 logger = logging.getLogger('OpenStackKeypair')
 
@@ -53,7 +55,7 @@ class OpenStackKeypair:
                                                              keys.publickey().exportKey('OpenSSH'))
                     nova_utils.save_keys_to_files(keys, self.keypair_settings.public_filepath,
                                                   self.keypair_settings.private_filepath)
-            else:
+        else:
                 # TODO - Make this value configurable
                 keys = RSA.generate(1024)
                 self.keypair = nova_utils.upload_keypair(self.nova, self.keypair_settings.name,

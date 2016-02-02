@@ -15,13 +15,22 @@ def get_credentials():
     return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'])
 
 
-def get_image_settings():
+def get_image_test_settings():
     return OSImageSettings('qcow2', 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
-                           'test-image', '/tmp/create_image_tests')
+                           'test-image', '/tmp/create_image_tests', 'cirros')
 
 
-def get_network_config():
-    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.0.1.0/24', 'test-router',
+def get_instance_image_settings():
+    return OSImageSettings('qcow2', 'http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2',
+                           'centos-inst-test', '/tmp/centos-inst-test', 'centos')
+
+
+def get_priv_net_config():
+    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.1.1.0/24', 'test-priv')
+
+
+def get_pub_net_config():
+    return OSNetworkConfig('test-pub-net', 'test-pub-subnet', '10.0.1.0/24', 'test-pub',
                            external_gateway='external')
 
 
@@ -29,11 +38,12 @@ class OSImageSettings:
     """
     Represents the settings required for creating an image in OpenStack
     """
-    def __init__(self, img_format, url, name, download_file_path):
+    def __init__(self, img_format, url, name, download_file_path, image_user):
         self.format = img_format
         self.url = url
         self.name = name
         self.download_file_path = download_file_path
+        self.image_user = image_user
 
 
 class OSNetworkConfig:

@@ -11,7 +11,7 @@ class OpenStackVmInstance:
     Class responsible for creating a VM instance in OpenStack
     """
 
-    def __init__(self, os_creds, name, flavor, image, ports, keypair_name=None, floating_ip_conf=None):
+    def __init__(self, os_creds, name, flavor, image, ports, keypair_name=None, floating_ip_conf=None, userdata=None):
         """
         Constructor
         :param os_creds: The connection credentials to the OpenStack API
@@ -21,6 +21,7 @@ class OpenStackVmInstance:
         :param ports: List of ports (NICs) to deploy to the VM
         :param keypair_name: The name of the keypair (Optional)
         :param floating_ip_conf: The configuration for the addition of a floating IP to an instance (Optional)
+        :param userdata: The post installation script as a string or a file object (Optional)
         :raises Exception
         """
         self.name = name
@@ -29,6 +30,7 @@ class OpenStackVmInstance:
         self.keypair_name = keypair_name
         self.floating_ip_conf = floating_ip_conf
         self.floating_ip = None
+        self.userdata = userdata
         self.vm = None
         self.nova = nova_utils.nova_client(os_creds)
 
@@ -47,7 +49,8 @@ class OpenStackVmInstance:
         for server in servers:
             if server.name == self.name:
                 self.vm = server
-                return
+                logger.info('Found existing machine with name - ' + self.name)
+                return self.vm
 
         nics = []
         for port in self.ports:
@@ -55,12 +58,15 @@ class OpenStackVmInstance:
             kv['port-id'] = port['port']['id']
             nics.append(kv)
 
+        logger.info('Creating VM with name - ' + self.name)
         self.vm = self.nova.servers.create(
             name=self.name,
             flavor=self.flavor,
             image=self.image,
             nics=nics,
-            key_name=self.keypair_name)
+            key_name=self.keypair_name,
+            userdata=self.userdata)
+        logger.info('Created instance with name - ' + self.name)
 
         if self.floating_ip_conf:
             for port in self.ports:

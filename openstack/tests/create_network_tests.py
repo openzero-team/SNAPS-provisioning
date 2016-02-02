@@ -1,15 +1,18 @@
 import unittest
+import logging
+
 import openstack.create_network as create_network
 import neutron_utils_tests
-import logging
 import openstack_tests
+
+
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
 os_creds = openstack_tests.get_credentials()
 
-net_config = openstack_tests.get_network_config()
+net_config = openstack_tests.get_pub_net_config()
 
 
 class CreateNetworkSuccessTests(unittest.TestCase):
