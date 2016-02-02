@@ -2,7 +2,7 @@
 openstack:
   connection:
     username: admin
-    password: zYkpJCC4TVYFpeaXsEvUZ8eeg
+    password: cable123
     auth_url: http://10.197.123.50:5000/v2.0/
     tenant_name: admin
     http_proxy:
