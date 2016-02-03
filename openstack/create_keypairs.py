@@ -10,11 +10,7 @@ logger = logging.getLogger('OpenStackKeypair')
 
 class OpenStackKeypair:
     """
-    Class responsible for creating a network in OpenStack
-
-    All tasks have been designed after the vPing scenario in the OPNFV functest repository. We will want to make
-    this class more flexible, expand it beyond the private network. Additionally, many of the private methods here
-    should probably make their way into a file named something like neutron_utils.py.
+    Class responsible for creating a keypair in OpenStack
     """
 
     def __init__(self, os_creds, keypair_settings):
@@ -32,7 +28,7 @@ class OpenStackKeypair:
 
     def create(self):
         """
-        Responsible for creating not only the network but then a private subnet, router, and an interface to the router.
+        Responsible for creating the keypair object.
         """
         logger.info('Creating keypair %s...' % self.keypair_settings.name)
 
@@ -71,7 +67,7 @@ class OpenStackKeypair:
 
 class KeypairSettings:
     """
-    Class representing a network configuration
+    Class representing a keypair configuration
     """
 
     def __init__(self, config=None, name=None, public_filepath=None, private_filepath=None):
