@@ -142,6 +142,14 @@ def setup_host(instance, ansible_config):
 
 
 def main():
+    """
+    Will need to set environment variable ANSIBLE_HOST_KEY_CHECKING=False or ...
+    Create a file located in /etc/ansible/ansible/cfg or ~/.ansible.cfg containing the following content:
+
+    [defaults]
+    host_key_checking = False
+    :return: To the OS
+    """
     logging.basicConfig(level=logging.DEBUG)
     logger.info('Starting to Deploy')
     config = None
