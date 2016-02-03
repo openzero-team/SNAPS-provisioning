@@ -1,16 +1,11 @@
 import logging
-import time
 import unittest
 import os
-
-from ansible.runner import Runner
-from ansible.inventory import Inventory
 
 from openstack import create_image
 import openstack.create_instance as create_instance
 import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
-import openstack.nova_utils as nova_utils
 import openstack.create_keypairs as create_keypairs
 import openstack_tests
 
@@ -45,7 +40,8 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         """
         # Create Image
         os_image_settings = openstack_tests.get_image_test_settings()
-        self.image_creator = create_image.OpenStackImage(os_creds, os_image_settings.format, os_image_settings.url,
+        self.image_creator = create_image.OpenStackImage(os_creds, os_image_settings.image_user,
+                                                         os_image_settings.format, os_image_settings.url,
                                                          os_image_settings.name, os_image_settings.download_file_path)
         self.image_creator.create()
 
@@ -98,10 +94,10 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
                                                     self.network_creator.network))
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
-                                                                self.image_creator.image, self.ports)
+                                                                self.image_creator, self.ports)
         vm_inst = self.inst_creator.create()
 
-        self.assertTrue(vm_active(self.inst_creator.nova, vm_inst))
+        self.assertTrue(self.inst_creator.vm_active(block=True))
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
     def test_single_port_static(self):
@@ -113,12 +109,12 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
                                                     self.network_creator.network))
         floating_ip_conf = {'port_name': 'test-port-1', 'ext_net': pub_net_config.router_settings.external_gateway}
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
-                                                                self.image_creator.image, self.ports,
+                                                                self.image_creator, self.ports,
                                                                 floating_ip_conf=floating_ip_conf)
         vm_inst = self.inst_creator.create()
 
         self.assertEquals(ip_1, self.inst_creator.ports[0]['port']['dns_assignment'][0]['ip_address'])
-        self.assertTrue(vm_active(self.inst_creator.nova, vm_inst))
+        self.assertTrue(self.inst_creator.vm_active(block=True))
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
 
@@ -134,7 +130,8 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
         """
         # Create Image
         self.os_image_settings = openstack_tests.get_instance_image_settings()
-        self.image_creator = create_image.OpenStackImage(os_creds, self.os_image_settings.format,
+        self.image_creator = create_image.OpenStackImage(os_creds, self.os_image_settings.image_user,
+                                                         self.os_image_settings.format,
                                                          self.os_image_settings.url,
                                                          self.os_image_settings.name,
                                                          self.os_image_settings.download_file_path)
@@ -208,65 +205,15 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
 
         # Create instance
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
-                                                                self.image_creator.image, self.ports,
-                                                                keypair_name=self.keypair_creator.keypair_settings.name,
+                                                                self.image_creator, self.ports,
+                                                                keypair_creator=self.keypair_creator,
                                                                 floating_ip_conf=floating_ip_conf)
         vm_inst = self.inst_creator.create()
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
         # TODO - Move vm_active and vm_ping to create_instance and allow to block on create
         # Effectively blocks until VM has been properly activated
-        self.assertTrue(vm_active(self.inst_creator.nova, vm_inst))
-
-        floating_ip = nova_utils.get_floating_ip(self.inst_creator.nova, self.inst_creator.floating_ip)
+        self.assertTrue(self.inst_creator.vm_active(block=True))
 
         # Effectively blocks until VM's ssh port has been opened
-        self.assertTrue(vm_ping(floating_ip.ip, self.os_image_settings.image_user,
-                                self.keypair_creator.keypair_settings.private_filepath))
-
-
-def vm_ping(ip, user, private_key_file, timeout=VM_BOOT_TIMEOUT):
-    """
-    Returns true when a ping is successfully executed prior to the timeout
-    :param ip: The IP address to ping
-    :param user: The user credentials to the machine attempting to ping
-    :param private_key_file: The file path to the private key
-    :param timeout: Returns false if ping does not occur prior to this timeout value
-    :return: T/F
-    """
-    runner = Runner(module_name='ping', inventory=Inventory(host_list=[ip]), pattern='all', remote_user=user,
-                    private_key_file=private_key_file)
-
-    # sleep and wait for VM status change
-    sleep_time = 3
-    count = timeout / sleep_time
-    while count > 0:
-        result = runner.run()
-        count -= 1
-        if result.get('contacted'):
-            return True
-        # if result['dark'][ip]['failed'] or count < 1:
-        #     return False
-        time.sleep(sleep_time)
-    return False
-
-
-def vm_active(nova, vm, timeout=VM_BOOT_TIMEOUT):
-    """
-    Returns true when the VM status returns 'ACTIVE' prior to the VM_BOOT_TIMEOUT value
-    :param nova: The nova client
-    :param vm: The VM instance
-    :return: T/F
-    """
-    # sleep and wait for VM status change
-    sleep_time = 3
-    count = timeout / sleep_time
-    while count > 0:
-        count -= 1
-        instance = nova.servers.get(vm.id)
-        if instance.status == "ACTIVE":
-            return True
-        if instance.status == "ERROR" or count < 1:
-            return False
-        time.sleep(sleep_time)
-    return False
+        self.assertTrue(self.inst_creator.vm_ssh_active(block=True))

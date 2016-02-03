@@ -27,8 +27,9 @@ class CreateImageSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.os_image = create_image.OpenStackImage(os_creds, os_image_settings.format, os_image_settings.url,
-                                                    os_image_settings.name, os_image_settings.download_file_path)
+        self.os_image = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
+                                                    os_image_settings.url, os_image_settings.name,
+                                                    os_image_settings.download_file_path)
 
     def tearDown(self):
         """
@@ -123,8 +124,8 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the download destination path cannot be created
         """
-        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.format, os_image_settings.url,
-                                                       os_image_settings.name, '/foo')
+        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
+                                                       os_image_settings.url, os_image_settings.name, '/foo')
         with self.assertRaises(Exception):
             self.createImage.create()
 
@@ -132,7 +133,8 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image name is None
         """
-        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.format, os_image_settings.url, None,
+        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
+                                                       os_image_settings.url, None,
                                                        os_image_settings.download_file_path)
         with self.assertRaises(Exception):
             self.createImage.create()
@@ -141,8 +143,9 @@ class CreateImageNegativeTests(unittest.TestCase):
         """
         Expect an exception when the image download url is bad
         """
-        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.format, 'http://bad.url.com/bad.iso',
-                                                       os_image_settings.name, os_image_settings.download_file_path)
+        self.createImage = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
+                                                       'http://bad.url.com/bad.iso', os_image_settings.name,
+                                                       os_image_settings.download_file_path)
         with self.assertRaises(Exception):
             self.createImage.create()
 
@@ -154,7 +157,7 @@ class CreateImageNegativeTests(unittest.TestCase):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
                                                                                   os_creds.password,
                                                                                   os_creds.auth_url,
-                                                                                  None),
+                                                                                  None), os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -166,6 +169,7 @@ class CreateImageNegativeTests(unittest.TestCase):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
                                                                                   os_creds.password, None,
                                                                                   os_creds.tenant_name),
+                                                           os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -177,6 +181,7 @@ class CreateImageNegativeTests(unittest.TestCase):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username, None,
                                                                                   os_creds.os_auth_url,
                                                                                   os_creds.tenant_name),
+                                                           os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -188,5 +193,6 @@ class CreateImageNegativeTests(unittest.TestCase):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, os_creds.password,
                                                                                   os_creds.os_auth_url,
                                                                                   os_creds.tenant_name),
+                                                           os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)

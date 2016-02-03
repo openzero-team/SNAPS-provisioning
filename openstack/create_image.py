@@ -1,7 +1,8 @@
 import logging
-import file_utils
 import os
 import shutil
+
+import file_utils
 import glance_utils
 
 logger = logging.getLogger('create_image')
@@ -12,10 +13,12 @@ class OpenStackImage:
     Class responsible for creating an image in OpenStack
     """
 
-    def __init__(self, os_creds, image_format, image_url, image_name, download_path):
+    def __init__(self, os_creds=None, image_user=None, image_format=None, image_url=None, image_name=None,
+                 download_path=None, image=None):
         """
         Constructor
         :param os_creds: The OpenStack connection credentials
+        :param image_user: The default user for image
         :param image_format: The type of image file
         :param image_url: The download location of the image file
         :param image_name: The name to register the image
@@ -23,6 +26,7 @@ class OpenStackImage:
         :return:
         """
         self.os_creds = os_creds
+        self.image_user = image_user
         self.image_format = image_format
         self.image_url = image_url
         self.image_name = image_name
@@ -31,7 +35,7 @@ class OpenStackImage:
         filename = image_url.rsplit('/')[-1]
         self.image_file_path = download_path + '/' + filename
 
-        self.image = None
+        self.image = image
         self.image_file = None
         self.glance = glance_utils.glance_client(os_creds)
 
@@ -40,6 +44,10 @@ class OpenStackImage:
         Creates the image in OpenStack if it does not already exist
         :return: The OpenStack Image object
         """
+
+        if self.image:
+            return self.image
+
         import nova_utils
         nova = nova_utils.nova_client(self.os_creds)
         image_dict = None

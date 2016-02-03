@@ -120,7 +120,10 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict):
                 logger.warn('Cannot create port as associated network name of [' + network_name + '] not configured.')
                 raise Exception
 
-    vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image, ports, config.get('keypair_name'),
+    from openstack.create_image import OpenStackImage
+    # TODO - need to configure in the image username
+    image_creator = OpenStackImage(image=image, image_user='centos')
+    vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image_creator, ports, config.get('keypair_name'),
                                   config.get('floating_ip'))
     vm_inst.create()
     return vm_inst

@@ -1,9 +1,14 @@
 import time
 import logging
 
+from ansible.runner import Runner
+from ansible.inventory import Inventory
+
 import nova_utils
 
 logger = logging.getLogger('create_instance')
+
+VM_BOOT_TIMEOUT = 600
 
 
 class OpenStackVmInstance:
@@ -11,23 +16,24 @@ class OpenStackVmInstance:
     Class responsible for creating a VM instance in OpenStack
     """
 
-    def __init__(self, os_creds, name, flavor, image, ports, keypair_name=None, floating_ip_conf=None, userdata=None):
+    def __init__(self, os_creds, name, flavor, image_creator, ports, keypair_creator=None, floating_ip_conf=None,
+                 userdata=None):
         """
         Constructor
         :param os_creds: The connection credentials to the OpenStack API
         :param name: The name of the OpenStack instance to be deployed
         :param flavor: The size of the VM to be deployed (i.e. 'm1.small')
-        :param image: The OpenStack image on which to deploy the VM
+        :param image_creator: The object responsible for creating the OpenStack image on which to deploy the VM
         :param ports: List of ports (NICs) to deploy to the VM
-        :param keypair_name: The name of the keypair (Optional)
+        :param keypair_creator: The object responsible for creating the keypair for this instance (Optional)
         :param floating_ip_conf: The configuration for the addition of a floating IP to an instance (Optional)
         :param userdata: The post installation script as a string or a file object (Optional)
         :raises Exception
         """
         self.name = name
-        self.image = image
+        self.image_creator = image_creator
         self.ports = ports
-        self.keypair_name = keypair_name
+        self.keypair_creator = keypair_creator
         self.floating_ip_conf = floating_ip_conf
         self.floating_ip = None
         self.userdata = userdata
@@ -59,13 +65,18 @@ class OpenStackVmInstance:
             nics.append(kv)
 
         logger.info('Creating VM with name - ' + self.name)
+        keypair_name = None
+        if self.keypair_creator:
+            keypair_name = self.keypair_creator.keypair_settings.name
+
         self.vm = self.nova.servers.create(
             name=self.name,
             flavor=self.flavor,
-            image=self.image,
+            image=self.image_creator.image,
             nics=nics,
-            key_name=self.keypair_name,
+            key_name=keypair_name,
             userdata=self.userdata)
+
         logger.info('Created instance with name - ' + self.name)
 
         if self.floating_ip_conf:
@@ -93,3 +104,68 @@ class OpenStackVmInstance:
 
         if self.floating_ip:
             nova_utils.delete_floating_ip(self.nova, self.floating_ip)
+
+    def vm_active(self, block=False, timeout=VM_BOOT_TIMEOUT):
+        """
+        Returns true when the VM status returns 'ACTIVE'
+        :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
+        :param timeout: The timeout value
+        :return: T/F
+        """
+        # sleep and wait for VM status change
+        sleep_time = 3
+        count = timeout / sleep_time
+        while count > 0:
+            if not block:
+                count = 0
+            status = self._active()
+            if status:
+                return True
+            time.sleep(sleep_time)
+            count -= 1
+        return False
+
+    def _active(self):
+        """
+        Returns True when active else False
+        :return: T/F
+        """
+        instance = self.nova.servers.get(self.vm.id)
+        if not instance:
+            logger.warn('Cannot find instance with id - ' + self.vm.id)
+            return False
+        logger.debug('Instance status is - ' + instance.status)
+        return instance.status == 'ACTIVE'
+
+    def vm_ssh_active(self, block=False, timeout=VM_BOOT_TIMEOUT):
+        """
+        Returns true when the VM can be accessed via SSH
+        :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
+        :param timeout: The timeout value
+        :return: T/F
+        """
+        # sleep and wait for VM status change
+        sleep_time = 3
+        count = timeout / sleep_time
+        while count > 0:
+            if not block:
+                count = 0
+            status = self._ssh_active()
+            if status:
+                return True
+            time.sleep(sleep_time)
+            count -= 1
+        return False
+
+    def _ssh_active(self):
+        """
+        Returns True when can create a SSH session else False
+        :return: T/F
+        """
+        runner = Runner(module_name='ping', inventory=Inventory(host_list=[self.floating_ip.ip]), pattern='all',
+                        remote_user=self.image_creator.image_user,
+                        private_key_file=self.keypair_creator.keypair_settings.private_filepath)
+        result = runner.run()
+        # TODO - output result here
+        # logger.debug("SSH Attempt result - " + result)
+        return not result.get('contacted') is None
