@@ -166,6 +166,9 @@ class OpenStackVmInstance:
                         remote_user=self.image_creator.image_user,
                         private_key_file=self.keypair_creator.keypair_settings.private_filepath)
         result = runner.run()
-        # TODO - output result here
-        # logger.debug("SSH Attempt result - " + result)
-        return not result.get('contacted') is None
+        if result.get('contacted'):
+            logger.debug("Contacted host via SSH with ip - " + self.floating_ip.ip)
+            return True
+
+        logger.debug("Could not contatc host via SSH with ip - " + self.floating_ip.ip)
+        return False
