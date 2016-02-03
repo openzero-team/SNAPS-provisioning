@@ -170,5 +170,5 @@ class OpenStackVmInstance:
             logger.debug("Contacted host via SSH with ip - " + self.floating_ip.ip)
             return True
 
-        logger.debug("Could not contatc host via SSH with ip - " + self.floating_ip.ip)
+        logger.debug("Could not contact host via SSH with ip - " + self.floating_ip.ip)
         return False
