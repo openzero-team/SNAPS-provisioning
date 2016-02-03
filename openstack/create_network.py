@@ -144,7 +144,7 @@ class SubnetSettings:
     """
 
     def __init__(self, config=None, cidr=None, ip_version=4, name=None, tenant_id=None, allocation_pools=None,
-                 start=None, end=None, gateway_ip=None, enable_dhcp=None, dns_nameservers=None, host_routes=None,
+                 start=None, end=None, gateway_ip=None, enable_dhcp=None, dns_nameservers=['8.8.8.8'], host_routes=None,
                  destination=None, nexthop=None, ipv6_ra_mode=None, ipv6_address_mode=None):
         """
         Constructor - all parameters are optional except cidr (subnet mask)
