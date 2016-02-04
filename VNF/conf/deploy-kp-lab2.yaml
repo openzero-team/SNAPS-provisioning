@@ -1,0 +1,14 @@
+---
+openstack:
+  connection:
+    username: admin
+    password: cable123
+    auth_url: http://10.197.123.50:5000/v2.0/
+    tenant_name: admin
+    http_proxy:
+  keypairs:
+    # Generate and save
+    - keypair:
+        name: kpTest
+        public_filepath: /tmp/kpTest.pub
+        private_filepath: /tmp/kpTest

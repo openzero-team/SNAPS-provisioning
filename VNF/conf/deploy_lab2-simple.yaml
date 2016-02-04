@@ -1,0 +1,162 @@
+---
+openstack:
+  connection:
+    username: admin
+    password: cable123
+    auth_url: http://10.197.123.50:5000/v2.0/
+    tenant_name: admin
+    http_proxy:
+  images:
+    - image:
+        name: Centos 7
+        format: qcow2
+        download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+        local_download_path: /tmp/create_image_tests
+    - image:
+        name: Ubuntu Precise
+        format: qcow2
+        download_url: http://cloud-images.ubuntu.com/releases/12.04.2/release/ubuntu-12.04-server-cloudimg-amd64-disk1.img
+        local_download_path: /tmp/create_image_tests
+  networks:
+    - network:
+        name: ext-net
+        subnet:
+          name: ext-subnet
+          cidr: 10.0.1.0/24
+          dns_nameservers: [8.8.8.8]
+        router:
+          name: ext-router
+          external_gateway: external
+    - network:
+        name: int-net
+        subnet:
+          name: int-subnet
+          cidr: 10.1.1.0/24
+        router:
+          name: int-router
+  keypairs:
+    - keypair:
+        name: kp1
+        public_filepath: /tmp/kp1.pub
+        private_filepath: /tmp/kp1
+  instances:
+    - instance:
+        name: centos1
+        flavor: m1.medium
+        imageName: Centos 7
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extCentos1-port
+              network_name: ext-net
+          - port:
+              name: intCentos1-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extCentos1-port
+    - instance:
+        name: centos2
+        flavor: m1.medium
+        imageName: Centos 7
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extCentos2-port
+              network_name: ext-net
+          - port:
+              name: intCentos2-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extCentos2-port
+    - instance:
+        name: centos3
+        flavor: m1.medium
+        imageName: Centos 7
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extCentos3-port
+              network_name: ext-net
+          - port:
+              name: intCentos3-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extCentos3-port
+    - instance:
+        name: centos4
+        flavor: m1.medium
+        imageName: Centos 7
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extCentos4-port
+              network_name: ext-net
+          - port:
+              name: intCentos4-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extCentos4-port
+    - instance:
+        name: ubuntu1
+        flavor: m1.medium
+        imageName: Ubuntu Precise
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extUbuntu1-port
+              network_name: ext-net
+          - port:
+              name: intUbuntu1-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extUbuntu1-port
+    - instance:
+        name: ubuntu2
+        flavor: m1.medium
+        imageName: Ubuntu Precise
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extUbuntu2-port
+              network_name: ext-net
+          - port:
+              name: intUbuntu2-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extUbuntu2-port
+    - instance:
+        name: ubuntu3
+        flavor: m1.medium
+        imageName: Ubuntu Precise
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extUbuntu3-port
+              network_name: ext-net
+          - port:
+              name: intUbuntu3-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extUbuntu3-port
+    - instance:
+        name: ubuntu4
+        flavor: m1.medium
+        imageName: Ubuntu Precise
+        keypair_name: kp1
+        ports:
+          - port:
+              name: extUbuntu4-port
+              network_name: ext-net
+          - port:
+              name: intUbuntu4-port
+              network_name: int-net
+        floating_ip:
+          ext_net: external
+          port_name: extUbuntu4-port

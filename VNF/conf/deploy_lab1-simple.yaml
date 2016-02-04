@@ -1,0 +1,59 @@
+---
+openstack:
+  connection:
+    username: admin
+    password: cable123
+    auth_url: http://10.197.103.50:5000/v2.0/
+    tenant_name: admin
+    http_proxy: localhost:3128
+#  images:
+#    - image:
+#        name: cirros-vnf-deploy
+#        format: qcow2
+#        download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+#        local_download_path: /tmp/create_image_tests
+  networks:
+    - network:
+        name: vnf-net
+        subnet:
+          name: vnf-subnet
+          cidr: 10.10.3.0/24
+          gateway_ip: 10.10.3.1
+        router:
+          name: vnf-net-router
+          external_gateway: external
+  keypairs:
+    # Generate and save
+    - keypair:
+        name: kp1
+        public_filepath: /tmp/kp1.pub
+        private_filepath: /tmp/kp1
+  instances:
+    - instance:
+        name: inst1
+        flavor: m1.small
+        imageName: cirros-vnf-deploy
+        keypair_name: kp1
+        ports:
+          - port:
+              name: inst1-port
+              network_name: vnf-net
+#              ip: 10.10.3.10
+        floating_ip:
+          ext_net: external
+          port_name: inst1-port
+      ansible:
+    - instance:
+        name: inst2
+        flavor: m1.small
+        imageName: cirros-vnf-deploy
+        keypair_name: kp1
+        ports:
+          - port:
+              name: inst2-port
+              network_name: vnf-net
+#              ip: 10.10.3.20
+        floating_ip:
+          ext_net: external
+          port_name: inst2-port
+      ansible:
