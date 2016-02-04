@@ -28,7 +28,7 @@ def create_image(os_conn_config, image_config):
     :return: A reference to the image creator object from which the image object can be accessed
     """
     from openstack.create_image import OpenStackImage
-    image_creator = OpenStackImage(get_os_credentials(os_conn_config),
+    image_creator = OpenStackImage(get_os_credentials(os_conn_config), image_config.get('image_user'),
                                    image_config.get('format'), image_config.get('download_url'),
                                    image_config.get('name'), image_config.get('local_download_path'))
     image_creator.create()
@@ -80,13 +80,14 @@ def create_keypair(os_conn_config, keypair_config):
     return keypair_creator
 
 
-def create_vm_instance(os_conn_config, instance_config, image, network_dict):
+def create_vm_instance(os_conn_config, instance_config, image, network_dict, keypair_creator):
     """
     Creates a VM instance
     :param os_conn_config: The OpenStack credentials
     :param instance_config: The VM instance configuration
     :param image: The VM image
     :param network_dict: A dictionary of network objects returned by OpenStack where the key contains the network name.
+    :param keypair_creator: The object responsible for creating the keypair associated with this VM instance.
     :return: A reference to the VM instance object
     """
     from openstack.create_network import PortSettings
@@ -124,7 +125,7 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict):
     # TODO - need to configure in the image username
     image_creator = OpenStackImage(image=image, image_user='centos')
     vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image_creator, ports, config['sudo_user'],
-                                  config.get('keypair_name'), config.get('floating_ip'))
+                                  keypair_creator, config.get('floating_ip'))
     vm_inst.create()
     return vm_inst
 
@@ -210,7 +211,8 @@ def main():
                         inst_image = nova.images.find(name=instance.get('imageName'))
                     if inst_image:
                         vm_dict[instance['name']] = create_vm_instance(os_conn_config, instance_config,
-                                                                       inst_image, network_dict)
+                                                                       inst_image, network_dict,
+                                                                       keypairs_dict[instance['keypair_name']])
 
         # Setup host by applying ansible scripts to complete the machine's provisioning
         if instance_config:

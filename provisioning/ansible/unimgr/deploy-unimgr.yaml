@@ -10,11 +10,13 @@ openstack:
     - image:
         name: Centos 7
         format: qcow2
+        image_user: centos
         download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
         local_download_path: /tmp/create_image_tests
     - image:
         name: Cirros
         format: qcow2
+        image_user: centos
         download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
         local_download_path: /tmp/create_image_tests
   networks:
@@ -76,6 +78,7 @@ openstack:
         flavor: m1.small
         imageName: Centos 7
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: manager-ext-port
@@ -91,6 +94,7 @@ openstack:
         flavor: m1.small
         imageName: Centos 7
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: manager-int-port2
@@ -100,6 +104,7 @@ openstack:
         flavor: m1.small
         imageName: Centos 7
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: manager-int-port
@@ -109,6 +114,7 @@ openstack:
         flavor: m1.small
         imageName: Centos 7
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: site1-port
@@ -118,6 +124,7 @@ openstack:
         flavor: m1.small
         imageName: Cirros
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: site1-host
@@ -130,6 +137,7 @@ openstack:
         flavor: m1.small
         imageName: Centos 7
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: site2-port
@@ -139,6 +147,7 @@ openstack:
         flavor: m1.small
         imageName: Cirros
         keypair_name: unimgr
+        sudo_user: centos
         ports:
           - port:
               name: site2-host

@@ -32,12 +32,15 @@ class OpenStackImage:
         self.image_name = image_name
         self.download_path = download_path
 
-        filename = image_url.rsplit('/')[-1]
-        self.image_file_path = download_path + '/' + filename
+        if image_url:
+            filename = image_url.rsplit('/')[-1]
+            self.image_file_path = download_path + '/' + filename
 
         self.image = image
         self.image_file = None
-        self.glance = glance_utils.glance_client(os_creds)
+
+        if os_creds:
+            self.glance = glance_utils.glance_client(os_creds)
 
     def create(self):
         """

@@ -51,11 +51,6 @@ class OpenStackKeypair:
                                                              keys.publickey().exportKey('OpenSSH'))
                     nova_utils.save_keys_to_files(keys, self.keypair_settings.public_filepath,
                                                   self.keypair_settings.private_filepath)
-        else:
-                # TODO - Make this value configurable
-                keys = RSA.generate(1024)
-                self.keypair = nova_utils.upload_keypair(self.nova, self.keypair_settings.name,
-                                                         keys.publickey().exportKey('OpenSSH'))
 
     def clean(self):
         """
