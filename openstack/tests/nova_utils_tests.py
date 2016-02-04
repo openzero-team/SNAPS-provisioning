@@ -10,16 +10,21 @@ import openstack_tests
 
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('nova_utils_tests')
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# To run these tests, the CWD must be set to the top level directory of this project
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 os_creds = openstack_tests.get_credentials()
 
 priv_key_file_path = '/tmp/testKey'
 pub_key_file_path = priv_key_file_path + '.pub'
 
-test_conf = file_utils.read_yaml('conf/os_env.yaml')
+test_conf = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')
 
 if test_conf.get('ext_net'):
     ext_net_name = test_conf['ext_net']

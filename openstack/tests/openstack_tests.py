@@ -9,7 +9,7 @@ tenant_name = 'admin'
 
 
 def get_credentials():
-    config = file_utils.read_yaml('conf/os_env.yaml')
+    config = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')
     if config.get('http_proxy'):
         os.environ['HTTP_PROXY'] = config['http_proxy']
     return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'])

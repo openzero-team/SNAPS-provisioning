@@ -123,8 +123,8 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict):
     from openstack.create_image import OpenStackImage
     # TODO - need to configure in the image username
     image_creator = OpenStackImage(image=image, image_user='centos')
-    vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image_creator, ports, config.get('keypair_name'),
-                                  config.get('floating_ip'))
+    vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image_creator, ports, config['sudo_user'],
+                                  config.get('keypair_name'), config.get('floating_ip'))
     vm_inst.create()
     return vm_inst
 
@@ -148,6 +148,9 @@ def main():
 
     [defaults]
     host_key_checking = False
+
+    CWD must be one directory up from where this script is located (SDN - name to be changed eventually).
+
     :return: To the OS
     """
     logging.basicConfig(level=logging.DEBUG)

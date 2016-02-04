@@ -8,8 +8,13 @@ import openstack_tests
 
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# To run these tests, the CWD must be set to the top level directory of this project
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 os_creds = openstack_tests.get_credentials()
 

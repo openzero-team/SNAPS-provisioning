@@ -9,6 +9,7 @@ import nova_utils
 logger = logging.getLogger('create_instance')
 
 VM_BOOT_TIMEOUT = 600
+POLL_INTERVAL = 3
 
 
 class OpenStackVmInstance:
@@ -16,7 +17,7 @@ class OpenStackVmInstance:
     Class responsible for creating a VM instance in OpenStack
     """
 
-    def __init__(self, os_creds, name, flavor, image_creator, ports, keypair_creator=None, floating_ip_conf=None,
+    def __init__(self, os_creds, name, flavor, image_creator, ports, remote_user, keypair_creator=None, floating_ip_conf=None,
                  userdata=None):
         """
         Constructor
@@ -25,6 +26,7 @@ class OpenStackVmInstance:
         :param flavor: The size of the VM to be deployed (i.e. 'm1.small')
         :param image_creator: The object responsible for creating the OpenStack image on which to deploy the VM
         :param ports: List of ports (NICs) to deploy to the VM
+        :param remote_user: The sudo user
         :param keypair_creator: The object responsible for creating the keypair for this instance (Optional)
         :param floating_ip_conf: The configuration for the addition of a floating IP to an instance (Optional)
         :param userdata: The post installation script as a string or a file object (Optional)
@@ -33,6 +35,7 @@ class OpenStackVmInstance:
         self.name = name
         self.image_creator = image_creator
         self.ports = ports
+        self.remote_user = remote_user
         self.keypair_creator = keypair_creator
         self.floating_ip_conf = floating_ip_conf
         self.floating_ip = None
@@ -105,23 +108,92 @@ class OpenStackVmInstance:
         if self.floating_ip:
             nova_utils.delete_floating_ip(self.nova, self.floating_ip)
 
-    def vm_active(self, block=False, timeout=VM_BOOT_TIMEOUT):
+    def config_rpm_nics(self):
+        if len(self.ports) > 1 and self.vm_active(block=True) and self.vm_ssh_active(block=True):
+            for port in self.ports:
+                port_index = self.ports.index(port)
+                if port_index > 0:
+                    nic_name = 'eth' + repr(port_index)
+                    self._config_rpm_nic(nic_name, port)
+
+    def _config_rpm_nic(self, nic_name, port):
+        """
+        Although ports/NICs can contain multiple IPs, this code currently only supports the first.
+
+        Your CWD at this point must be the SDN directory.
+        TODO - fix this restriction.
+
+        :param nic_name: Name of the interface
+        :param port: The port information containing the expected IP values.
+        """
+        from ansible.playbook import PlayBook
+        from ansible.callbacks import AggregateStats
+        from ansible.callbacks import PlaybookRunnerCallbacks
+        from ansible.callbacks import PlaybookCallbacks
+        from ansible import utils
+        import jinja2
+        from tempfile import NamedTemporaryFile
+
+        ip = port['port']['fixed_ips'][0]['ip_address']
+
+        inventory = """
+        [this]
+        {{ floating_ip }}
+
+        [this:vars]
+        nic_name={{nic_name}}
+        nic_ip={{nic_ip}}
+        """
+
+        inventory_template = jinja2.Template(inventory)
+        rendered_inventory = inventory_template.render({
+            'floating_ip': self.floating_ip.ip,
+            'nic_name': nic_name,
+            'nic_ip': ip
+        })
+
+        hosts = NamedTemporaryFile(delete=False)
+        hosts.write(rendered_inventory)
+        hosts.close()
+
+        stats = AggregateStats()
+        run_cb = PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
+        pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
+
+        # TODO - need to find a better means of finding this playbook.
+        runner = PlayBook(playbook='provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
+                          host_list=hosts.name,
+                          remote_user=self.remote_user, sudo_user='root',
+                          private_key_file=self.keypair_creator.keypair_settings.private_filepath, sudo=True,
+                          callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
+        data = runner.run()
+        if data.get(ip):
+            if data[ip]['ok'] > 0:
+                logger.info("Configure network status OK - " + repr(data[ip]['ok']))
+            if data[ip]['failures'] > 0:
+                logger.warn("Configure network status FAILURES - " + repr(data[ip]['failures']))
+            if data[ip]['unreachable'] > 0:
+                logger.warn("Configure network status UNREACHABLE - " + repr(data[ip]['unreachable']))
+        else:
+            logger.warn("No status returned for IP in question")
+
+    def vm_active(self, block=False, timeout=VM_BOOT_TIMEOUT, poll_interval=POLL_INTERVAL):
         """
         Returns true when the VM status returns 'ACTIVE'
         :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
         :param timeout: The timeout value
+        :param poll_interval: The polling interval in seconds
         :return: T/F
         """
         # sleep and wait for VM status change
-        sleep_time = 3
-        count = timeout / sleep_time
+        count = timeout / poll_interval
         while count > 0:
             if not block:
                 count = 0
             status = self._active()
             if status:
                 return True
-            time.sleep(sleep_time)
+            time.sleep(poll_interval)
             count -= 1
         return False
 
@@ -137,23 +209,23 @@ class OpenStackVmInstance:
         logger.debug('Instance status is - ' + instance.status)
         return instance.status == 'ACTIVE'
 
-    def vm_ssh_active(self, block=False, timeout=VM_BOOT_TIMEOUT):
+    def vm_ssh_active(self, block=False, timeout=VM_BOOT_TIMEOUT, poll_interval=POLL_INTERVAL):
         """
         Returns true when the VM can be accessed via SSH
         :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
         :param timeout: The timeout value
+        :param poll_interval: The polling interval
         :return: T/F
         """
         # sleep and wait for VM status change
-        sleep_time = 3
-        count = timeout / sleep_time
+        count = timeout / poll_interval
         while count > 0:
             if not block:
                 count = 0
             status = self._ssh_active()
             if status:
                 return True
-            time.sleep(sleep_time)
+            time.sleep(poll_interval)
             count -= 1
         return False
 

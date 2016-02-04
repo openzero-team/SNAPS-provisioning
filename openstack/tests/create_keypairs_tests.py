@@ -1,12 +1,18 @@
 import unittest
+import logging
+import os
+
+from Crypto.PublicKey import RSA
+
 import openstack.create_keypairs as create_keypairs
 import openstack.nova_utils as nova_utils
 import openstack_tests
-import logging
-import os
-from Crypto.PublicKey import RSA
 
 logging.basicConfig(level=logging.DEBUG)
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# To run these tests, the CWD must be set to the top level directory of this project
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 os_creds = openstack_tests.get_credentials()
 keypair_name = 'testKP'

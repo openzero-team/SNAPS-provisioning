@@ -39,10 +39,11 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         within OpenStack
         """
         # Create Image
-        os_image_settings = openstack_tests.get_image_test_settings()
-        self.image_creator = create_image.OpenStackImage(os_creds, os_image_settings.image_user,
-                                                         os_image_settings.format, os_image_settings.url,
-                                                         os_image_settings.name, os_image_settings.download_file_path)
+        self.os_image_settings = openstack_tests.get_image_test_settings()
+        self.image_creator = create_image.OpenStackImage(os_creds, self.os_image_settings.image_user,
+                                                         self.os_image_settings.format, self.os_image_settings.url,
+                                                         self.os_image_settings.name,
+                                                         self.os_image_settings.download_file_path)
         self.image_creator.create()
 
         # Create Network
@@ -94,7 +95,8 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
                                                     self.network_creator.network))
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
-                                                                self.image_creator, self.ports)
+                                                                self.image_creator, self.ports,
+                                                                self.os_image_settings.image_user)
         vm_inst = self.inst_creator.create()
 
         self.assertTrue(self.inst_creator.vm_active(block=True))
@@ -110,6 +112,7 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         floating_ip_conf = {'port_name': 'test-port-1', 'ext_net': pub_net_config.router_settings.external_gateway}
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
                                                                 self.image_creator, self.ports,
+                                                                self.os_image_settings.image_user,
                                                                 floating_ip_conf=floating_ip_conf)
         vm_inst = self.inst_creator.create()
 
@@ -206,6 +209,7 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
         # Create instance
         self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
                                                                 self.image_creator, self.ports,
+                                                                self.os_image_settings.image_user,
                                                                 keypair_creator=self.keypair_creator,
                                                                 floating_ip_conf=floating_ip_conf)
         vm_inst = self.inst_creator.create()
@@ -217,3 +221,6 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
 
         # Effectively blocks until VM's ssh port has been opened
         self.assertTrue(self.inst_creator.vm_ssh_active(block=True))
+
+        self.inst_creator.config_rpm_nics()
+        # TODO - *** ADD VALIDATION HERE ***
