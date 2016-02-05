@@ -87,14 +87,8 @@ class OpenStackVmInstance:
                 if port['port']['name'] == self.floating_ip_conf['port_name']:
                     self.floating_ip = nova_utils.create_floating_ip(self.nova, self.floating_ip_conf['ext_net'])
                     logger.info('Created floating IP ' + self.floating_ip.ip)
-                    # TODO - Remove sleep below. Currently only works when waiting a bit after floating IP creation
-                    time.sleep(5)
-                    try:
-                        self.vm.add_floating_ip(self.floating_ip, port['port']['dns_assignment'][0]['ip_address'])
-                        logger.info('Added floating IP to port ' + port['port']['name'])
-                    except:
-                        logger.error('Error adding floating IP to instance')
-                        pass
+                    self._add_floating_ip(port['port']['dns_assignment'][0]['ip_address'])
+
         return self.vm
 
     def clean(self):
@@ -107,7 +101,29 @@ class OpenStackVmInstance:
         if self.floating_ip:
             nova_utils.delete_floating_ip(self.nova, self.floating_ip)
 
+    def _add_floating_ip(self, port_ip, timeout=30, poll_interval=POLL_INTERVAL):
+        """
+        Returns True when active else False
+        TODO - Make timeout and poll_interval configurable...
+        """
+        count = timeout / poll_interval
+        while count > 0:
+            logger.debug('Attempting to add floating IP to instance')
+            try:
+                self.vm.add_floating_ip(self.floating_ip, port_ip)
+                logger.info('Added floating IP to port IP - ' + port_ip)
+                return
+            except:
+                logger.warn('Error adding floating IP to instance')
+                time.sleep(poll_interval)
+                pass
+        logger.error('Timeout attempting to add the floating IP to instance.')
+
     def config_rpm_nics(self):
+        """
+        Responsible for configuring NICs on RPM systems where the instance has more than one configured port
+        :return: None
+        """
         if len(self.ports) > 1 and self.vm_active(block=True) and self.vm_ssh_active(block=True):
             for port in self.ports:
                 port_index = self.ports.index(port)
