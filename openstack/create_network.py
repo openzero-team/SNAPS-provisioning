@@ -61,18 +61,19 @@ class OpenStackNetwork:
         logger.debug("Subnet '%s' created successfully" % self.subnet['subnets'][0]['id'])
 
         logger.debug('Creating Router...')
-        router_inst = neutron_utils.get_router_by_name(self.neutron, self.router_settings.name)
-        if router_inst:
-            self.router = router_inst
-        else:
-            self.router = neutron_utils.create_router(self.neutron, self.router_settings)
-        logger.debug("Router '%s' created successfully" % self.router['router']['id'])
+        if self.router_settings.name:
+            router_inst = neutron_utils.get_router_by_name(self.neutron, self.router_settings.name)
+            if router_inst:
+                self.router = router_inst
+            else:
+                self.router = neutron_utils.create_router(self.neutron, self.router_settings)
+            logger.debug("Router '%s' created successfully" % self.router['router']['id'])
 
-        logger.debug('Adding router to subnet...')
-        try:
-            self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
-        except neutronclient.common.exceptions.BadRequest:
-            pass
+            logger.debug('Adding router to subnet...')
+            try:
+                self.interface_router = neutron_utils.add_interface_router(self.neutron, self.router, self.subnet)
+            except neutronclient.common.exceptions.BadRequest:
+                pass
 
     def clean(self):
         """
