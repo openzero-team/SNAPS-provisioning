@@ -1,0 +1,20 @@
+---
+- hosts: all
+  remote_user: centos
+
+  tasks:
+   - yum: name=git
+   - yum: name=wget
+   - yum: name=epel-release
+   - yum: name=nodejs
+   - yum: name=npm
+   - yum: name=java-1.7.0-openjdk.x86_64
+   - yum: name=tomcat
+   - yum: name=maven
+   - yum: name=less
+
+   - name: Install bower via npm
+     command: npm -g install bower
+
+   - name: Install grunt-cli via npm
+     command: npm -g install grunt-cli

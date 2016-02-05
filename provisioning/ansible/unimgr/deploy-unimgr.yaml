@@ -61,32 +61,6 @@ openstack:
           ext_net: external
           port_name: mgr-app-port
     - instance:
-        name: mgr-srvc
-        flavor: m1.small
-        imageName: Centos 7
-        keypair_name: unimgr
-        sudo_user: centos
-        ports:
-          - port:
-              name: mgr-srvc-port
-              network_name: mgr-net
-        floating_ip:
-          ext_net: external
-          port_name: mgr-srvc-port
-    - instance:
-        name: mgr-odl
-        flavor: m1.small
-        imageName: Centos 7
-        keypair_name: unimgr
-        sudo_user: centos
-        ports:
-          - port:
-              name: mgr-odl-port
-              network_name: mgr-net
-        floating_ip:
-          ext_net: external
-          port_name: mgr-odl-port
-    - instance:
         name: site1-ovs
         flavor: m1.small
         imageName: Centos 7

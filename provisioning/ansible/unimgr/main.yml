@@ -1,0 +1,7 @@
+---
+- include: playbooks/set_shell_vars.yml
+- include: playbooks/install_dependencies.yml
+- include: playbooks/clone_repos.yml
+- include: playbooks/buildLsoapi.yml
+- include: playbooks/tomcat.yml
+- include: playbooks/controller.yml
