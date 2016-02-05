@@ -35,16 +35,12 @@ openstack:
           name: site1-subnet
           cidr: 192.168.0.0/24
           gateway_ip: 192.168.0.1
-        router:
-          name: site1-router
     - network:
         name: site2-net
         subnet:
           name: site2-subnet
           cidr: 192.168.0.0/24
           gateway_ip: 192.168.0.1
-        router:
-          name: site2-router
   keypairs:
     - keypair:
         name: unimgr
