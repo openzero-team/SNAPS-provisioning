@@ -144,7 +144,7 @@ class SubnetSettings:
     """
 
     def __init__(self, config=None, cidr=None, ip_version=4, name=None, tenant_id=None, allocation_pools=None,
-                 start=None, end=None, gateway_ip=None, enable_dhcp=None, dns_nameservers=['8.8.8.8'], host_routes=None,
+                 start=None, end=None, gateway_ip=None, enable_dhcp=None, dns_nameservers=None, host_routes=None,
                  destination=None, nexthop=None, ipv6_ra_mode=None, ipv6_address_mode=None):
         """
         Constructor - all parameters are optional except cidr (subnet mask)
@@ -179,6 +179,8 @@ class SubnetSettings:
         :param ipv6_address_mode: A valid value is dhcpv6-stateful, dhcpv6-stateless, or slaac.
         :raise: Exception when config does not have or cidr values are None
         """
+        if not dns_nameservers:
+            dns_nameservers = ['8.8.8.8']
 
         if config:
             if config['cidr']:
@@ -196,7 +198,12 @@ class SubnetSettings:
                 self.end = config.get('end')
                 self.gateway_ip = config.get('gateway_ip')
                 self.enable_dhcp = config.get('enable_dhcp')
-                self.dns_nameservers = config.get('dns_nameservers')
+
+                if config.get('dns_nameservers'):
+                    self.dns_nameservers = config.get('dns_nameservers')
+                else:
+                    self.dns_nameservers = dns_nameservers
+
                 self.host_routes = config.get('host_routes')
                 self.destination = config.get('destination')
                 self.nexthop = config.get('nexthop')

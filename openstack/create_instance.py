@@ -8,7 +8,7 @@ import nova_utils
 
 logger = logging.getLogger('create_instance')
 
-VM_BOOT_TIMEOUT = 600
+VM_BOOT_TIMEOUT = 1200
 POLL_INTERVAL = 3
 
 
@@ -95,7 +95,6 @@ class OpenStackVmInstance:
                     except:
                         logger.error('Error adding floating IP to instance')
                         pass
-
         return self.vm
 
     def clean(self):
@@ -115,6 +114,7 @@ class OpenStackVmInstance:
                 if port_index > 0:
                     nic_name = 'eth' + repr(port_index)
                     self._config_rpm_nic(nic_name, port)
+                    logger.info('Configured NIC - ' + nic_name)
 
     def _config_rpm_nic(self, nic_name, port):
         """

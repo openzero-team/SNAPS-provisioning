@@ -21,52 +21,30 @@ openstack:
         local_download_path: /tmp/create_image_tests
   networks:
     - network:
-        name: manager-ext-net
+        name: mgr-net
         subnet:
-          name: manager-ext-subnet
+          name: control-subnet
           cidr: 10.0.1.0/24
+          dns_nameservers: [8.8.8.8]
         router:
-          name: manager-ext-router
+          name: control-ext-router
           external_gateway: external
-    - network:
-        name: manager-int-net
-        subnet:
-          name: manager-int-subnet
-          cidr: 10.1.1.0/24
-        router:
-          name: manager-int-router
     - network:
         name: site1-net
         subnet:
           name: site1-subnet
-          cidr: 10.0.2.0/24
-          gateway_ip: 10.0.2.1
+          cidr: 192.168.0.0/24
+          gateway_ip: 192.168.0.1
         router:
           name: site1-router
     - network:
         name: site2-net
         subnet:
           name: site2-subnet
-          cidr: 10.0.3.0/24
-          gateway_ip: 10.0.3.1
+          cidr: 192.168.0.0/24
+          gateway_ip: 192.168.0.1
         router:
           name: site2-router
-    - network:
-        name: ent1-net
-        subnet:
-          name: ent1-subnet
-          cidr: 192.168.1.0/24
-          gateway_ip: 192.168.1.1
-        router:
-          name: ent1-router
-    - network:
-        name: ent2-net
-        subnet:
-          name: ent2-subnet
-          cidr: 192.168.1.0/24
-          gateway_ip: 192.168.1.1
-        router:
-          name: ent2-router
   keypairs:
     - keypair:
         name: unimgr
@@ -81,14 +59,11 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: manager-ext-port
-              network_name: manager-ext-net
-          - port:
-              name: manager-int-port1
-              network_name: manager-int-net
+              name: mgr-app-port
+              network_name: mgr-net
         floating_ip:
           ext_net: external
-          port_name: manager-ext-port
+          port_name: mgr-app-port
     - instance:
         name: mgr-srvc
         flavor: m1.small
@@ -97,8 +72,11 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: manager-int-port2
-              network_name: manager-int-net
+              name: mgr-srvc-port
+              network_name: mgr-net
+        floating_ip:
+          ext_net: external
+          port_name: mgr-srvc-port
     - instance:
         name: mgr-odl
         flavor: m1.small
@@ -107,8 +85,11 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: manager-int-port
-              network_name: manager-int-net
+              name: mgr-odl-port
+              network_name: mgr-net
+        floating_ip:
+          ext_net: external
+          port_name: mgr-odl-port
     - instance:
         name: site1-ovs
         flavor: m1.small
@@ -117,8 +98,14 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: site1-port
+              name: site1-ovs-mgr-port
+              network_name: mgr-net
+          - port:
+              name: site1-ovs-site1-port
               network_name: site1-net
+        floating_ip:
+          ext_net: external
+          port_name: site1-ovs-mgr-port
     - instance:
         name: site1-host
         flavor: m1.small
@@ -127,11 +114,9 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: site1-host
+              name: site1-host-port
               network_name: site1-net
-          - port:
-              name: ent1-host
-              network_name: ent1-net
+              ip: 192.168.0.101
     - instance:
         name: site2-ovs
         flavor: m1.small
@@ -140,8 +125,14 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: site2-port
+              name: site2-ovs-mgr-port
+              network_name: mgr-net
+          - port:
+              name: site2-ovs-site2-port
               network_name: site2-net
+        floating_ip:
+          ext_net: external
+          port_name: site2-ovs-mgr-port
     - instance:
         name: site2-host
         flavor: m1.small
@@ -150,8 +141,6 @@ openstack:
         sudo_user: centos
         ports:
           - port:
-              name: site2-host
+              name: site2-host-port
               network_name: site2-net
-          - port:
-              name: ent2-host
-              network_name: ent2-net
+              ip: 192.168.0.102

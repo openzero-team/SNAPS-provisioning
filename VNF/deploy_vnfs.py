@@ -15,6 +15,11 @@ logger = logging.getLogger('deploy_vnfs')
 
 
 def get_os_credentials(os_conn_config):
+    """
+    Returns an object containing all of the information required to access OpenStack APIs
+    :param os_conn_config: The configuration holding the credentials
+    :return: an OSCreds instance
+    """
     return os_credentials.OSCreds(os_conn_config.get('username'),
                                   os_conn_config.get('password'),
                                   os_conn_config.get('auth_url'),
@@ -130,16 +135,91 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict, key
     return vm_inst
 
 
-def setup_host(instance, ansible_config):
+def create_images(os_conn_config, images_config):
     """
-    Configures a VM instance to run the CMTS
-    :param instance: The instance object to which the CMTS will be deployed
-    :param ansible_config: The configuration setting to execute Ansible
-    :return: ???
+    Returns a dictionary of images where the key is the image name and the value is the image object
+    :param os_conn_config: The OpenStack connection credentials
+    :param images_config: The list of image configurations
+    :return: dictionary
     """
-    # Execute ansible to setup VM instance with a running CMTS emulator
-    print instance
-    print ansible_config
+    if images_config:
+        images = {}
+        for image_config_dict in images_config:
+            image_config = image_config_dict.get('image')
+            if image_config and image_config.get('name'):
+                images[image_config['name']] = create_image(os_conn_config, image_config)
+        logger.info('Created configured images')
+        return images
+    return dict()
+
+
+def create_networks(os_conn_config, network_confs):
+    """
+    Returns a dictionary of networks where the key is the network name and the value is the network object
+    :param os_conn_config: The OpenStack connection credentials
+    :param network_confs: The list of network configurations
+    :return: dictionary
+    """
+    if network_confs:
+        network_dict = {}
+        if network_confs:
+            for network_conf in network_confs:
+                net_name = network_conf['network']['name']
+                network_dict[net_name] = create_network(os_conn_config, network_conf)
+        logger.info('Created configured networks')
+        return network_dict
+    return dict()
+
+
+def create_keypairs(os_conn_config, keypair_confs):
+    """
+    Returns a dictionary of keypairs where the key is the keypair name and the value is the keypair object
+    :param os_conn_config: The OpenStack connection credentials
+    :param keypair_confs: The list of keypair configurations
+    :return: dictionary
+    """
+    if keypair_confs:
+        keypairs_dict = {}
+        if keypair_confs:
+            for keypair_dict in keypair_confs:
+                keypair_config = keypair_dict['keypair']
+                keypairs_dict[keypair_config['name']] = create_keypair(os_conn_config, keypair_config)
+        logger.info('Created configured keypairs')
+        return keypairs_dict
+    return dict()
+
+
+def create_instances(os_conn_config, instances_config, images, network_dict, keypairs_dict):
+    """
+    Returns a dictionary of instances where the key is the instance name and the value is the VM object
+    :param os_conn_config: The OpenStack connection credentials
+    :param instances_config: The list of VM instance configurations
+    :param images: A dictionary of images that will probably be used to instantiate the VM instance
+    :param network_dict: A dictionary of networks that will probably be used to instantiate the VM instance
+    :param keypairs_dict: A dictionary of keypairs that will probably be used to instantiate the VM instance
+    :return: dictionary
+    """
+    if instances_config:
+        vm_dict = {}
+        for instance_config in instances_config:
+            instance = instance_config.get('instance')
+            if instance:
+                if images:
+                    inst_image = images.get(instance.get('imageName')).image
+                else:
+                    nova = nova_utils.nova_client(os_credentials.OSCreds(os_conn_config.get('username'),
+                                                                         os_conn_config.get('password'),
+                                                                         os_conn_config.get('auth_url'),
+                                                                         os_conn_config.get('tenant_name')))
+                    inst_image = nova.images.find(name=instance.get('imageName'))
+                if inst_image:
+                    vm_dict[instance['name']] = create_vm_instance(os_conn_config, instance_config,
+                                                                   inst_image, network_dict,
+                                                                   keypairs_dict[instance['keypair_name']])
+
+        logger.info('Created configured instances')
+        return vm_dict
+    return dict()
 
 
 def main():
@@ -165,58 +245,33 @@ def main():
         os_config = config.get('openstack')
         os_conn_config = os_config.get('connection')
 
+        # Setup proxy settings if any
         if os_conn_config.get('http_proxy'):
             os.environ['HTTP_PROXY'] = os_conn_config['http_proxy']
 
         # Create images
-        images = {}
-        images_config = os_config.get('images')
-        if images_config:
-            for image_config_dict in images_config:
-                image_config = image_config_dict.get('image')
-                if image_config and image_config.get('name'):
-                    images[image_config['name']] = create_image(os_conn_config, image_config)
+        images = create_images(os_conn_config, os_config.get('images'))
 
         # Create network
-        network_dict = {}
-        network_confs = os_config.get('networks')
-        if network_confs:
-            for network_conf in network_confs:
-                net_name = network_conf['network']['name']
-                network_dict[net_name] = create_network(os_conn_config, network_conf)
+        network_dict = create_networks(os_conn_config, os_config.get('networks'))
 
         # Create keypairs
-        keypairs_dict = {}
-        keypairs_config = os_config.get('keypairs')
-        if keypairs_config:
-            for keypair_dict in keypairs_config:
-                keypair_config = keypair_dict['keypair']
-                keypairs_dict[keypair_config['name']] = create_keypair(os_conn_config, keypair_config)
+        keypairs_dict = create_keypairs(os_conn_config, os_config.get('keypairs'))
 
         # Create instance
-        instances_config = os_config.get('instances')
-        instance_config = None
-        if instances_config:
-            vm_dict = {}
-            for instance_config in instances_config:
-                instance = instance_config.get('instance')
-                if instance:
-                    if images:
-                        inst_image = images.get(instance.get('imageName')).image
-                    else:
-                        nova = nova_utils.nova_client(os_credentials.OSCreds(os_conn_config.get('username'),
-                                                                             os_conn_config.get('password'),
-                                                                             os_conn_config.get('auth_url'),
-                                                                             os_conn_config.get('tenant_name')))
-                        inst_image = nova.images.find(name=instance.get('imageName'))
-                    if inst_image:
-                        vm_dict[instance['name']] = create_vm_instance(os_conn_config, instance_config,
-                                                                       inst_image, network_dict,
-                                                                       keypairs_dict[instance['keypair_name']])
+        # instances_config = os_config.get('instances')
+        # instance_config = None
+        vm_dict = create_instances(os_conn_config, os_config['instances'], images, network_dict, keypairs_dict)
+        logger.info('Completed creating all configured instances')
+
+        logger.info('Configuring RPM NICs where required')
+        for vm in vm_dict.itervalues():
+            vm.config_rpm_nics()
+        logger.info('Completed RPM NIC configuration')
 
         # Setup host by applying ansible scripts to complete the machine's provisioning
-        if instance_config:
-            setup_host(instance_config, config.get('ansible'))
+        # if instance_config:
+        #     setup_host(instance_config, config.get('ansible'))
 
         # print 'Number of arguments:', len(sys.argv), 'arguments.'
         # print 'Argument List:', str(sys.argv)
