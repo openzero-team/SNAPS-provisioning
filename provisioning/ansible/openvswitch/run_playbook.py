@@ -21,7 +21,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     logger.info('Start Run Ansible')
 
-    hosts = ['10.197.123.207']
+    hosts = ['10.197.123.202', '10.197.123.204']
     inventory = Inventory(host_list=hosts)
 
     stats = AggregateStats()

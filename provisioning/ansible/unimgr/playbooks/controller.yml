@@ -3,9 +3,9 @@
   remote_user: centos
 
   tasks:
-   - name: Transfer the script
-     copy: src=../scripts/compileUnimgr.sh dest=~/compileUnimgr.sh mode=0777
+   - name: Transfer the runUnimgr.sh script
+     copy: src=../scripts/runUnimgr.sh dest=~/runUnimgr.sh mode=0777
 
-   - name: Execute the script
-     command: sudo sh ~/compileUnimgr.sh
+   - name: Execute the runUnimgr.sh script
+     command: sudo sh ~/runUnimgr.sh
 

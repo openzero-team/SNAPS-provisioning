@@ -27,7 +27,7 @@ openstack:
           cidr: 10.0.1.0/24
           dns_nameservers: [8.8.8.8]
         router:
-          name: control-ext-router
+          name: mgr-router
           external_gateway: external
     - network:
         name: site1-net
@@ -35,12 +35,18 @@ openstack:
           name: site1-subnet
           cidr: 192.168.0.0/24
           gateway_ip: 192.168.0.1
+        router:
+          name: site1-router
+          external_gateway: external
     - network:
         name: site2-net
         subnet:
           name: site2-subnet
           cidr: 192.168.0.0/24
           gateway_ip: 192.168.0.1
+        router:
+          name: site2-router
+          external_gateway: external
   keypairs:
     - keypair:
         name: unimgr
@@ -87,6 +93,9 @@ openstack:
               name: site1-host-port
               network_name: site1-net
               ip: 192.168.0.101
+        floating_ip:
+          ext_net: external
+          port_name: site1-host-port
     - instance:
         name: site2-ovs
         flavor: m1.small
@@ -114,3 +123,6 @@ openstack:
               name: site2-host-port
               network_name: site2-net
               ip: 192.168.0.102
+        floating_ip:
+          ext_net: external
+          port_name: site2-host-port

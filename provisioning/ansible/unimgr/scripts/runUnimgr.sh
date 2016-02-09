@@ -2,7 +2,7 @@
 # Script 6 - Make changes for the IP address and MAC address, build lsoapi and unimgr code and start the UI and karaf 
 
 cd $HOME/mdsal_ansible/lsoapi/demo-ui
-bower install >>  $HOME/mdsal_ansible/lsoapi.log
+bower --allow-root install >>  $HOME/mdsal_ansible/lsoapi.log
 grunt >>  $HOME/mdsal_ansible/lsoapi.log
 cd app
 #Change to appropriate IPs of Pis here
@@ -16,19 +16,8 @@ echo "UI started" >>  $HOME/mdsal_ansible/install.log
 
 touch $HOME/mdsal_ansible/build.log
 
-#cd $HOME/mdsal_ansible/odlparent
-#git checkout stable/lithium
-#mvn -DskipTests clean install >> $HOME/mdsal_ansible/build.log
-
-#cd $HOME/mdsal_ansible/yangtools
-#git checkout stable/lithium
-#mvn -DskipTests clean install >> $HOME/mdsal_ansible/build.log
-
-#cd $HOME/mdsal_ansible/controller
-#git checkout stable/lithium
-#mvn -DskipTests clean install >> $HOME/mdsal_ansible/build.log
-
 cd $HOME/mdsal_ansible/unimgr
+git checkout stable/beryllium
 mvn -DskipTests clean install >> $HOME/mdsal_ansible/build.log
 
 cd karaf/target
