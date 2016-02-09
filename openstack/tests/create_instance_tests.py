@@ -215,7 +215,6 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
         vm_inst = self.inst_creator.create()
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
-        # TODO - Move vm_active and vm_ping to create_instance and allow to block on create
         # Effectively blocks until VM has been properly activated
         self.assertTrue(self.inst_creator.vm_active(block=True))
 
