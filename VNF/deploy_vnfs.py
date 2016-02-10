@@ -9,6 +9,7 @@ import os
 from openstack import os_credentials
 from openstack import neutron_utils
 from openstack import nova_utils
+from provisioning.ansible import ansible_utils
 import file_utils
 
 logger = logging.getLogger('deploy_vnfs')
@@ -222,6 +223,98 @@ def create_instances(os_conn_config, instances_config, images, network_dict, key
     return dict()
 
 
+def apply_ansible_playbooks(ansible_configs, vm_dict):
+    """
+    Applies
+    :param ansible_configs: a list of Ansible configurations
+    :param vm_dict: the dictionary of newly instantiated VMs where the VM name is the key
+    :return:
+    """
+    if ansible_configs:
+        # Ensure all hosts are accepting SSH session requests
+        for vm_inst in vm_dict.values():
+            if not vm_inst.vm_ssh_active(block=True):
+                return
+
+        # Apply playbooks
+        for ansible_config in ansible_configs:
+            apply_ansible_playbook(ansible_config, vm_dict)
+
+
+def apply_ansible_playbook(ansible_config, vm_dict):
+    """
+    Applies an Ansible configuration setting
+    :param ansible_config: the configuration settings
+    :param vm_dict: the dictionary of newly instantiated VMs where the VM name is the key
+    :return:
+    """
+    if ansible_config:
+        # FIXME - Grab the first VM instance as the credentials and username MUST be the same for all machines
+        vm = vm_dict.itervalues().next()
+        floating_ips = __get_floating_ips(ansible_config, vm_dict)
+        if floating_ips:
+            ansible_utils.apply_playbook(ansible_config['playbook_location'], floating_ips, vm.remote_user,
+                                         vm.keypair_creator.keypair_settings.private_filepath,
+                                         variables=__get_variables(ansible_config.get('variables'), vm_dict))
+
+
+def __get_floating_ips(ansible_config, vm_dict):
+    """
+    Returns a list of floating IP addresses
+    :param ansible_config: the configuration settings
+    :param vm_dict: the dictionary of VMs where the VM name is the key
+    :return: list or None
+    """
+    if ansible_config.get('hosts'):
+        hosts = ansible_config['hosts']
+        if len(hosts) > 0:
+            floating_ips = list()
+            for host in hosts:
+                vm = vm_dict.get(host)
+                if vm:
+                    floating_ips.append(vm.floating_ip.ip)
+            return floating_ips
+    return None
+
+
+def __get_variables(var_config, vm_dict):
+    """
+    Returns a dictionary of substitution variables to be used for Ansible templates
+    :param var_config: the variable configuration settings
+    :param vm_dict: the dictionary of VMs where the VM name is the key
+    :return: dictionary or None
+    """
+    if var_config and vm_dict and len(vm_dict) > 0:
+        variables = dict()
+        for key, value in var_config.iteritems():
+            print key
+            variables[key] = __get_variable_value(value, vm_dict)
+        return variables
+    return None
+
+
+def __get_variable_value(var_config_values, vm_dict):
+    if var_config_values['type'] == 'string':
+        return var_config_values['value']
+    if var_config_values['type'] == 'port':
+        port_name = var_config_values.get('port_name')
+        vm_name = var_config_values.get('vm_name')
+        if port_name and vm_name:
+            vm = vm_dict.get(vm_name)
+            if vm:
+                ports = vm.ports
+                for port in ports:
+                    if port['port']['name'] == port_name:
+                        port_value_id = var_config_values.get('port_value')
+                        if port_value_id:
+                            if port_value_id == 'mac_address':
+                                return port['port']['mac_address']
+                            if port_value_id == 'ip_address':
+                                # Currently only supporting the first IP assigned to a given port
+                                return port['port']['dns_assignment'][0]['ip_address']
+    return None
+
+
 def main():
     """
     Will need to set environment variable ANSIBLE_HOST_KEY_CHECKING=False or ...
@@ -261,7 +354,7 @@ def main():
         # Create instance
         # instances_config = os_config.get('instances')
         # instance_config = None
-        vm_dict = create_instances(os_conn_config, os_config['instances'], images, network_dict, keypairs_dict)
+        vm_dict = create_instances(os_conn_config, os_config.get('instances'), images, network_dict, keypairs_dict)
         logger.info('Completed creating all configured instances')
 
         logger.info('Configuring RPM NICs where required')
@@ -269,13 +362,8 @@ def main():
             vm.config_rpm_nics()
         logger.info('Completed RPM NIC configuration')
 
-        # Setup host by applying ansible scripts to complete the machine's provisioning
-        # if instance_config:
-        #     setup_host(instance_config, config.get('ansible'))
-
-        # print 'Number of arguments:', len(sys.argv), 'arguments.'
-        # print 'Argument List:', str(sys.argv)
-        # print 'Argument 2:', str(sys.argv[1])
+        # Provision VMs
+        apply_ansible_playbooks(os_config.get('ansible'), vm_dict)
     else:
         logger.error('Unable to read configuration file - ' + sys.argv[1])
         exit(1)

@@ -6,10 +6,10 @@ bower --allow-root install >>  $HOME/mdsal_ansible/lsoapi.log
 grunt >>  $HOME/mdsal_ansible/lsoapi.log
 cd app
 #Change to appropriate IPs of Pis here
-sed -i 's/10.1.1.11/10.36.0.21/g; s/10.1.1.12/10.36.0.22/g;'  $HOME/mdsal_ansible/lsoapi/demo-ui/app/config.json
+sed -i 's/10.0.0.21/{{ ip1 }}/g; s/10.0.0.22/{{ ip2 }}/g;'  $HOME/mdsal_ansible/lsoapi/demo-ui/app/config.json
 
 #Change to appropriate mac of Pis here
-sed -i 's/00:11:11:11:11:11/1:2:3:4:5:6/g; s/00:22:22:22:22:22/6:5:4:3:2:1/g;'  $HOME/mdsal_ansible/lsoapi/demo-ui/app/config.json
+sed -i 's/b8:27:eb:6a:e0:60/{{ mac1 }}/g; s/b8:27:eb:26:b1:c8/{{ mac2 }}/g;'  $HOME/mdsal_ansible/lsoapi/demo-ui/app/config.json
 cd ..
 nohup node vcpeUiServer.js &
 echo "UI started" >>  $HOME/mdsal_ansible/install.log

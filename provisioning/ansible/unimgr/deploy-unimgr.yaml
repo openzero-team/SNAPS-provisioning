@@ -13,12 +13,6 @@ openstack:
         image_user: centos
         download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
         local_download_path: /tmp/create_image_tests
-    - image:
-        name: Cirros
-        format: qcow2
-        image_user: centos
-        download_url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
-        local_download_path: /tmp/create_image_tests
   networks:
     - network:
         name: mgr-net
@@ -55,7 +49,7 @@ openstack:
   instances:
     - instance:
         name: mgr-app
-        flavor: m1.small
+        flavor: m1.medium
         imageName: Centos 7
         keypair_name: unimgr
         sudo_user: centos
@@ -68,7 +62,7 @@ openstack:
           port_name: mgr-app-port
     - instance:
         name: site1-ovs
-        flavor: m1.small
+        flavor: m1.medium
         imageName: Centos 7
         keypair_name: unimgr
         sudo_user: centos
@@ -79,13 +73,14 @@ openstack:
           - port:
               name: site1-ovs-site1-port
               network_name: site1-net
+              ip: 192.168.0.11
         floating_ip:
           ext_net: external
           port_name: site1-ovs-mgr-port
     - instance:
         name: site1-host
         flavor: m1.small
-        imageName: Cirros
+        imageName: Centos 7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -98,7 +93,7 @@ openstack:
           port_name: site1-host-port
     - instance:
         name: site2-ovs
-        flavor: m1.small
+        flavor: m1.medium
         imageName: Centos 7
         keypair_name: unimgr
         sudo_user: centos
@@ -109,13 +104,14 @@ openstack:
           - port:
               name: site2-ovs-site2-port
               network_name: site2-net
+              ip: 192.168.0.22
         floating_ip:
           ext_net: external
           port_name: site2-ovs-mgr-port
     - instance:
         name: site2-host
         flavor: m1.small
-        imageName: Cirros
+        imageName: Centos 7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -126,3 +122,32 @@ openstack:
         floating_ip:
           ext_net: external
           port_name: site2-host-port
+  ansible:
+      - playbook_location: provisioning/ansible/unimgr/main.yml
+        hosts:
+          - mgr-app
+        variables:
+          mac1:
+            type: port
+            vm_name: site1-ovs
+            port_name: site1-ovs-site1-port
+            port_value: mac_address
+          ip1:
+            type: port
+            vm_name: site1-ovs
+            port_name: site1-ovs-mgr-port
+            port_value: ip_address
+          mac2:
+            type: port
+            vm_name: site2-ovs
+            port_name: site2-ovs-site2-port
+            port_value: mac_address
+          ip2:
+            type: port
+            vm_name: site2-ovs
+            port_name: site2-ovs-mgr-port
+            port_value: ip_address
+      - playbook_location: provisioning/ansible/openvswitch/main.yml
+        hosts:
+          - site1-ovs
+          - site2-ovs
