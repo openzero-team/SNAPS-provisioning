@@ -1,16 +1,16 @@
 # Lab 1
-#username: admin
-#password: cable123
+#username: test
+#password: test
 #os_auth_url: http://10.197.103.50:5000/v2.0/
-#tenant_name: admin
+#tenant_name: test
 #ext_net: external
 #http_proxy: localhost:3128
 
 # Lab 2
-username: admin
-password: cable123
+username: test
+password: test
 os_auth_url: http://10.197.123.50:5000/v2.0/
-tenant_name: admin
+tenant_name: test
 ext_net: external
 http_proxy:
 
