@@ -336,34 +336,37 @@ def main():
 
     if config:
         os_config = config.get('openstack')
-        os_conn_config = os_config.get('connection')
+        if os_config:
+            os_conn_config = os_config.get('connection')
 
-        # Setup proxy settings if any
-        if os_conn_config.get('http_proxy'):
-            os.environ['HTTP_PROXY'] = os_conn_config['http_proxy']
+            # Setup proxy settings if any
+            if os_conn_config.get('http_proxy'):
+                os.environ['HTTP_PROXY'] = os_conn_config['http_proxy']
 
-        # Create images
-        images = create_images(os_conn_config, os_config.get('images'))
+            # Create images
+            images = create_images(os_conn_config, os_config.get('images'))
 
-        # Create network
-        network_dict = create_networks(os_conn_config, os_config.get('networks'))
+            # Create network
+            network_dict = create_networks(os_conn_config, os_config.get('networks'))
 
-        # Create keypairs
-        keypairs_dict = create_keypairs(os_conn_config, os_config.get('keypairs'))
+            # Create keypairs
+            keypairs_dict = create_keypairs(os_conn_config, os_config.get('keypairs'))
 
-        # Create instance
-        # instances_config = os_config.get('instances')
-        # instance_config = None
-        vm_dict = create_instances(os_conn_config, os_config.get('instances'), images, network_dict, keypairs_dict)
-        logger.info('Completed creating all configured instances')
+            # Create instance
+            # instances_config = os_config.get('instances')
+            # instance_config = None
+            vm_dict = create_instances(os_conn_config, os_config.get('instances'), images, network_dict, keypairs_dict)
+            logger.info('Completed creating all configured instances')
 
-        logger.info('Configuring RPM NICs where required')
-        for vm in vm_dict.itervalues():
-            vm.config_rpm_nics()
-        logger.info('Completed RPM NIC configuration')
+            logger.info('Configuring RPM NICs where required')
+            for vm in vm_dict.itervalues():
+                vm.config_rpm_nics()
+            logger.info('Completed RPM NIC configuration')
 
         # Provision VMs
-        apply_ansible_playbooks(os_config.get('ansible'), vm_dict)
+        ansible_config = config.get('ansible')
+        if ansible_config:
+            apply_ansible_playbooks(ansible_config, vm_dict)
     else:
         logger.error('Unable to read configuration file - ' + sys.argv[1])
         exit(1)

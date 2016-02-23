@@ -26,7 +26,10 @@ class OpenStackImage:
         :return:
         """
         self.os_creds = os_creds
+
+        # TODO - remove image_user
         self.image_user = image_user
+
         self.image_format = image_format
         self.image_url = image_url
         self.image_name = image_name

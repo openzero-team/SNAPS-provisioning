@@ -123,32 +123,32 @@ openstack:
         floating_ip:
           ext_net: external
           port_name: site2-host-port
-  ansible:
-      - playbook_location: provisioning/ansible/unimgr/main.yml
-        hosts:
-          - mgr-app
-        variables:
-          mac1:
-            type: port
-            vm_name: site1-ovs
-            port_name: site1-ovs-site1-port
-            port_value: mac_address
-          ip1:
-            type: port
-            vm_name: site1-ovs
-            port_name: site1-ovs-mgr-port
-            port_value: ip_address
-          mac2:
-            type: port
-            vm_name: site2-ovs
-            port_name: site2-ovs-site2-port
-            port_value: mac_address
-          ip2:
-            type: port
-            vm_name: site2-ovs
-            port_name: site2-ovs-mgr-port
-            port_value: ip_address
-      - playbook_location: provisioning/ansible/openvswitch/main.yml
-        hosts:
-          - site1-ovs
-          - site2-ovs
+ansible:
+    - playbook_location: provisioning/ansible/unimgr/main.yml
+      hosts:
+        - mgr-app
+      variables:
+        mac1:
+          type: port
+          vm_name: site1-ovs
+          port_name: site1-ovs-site1-port
+          port_value: mac_address
+        ip1:
+          type: port
+          vm_name: site1-ovs
+          port_name: site1-ovs-mgr-port
+          port_value: ip_address
+        mac2:
+          type: port
+          vm_name: site2-ovs
+          port_name: site2-ovs-site2-port
+          port_value: mac_address
+        ip2:
+          type: port
+          vm_name: site2-ovs
+          port_name: site2-ovs-mgr-port
+          port_value: ip_address
+    - playbook_location: provisioning/ansible/openvswitch/main.yml
+      hosts:
+        - site1-ovs
+        - site2-ovs
