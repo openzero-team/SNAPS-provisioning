@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# This script is responsible for executing an Ansible playbook.
+# This script is responsible for executing an Ansible task.
 # Equivalent to cmdline call
 # sudo ansible -i provisioning/ansible/conf/inventory -m ping -u root all -k
 # TODO - Make configurable. This cut was checked in simply to demonstrate how it is done.
