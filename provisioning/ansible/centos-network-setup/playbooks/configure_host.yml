@@ -1,6 +1,7 @@
 ---
 - name: Configure NIC
   hosts: all
+  sudo: yes
   remote_user: centos
   tasks:
    - name: Setup /etc/sysconfig/network-scripts/ifcfg-eth1 file

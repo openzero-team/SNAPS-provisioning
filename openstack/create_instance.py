@@ -179,8 +179,8 @@ class OpenStackVmInstance:
         # TODO - need to find a better means of finding this playbook.
         runner = PlayBook(playbook='provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
                           host_list=hosts.name,
-                          remote_user=self.remote_user, sudo_user='root',
-                          private_key_file=self.keypair_creator.keypair_settings.private_filepath, sudo=True,
+                          remote_user=self.remote_user,
+                          private_key_file=self.keypair_creator.keypair_settings.private_filepath,
                           callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
         data = runner.run()
         if data.get(ip):

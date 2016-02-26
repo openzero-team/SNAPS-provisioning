@@ -24,14 +24,11 @@ def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, 
     pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
 
     # TODO - need to find a better means of finding this playbook.
-    runner = PlayBook(playbook=playbook_path,
-                      host_list=hosts_inv,
-                      remote_user=host_user, sudo_user=sudo_user,
-                      private_key_file=ssh_priv_key_file_path, sudo=sudo,
-                      callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
+    runner = PlayBook(playbook=playbook_path, host_list=hosts_inv, remote_user=host_user,
+                      private_key_file=ssh_priv_key_file_path, callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
     # TODO - check status and log
     data = runner.run()
-    return
+    return data
 
 
 def __create_inventory(hosts, variables):
