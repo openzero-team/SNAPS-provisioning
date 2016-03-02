@@ -5,6 +5,9 @@
   remote_user: ubuntu
 
   tasks:
+   - name: Transfer openrc.sh
+     action: template owner=root group=root mode=744 src=../scripts/openrc.sh dest=/root/openrc.sh
+
    - name: Update Libraries
      command: apt-get update
 
@@ -36,7 +39,7 @@
    - name: Install scp
      command: pip install scp
 
-   - name: Install scp
+   - name: Install netifaces
      command: pip install netifaces
 
    - name: Install mock
@@ -56,9 +59,6 @@
 
    - name: Install python-openstackclient==2.0.0
      command: pip install python-openstackclient==2.0.0
-
-#   - name: Install python-openstackclient
-#     command: pip install python-openstackclient
 
    - git: repo=https://gerrit.opnfv.org/gerrit/yardstick dest=/root/yardstick
 
@@ -95,4 +95,3 @@
 
    - name: Execute deploy_yardstick-plot.sh
      command: sh /root/install_yardstick-plot.sh
-

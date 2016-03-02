@@ -1,3 +1,5 @@
+import logging
+
 __author__ = 'spisarski'
 
 from tempfile import NamedTemporaryFile
@@ -7,6 +9,8 @@ from ansible.callbacks import AggregateStats
 from ansible.callbacks import PlaybookRunnerCallbacks
 from ansible.callbacks import PlaybookCallbacks
 from ansible import utils
+
+logger = logging.getLogger('ansible_utils')
 
 
 def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, variables=None, sudo_user='root',
@@ -19,6 +23,8 @@ def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, 
     :return: None
     """
     hosts_inv = __create_inventory(hosts_inv, variables)
+    logger.info("Hosts Inventory for applying playbook - " + hosts_inv)
+
     stats = AggregateStats()
     run_cb = PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
     pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)

@@ -287,8 +287,9 @@ def __get_variables(var_config, vm_dict):
     if var_config and vm_dict and len(vm_dict) > 0:
         variables = dict()
         for key, value in var_config.iteritems():
-            print key
-            variables[key] = __get_variable_value(value, vm_dict)
+            value = __get_variable_value(value, vm_dict)
+            variables[key] = value
+            logger.info("Set Jinga2 variable with key [" + key + "] the value [" + value + ']')
         return variables
     return None
 
@@ -296,6 +297,24 @@ def __get_variables(var_config, vm_dict):
 def __get_variable_value(var_config_values, vm_dict):
     if var_config_values['type'] == 'string':
         return var_config_values['value']
+    if var_config_values['type'] == 'os_creds':
+        logger.info("Retrieving OS Credentials")
+        vm = vm_dict.values()[0]
+        if var_config_values['value'] == 'username':
+            logger.info("Returning OS username")
+            return vm.os_creds.username
+        elif var_config_values['value'] == 'password':
+            logger.info("Returning OS password")
+            return vm.os_creds.password
+        elif var_config_values['value'] == 'auth_url':
+            logger.info("Returning OS auth_url")
+            return vm.os_creds.auth_url
+        elif var_config_values['value'] == 'tenant_name':
+            logger.info("Returning OS tenant_name")
+            return vm.os_creds.tenant_name
+
+        logger.info("Returning none")
+        return None
     if var_config_values['type'] == 'port':
         port_name = var_config_values.get('port_name')
         vm_name = var_config_values.get('vm_name')

@@ -47,3 +47,19 @@ ansible:
     - playbook_location: provisioning/ansible/yardstick/main.yml
       hosts:
         - yardstick-app
+      variables:
+        external_network_name:
+          type: string
+          value: external
+        os_user:
+          type: os_creds
+          value: username
+        os_pass:
+          type: os_creds
+          value: password
+        os_auth_url:
+          type: os_creds
+          value: auth_url
+        os_tenant:
+          type: os_creds
+          value: tenant_name

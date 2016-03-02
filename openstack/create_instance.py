@@ -32,6 +32,7 @@ class OpenStackVmInstance:
         :param userdata: The post installation script as a string or a file object (Optional)
         :raises Exception
         """
+        self.os_creds = os_creds
         self.name = name
         self.image_creator = image_creator
         self.ports = ports
