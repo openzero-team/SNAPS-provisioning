@@ -8,6 +8,7 @@ from openstack import os_credentials
 import openstack_tests
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -64,7 +65,10 @@ class CreateImageSuccessTests(unittest.TestCase):
         # Create Image
         image1 = self.os_image.create()
         # Should be retrieving the instance data
-        image2 = self.os_image.create()
+        os_image_2 = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
+                                               os_image_settings.url, os_image_settings.name,
+                                               os_image_settings.download_file_path)
+        image2 = os_image_2.create()
         self.assertEquals(image1['id'], image2['id'])
 
     def testCreateImageWithExistingDownloadDirectory(self):

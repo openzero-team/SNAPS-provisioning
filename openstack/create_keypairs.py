@@ -42,9 +42,11 @@ class OpenStackKeypair:
         if not found:
             if self.keypair_settings.public_filepath:
                 if os.path.isfile(self.keypair_settings.public_filepath):
+                    logger.info("Uploading existing keypair")
                     self.keypair = nova_utils.upload_keypair_file(self.nova, self.keypair_settings.name,
                                                                   self.keypair_settings.public_filepath)
                 else:
+                    logger.info("Creating new keypair")
                     # TODO - Make this value configurable
                     keys = RSA.generate(1024)
                     self.keypair = nova_utils.upload_keypair(self.nova, self.keypair_settings.name,

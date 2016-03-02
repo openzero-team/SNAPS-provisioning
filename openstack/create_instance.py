@@ -251,7 +251,7 @@ class OpenStackVmInstance:
         :return: T/F
         """
         runner = Runner(module_name='ping', inventory=Inventory(host_list=[self.floating_ip.ip]), pattern='all',
-                        remote_user=self.image_creator.image_user,
+                        remote_user=self.remote_user,
                         private_key_file=self.keypair_creator.keypair_settings.private_filepath)
         result = runner.run()
         if result.get('contacted'):

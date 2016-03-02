@@ -336,6 +336,7 @@ def main():
 
     if config:
         os_config = config.get('openstack')
+        vm_dict = dict()
         if os_config:
             os_conn_config = os_config.get('connection')
 
@@ -358,6 +359,7 @@ def main():
             vm_dict = create_instances(os_conn_config, os_config.get('instances'), images, network_dict, keypairs_dict)
             logger.info('Completed creating all configured instances')
 
+            # TODO - Need to support other Linux flavors!
             logger.info('Configuring RPM NICs where required')
             for vm in vm_dict.itervalues():
                 vm.config_rpm_nics()
@@ -365,7 +367,7 @@ def main():
 
         # Provision VMs
         ansible_config = config.get('ansible')
-        if ansible_config:
+        if ansible_config and vm_dict:
             apply_ansible_playbooks(ansible_config, vm_dict)
     else:
         logger.error('Unable to read configuration file - ' + sys.argv[1])

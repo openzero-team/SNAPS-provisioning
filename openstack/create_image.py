@@ -58,6 +58,8 @@ class OpenStackImage:
         nova = nova_utils.nova_client(self.os_creds)
         image_dict = None
         try:
+            # TODO/FIXME - Certain scenarios, such as when the name has whitespace,
+            # the image with a given name is not found....
             image_dict = nova.images.find(name=self.image_name)
         except:
             logger.info('No existing image found with name - ' + self.image_name)

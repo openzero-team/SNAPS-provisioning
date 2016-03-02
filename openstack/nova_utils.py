@@ -42,6 +42,7 @@ def save_keys_to_files(keys=None, pub_file_path=None, priv_file_path=None):
             public_handle.write(keys.publickey().exportKey('OpenSSH'))
             public_handle.close()
             os.chmod(pub_file_path, 0400)
+            logger.info("Saved public key to - " + pub_file_path)
         if priv_file_path:
             priv_dir = os.path.dirname(priv_file_path)
             if not os.path.isdir(priv_dir):
@@ -50,6 +51,7 @@ def save_keys_to_files(keys=None, pub_file_path=None, priv_file_path=None):
             private_handle.write(keys.exportKey())
             private_handle.close()
             os.chmod(priv_file_path, 0400)
+            logger.info("Saved private key to - " + priv_file_path)
 
 
 def upload_keypair_file(nova, name, file_path):
