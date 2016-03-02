@@ -1,0 +1,34 @@
+---
+# TODO/FIXME - I don't work but we may want to consider deployment of yardstick to Docker...
+- hosts: all
+  sudo: yes
+  remote_user: centos
+
+  tasks:
+   - yum: name=git
+
+   - name: Docker Script Download
+     command: curl -o ~/docker-install.sh https://get.docker.com/
+
+   - name: Docker Script Execution
+     command: /bin/bash ~/docker-install.sh
+
+   - name: Docker Start
+     command: systemctl start docker
+
+   - name: Docker Enable upon host restart
+     command: systemctl enable docker
+
+   - yum: name=libxslt-devel
+   - yum: name=python-virtualenv
+   - yum: name=libffi-devel
+   - yum: name=xslt
+   - yum: name=gcc
+
+   - name: easy_install Cython
+     command: easy_install Cython
+
+   - git: repo=https://gerrit.opnfv.org/gerrit/yardstick dest=~/yardstick
+
+   - name: Docker Build
+     command: docker build -t yardstick-framework ~/yardstick/ > ~/docker-build-yardstick.log
