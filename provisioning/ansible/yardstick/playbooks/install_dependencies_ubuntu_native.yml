@@ -1,5 +1,5 @@
 ---
-# http://artifacts.opnfv.org/yardstick/brahmaputra/docs/userguide/03-installation.html
+# Partially taken from http://artifacts.opnfv.org/yardstick/brahmaputra/docs/userguide/03-installation.html
 - hosts: all
   sudo: yes
   remote_user: ubuntu
@@ -8,11 +8,9 @@
    - name: Transfer openrc.sh
      action: template owner=root group=root mode=744 src=../scripts/openrc.sh dest=/root/openrc.sh
 
-   - name: Update Libraries
-     command: apt-get update
-
+   - apt: update_cache=yes
+   - apt: upgrade=dist
    - apt: name=git
-
    - apt: name=python-virtualenv
    - apt: name=python-dev
    - apt: name=libffi-dev
@@ -21,44 +19,20 @@
    - apt: name=libxml2-dev
    - apt: name=libxslt1-dev
 
-   - name: easy_install Cython
-     command: easy_install Cython
+   - easy_install: name=Cython
+   - easy_install: name=setuptools
 
-   - name: easy_install Setup Tools
-     command: easy_install -U setuptools
-
-   - name: Upgrade Python six
-     command: pip install -U six
-
-   - name: Install testtools
-     command: pip install testtools
-
-   - name: Install testrepository
-     command: pip install testrepository
-
-   - name: Install scp
-     command: pip install scp
-
-   - name: Install netifaces
-     command: pip install netifaces
-
-   - name: Install mock
-     command: pip install mock
-
-   - name: Install python-novaclient
-     command: pip install python-novaclient
-
-   - name: Install python-neutronclient
-     command: pip install python-neutronclient
-
-   - name: Install python-keystoneclient
-     command: pip install python-keystoneclient
-
-   - name: Install python-heatclient==0.9.0
-     command: pip install python-heatclient==0.9.0
-
-   - name: Install python-openstackclient==2.0.0
-     command: pip install python-openstackclient==2.0.0
+   - pip: name=six
+   - pip: name=testtools
+   - pip: name=testrepository
+   - pip: name=scp
+   - pip: name=netifaces
+   - pip: name=mock
+   - pip: name=python-novaclient
+   - pip: name=python-neutronclient
+   - pip: name=python-keystoneclient
+   - pip: name=python-heatclient version=0.9.0
+   - pip: name=python-openstackclient version=2.0.0
 
    - git: repo=https://gerrit.opnfv.org/gerrit/yardstick dest=/root/yardstick
 
@@ -68,27 +42,16 @@
    - name: Execute deploy_yardstick.sh
      command: sh /root/install_yardstick.sh
 
-   - name: Install lxml
-     command: pip install lxml
-
-   - name: Install Jinja2
-     command: pip install Jinja2
-
-   - name: Install flake8
-     command: pip install flake8
-
-   - name: Install coverage
-     command: pip install coverage
-
-   - name: Install backport-ipaddress
-     command: pip install backport-ipaddress
+   - pip: name=lxml
+   - pip: name=Jinja2
+   - pip: name=flake8
+   - pip: name=coverage
+   - pip: name=backport-ipaddress
 
    - apt: name=pkg-config
-
    - apt: name=libfreetype6-dev
 
-   - name: Install matplotlib
-     command: pip install matplotlib
+   - pip: name=matplotlib
 
    - name: Transfer install_yardstick-plot.sh
      copy: src=../scripts/install_yardstick-plot.sh dest=/root/install_yardstick-plot.sh mode=0777

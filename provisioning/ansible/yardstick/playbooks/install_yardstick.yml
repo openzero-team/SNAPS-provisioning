@@ -1,0 +1,35 @@
+---
+# http://artifacts.opnfv.org/yardstick/brahmaputra/docs/userguide/03-installation.html
+- hosts: all
+  sudo: yes
+  remote_user: ubuntu
+
+  tasks:
+   - name: Update Installation
+     command: apt-get update
+
+   - apt: python-virtualenv
+   - apt: python-dev
+   - apt: libffi-dev
+   - apt: libssl-dev
+   - apt: git
+
+   - name: Create Python Virtual Environment
+     command: virtualenv /root/yardstick_venv
+
+   - name: Source Virtual Python Environment
+     command: source /root/yardstick_venv/bin/activate
+
+   - name: Install setup tools
+     command: easy_install -U setuptools
+
+   - git: repo=https://gerrit.opnfv.org/gerrit/yardstick dest=/root/yardstick
+
+   - name: Transfer install_yardstick.sh
+     copy: src=../scripts/install_yardstick.sh dest=/root/install_yardstick.sh mode=0777
+
+   - name: Execute deploy_yardstick.sh
+     command: sh /root/install_yardstick.sh
+
+
+

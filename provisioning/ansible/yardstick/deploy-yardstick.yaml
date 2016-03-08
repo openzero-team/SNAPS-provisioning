@@ -2,10 +2,10 @@
 openstack:
   connection:
     # Note - when http_proxy is set, you must also configure ssh for proxy tunneling on your host.
-    username: admin
-    password: cable123
+    username: proto
+    password: proto
     auth_url: http://10.197.123.50:5000/v2.0/
-    tenant_name: admin
+    tenant_name: proto
     http_proxy:
   images:
     - image:
@@ -63,3 +63,4 @@ ansible:
         os_tenant:
           type: os_creds
           value: tenant_name
+

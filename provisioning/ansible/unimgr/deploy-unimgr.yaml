@@ -2,14 +2,14 @@
 openstack:
   connection:
     # Note - when http_proxy is set, you must also configure ssh for proxy tunneling on your host.
-    username: prototype
-    password: Proto1
-    auth_url: http://10.197.103.50:5000/v2.0/
-    tenant_name: Prototypes
-    http_proxy: localhost:3128
+    username: proto
+    password: proto
+    auth_url: http://10.197.123.50:5000/v2.0/
+    tenant_name: proto
+    http_proxy:
   images:
     - image:
-        name: Centos 7
+        name: Centos7
         format: qcow2
         image_user: centos
         download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
@@ -51,7 +51,7 @@ openstack:
     - instance:
         name: mgr-app
         flavor: m1.medium
-        imageName: Centos 7
+        imageName: Centos7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -64,7 +64,7 @@ openstack:
     - instance:
         name: site1-ovs
         flavor: m1.medium
-        imageName: Centos 7
+        imageName: Centos7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -81,7 +81,7 @@ openstack:
     - instance:
         name: site1-host
         flavor: m1.small
-        imageName: Centos 7
+        imageName: Centos7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -95,7 +95,7 @@ openstack:
     - instance:
         name: site2-ovs
         flavor: m1.medium
-        imageName: Centos 7
+        imageName: Centos7
         keypair_name: unimgr
         sudo_user: centos
         ports:
@@ -112,7 +112,7 @@ openstack:
     - instance:
         name: site2-host
         flavor: m1.small
-        imageName: Centos 7
+        imageName: Centos7
         keypair_name: unimgr
         sudo_user: centos
         ports:
