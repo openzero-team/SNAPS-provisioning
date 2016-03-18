@@ -9,6 +9,7 @@ import openstack_tests
 
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -19,8 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 os_creds = openstack_tests.get_credentials()
 
 port_name = 'test-port-name'
-ip_1 = '10.0.1.100'
-ip_2 = '10.0.1.200'
+ip_1 = '15.0.1.100'
+ip_2 = '15.0.1.200'
 
 
 class NeutronUtilsTests(unittest.TestCase):
@@ -157,8 +158,8 @@ class NeutronUtilsTests(unittest.TestCase):
         """
         Tests the neutron_utils.create_neutron_net() function when an external gateway is requested
         """
-        self.net_config = openstack_tests.OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.0.1.0/24',
-                                                          'test-router', 'public')
+        self.net_config = openstack_tests.OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.2.1.0/24',
+                                                          'test-router', 'external')
         self.router = neutron_utils.create_router(self.neutron, self.net_config.router_settings)
         validate_router(self.neutron, self.net_config.router_name, True)
         # TODO - Add validation that the router gatway has been set
