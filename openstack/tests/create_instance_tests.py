@@ -24,8 +24,8 @@ ip_1 = '15.0.1.100'
 ip_2 = '15.0.1.200'
 vm_inst_name = 'test-openstack-vm-instance-1'
 keypair_name = 'testKP'
-keypair_pub_filepath = '/tmp/testKP.pub'
-keypair_priv_filepath = '/tmp/testKP'
+keypair_pub_filepath = 'tmp/testKP.pub'
+keypair_priv_filepath = 'tmp/testKP'
 
 
 class CreateInstanceSingleNetworkTests(unittest.TestCase):
@@ -100,6 +100,10 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         vm_inst = self.inst_creator.create()
 
         self.assertTrue(self.inst_creator.vm_active(block=True))
+
+        # TODO - add check to ensure can ssh with timout. Commented line below will almost always return False on the
+        # first several attempts
+        # self.assertTrue(self.inst_creator._ssh_active())
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
     def test_single_port_static(self):
@@ -118,6 +122,10 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
 
         self.assertEquals(ip_1, self.inst_creator.ports[0]['port']['dns_assignment'][0]['ip_address'])
         self.assertTrue(self.inst_creator.vm_active(block=True))
+
+        # TODO - add check to ensure can ssh with timout. Commented line below will almost always return False on the
+        # first several attempts
+        # self.assertTrue(self.inst_creator._ssh_active())
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
 

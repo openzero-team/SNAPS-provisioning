@@ -11,6 +11,7 @@ import openstack_tests
 
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('nova_utils_tests')
@@ -21,7 +22,7 @@ logger = logging.getLogger('nova_utils_tests')
 
 os_creds = openstack_tests.get_credentials()
 
-priv_key_file_path = '/tmp/testKey'
+priv_key_file_path = 'tmp/nova_utils_tests'
 pub_key_file_path = priv_key_file_path + '.pub'
 
 test_conf = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')

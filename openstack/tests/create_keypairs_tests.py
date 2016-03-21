@@ -15,9 +15,10 @@ logging.basicConfig(level=logging.DEBUG)
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 os_creds = openstack_tests.get_credentials()
-keypair_name = 'testKP'
-pub_file_path = '/tmp/testKP.pub'
-priv_file_path = '/tmp/testKP'
+keypair_name = 'create_kp_tests'
+
+pub_file_path = 'tmp/create_kp_tests.pub'
+priv_file_path = 'tmp/create_kp_tests'
 
 
 class CreateKeypairsTests(unittest.TestCase):
