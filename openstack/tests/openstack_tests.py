@@ -12,7 +12,8 @@ def get_credentials():
     config = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')
     if config.get('http_proxy'):
         os.environ['HTTP_PROXY'] = config['http_proxy']
-    return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'])
+    return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'],
+                                  config.get('http_proxy'))
 
 
 def get_image_test_settings():

@@ -63,6 +63,7 @@ def upload_keypair_file(nova, name, file_path):
     :return: the keypair object
     """
     with open(os.path.expanduser(file_path)) as fpubkey:
+        logger.info('Saving keypair to - ' + file_path)
         return upload_keypair(nova, name, fpubkey.read())
 
 
@@ -74,6 +75,7 @@ def upload_keypair(nova, name, key):
     :param key: the public key object
     :return: the keypair object
     """
+    logger.info('Creating keypair with name - ' + name)
     return nova.keypairs.create(name=name, public_key=key)
 
 
@@ -86,7 +88,7 @@ def keypair_exists(nova, keypair_obj):
     """
     try:
         return nova.keypairs.get(keypair_obj)
-    except:
+    except Exception as e:
         return None
 
 
@@ -105,6 +107,7 @@ def delete_keypair(nova, key):
     :param nova: the Nova client
     :param key: the keypair object to delete
     """
+    logger.debug('Deleting keypair - ' + key.name)
     nova.keypairs.delete(key)
 
 
@@ -133,6 +136,7 @@ def create_floating_ip(nova, ext_net_name):
     :param ext_net_name: the name of the external network on which to apply the floating IP address
     :return: the floating IP object
     """
+    logger.info('Creating floating ip to external network - ' + ext_net_name)
     return nova.floating_ips.create(ext_net_name)
 
 
@@ -143,6 +147,7 @@ def get_floating_ip(nova, floating_ip):
     :param floating_ip: the floating IP object to lookup
     :return: hopefully the same floating IP object input
     """
+    logger.debug('Attempting to retrieve existing floating ip with IP - ' + floating_ip.ip)
     return nova.floating_ips.get(floating_ip)
 
 
@@ -153,4 +158,5 @@ def delete_floating_ip(nova, floating_ip):
     :param floating_ip: the floating IP object to delete
     :return:
     """
+    logger.debug('Attempting to delete existing floating ip with IP - ' + floating_ip.ip)
     return nova.floating_ips.delete(floating_ip)

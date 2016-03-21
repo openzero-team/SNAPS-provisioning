@@ -66,8 +66,8 @@ class CreateImageSuccessTests(unittest.TestCase):
         image1 = self.os_image.create()
         # Should be retrieving the instance data
         os_image_2 = create_image.OpenStackImage(os_creds, os_image_settings.image_user, os_image_settings.format,
-                                               os_image_settings.url, os_image_settings.name,
-                                               os_image_settings.download_file_path)
+                                                 os_image_settings.url, os_image_settings.name,
+                                                 os_image_settings.download_file_path)
         image2 = os_image_2.create()
         self.assertEquals(image1['id'], image2['id'])
 
@@ -164,7 +164,8 @@ class CreateImageNegativeTests(unittest.TestCase):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
                                                                                   os_creds.password,
                                                                                   os_creds.auth_url,
-                                                                                  None), os_image_settings.image_user,
+                                                                                  None, os_creds.proxy),
+                                                           os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
 
@@ -175,7 +176,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         with self.assertRaises(Exception):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username,
                                                                                   os_creds.password, None,
-                                                                                  os_creds.tenant_name),
+                                                                                  os_creds.tenant_name, os_creds.proxy),
                                                            os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
@@ -187,7 +188,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         with self.assertRaises(Exception):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(os_creds.username, None,
                                                                                   os_creds.os_auth_url,
-                                                                                  os_creds.tenant_name),
+                                                                                  os_creds.tenant_name, os_creds.proxy),
                                                            os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)
@@ -199,7 +200,7 @@ class CreateImageNegativeTests(unittest.TestCase):
         with self.assertRaises(Exception):
             self.createImage = create_image.OpenStackImage(os_credentials.OSCreds(None, os_creds.password,
                                                                                   os_creds.os_auth_url,
-                                                                                  os_creds.tenant_name),
+                                                                                  os_creds.tenant_name, os_creds.proxy),
                                                            os_image_settings.image_user,
                                                            os_image_settings.format, os_image_settings.url,
                                                            os_image_settings.name, os_image_settings.download_file_path)

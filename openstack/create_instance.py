@@ -1,8 +1,9 @@
 import time
 import logging
+import re
 
-from ansible.runner import Runner
-from ansible.inventory import Inventory
+from paramiko import SSHClient
+import paramiko
 
 import nova_utils
 
@@ -17,8 +18,8 @@ class OpenStackVmInstance:
     Class responsible for creating a VM instance in OpenStack
     """
 
-    def __init__(self, os_creds, name, flavor, image_creator, ports, remote_user, keypair_creator=None, floating_ip_conf=None,
-                 userdata=None):
+    def __init__(self, os_creds, name, flavor, image_creator, ports, remote_user, keypair_creator=None,
+                 floating_ip_conf=None, userdata=None):
         """
         Constructor
         :param os_creds: The connection credentials to the OpenStack API
@@ -96,11 +97,18 @@ class OpenStackVmInstance:
         """
         Destroys the VM instance
         """
+
         if self.vm:
-            self.nova.servers.delete(self.vm)
+            try:
+                self.nova.servers.delete(self.vm)
+            except Exception as e:
+                logger.error('Error deleting VM')
 
         if self.floating_ip:
-            nova_utils.delete_floating_ip(self.nova, self.floating_ip)
+            try:
+                nova_utils.delete_floating_ip(self.nova, self.floating_ip)
+            except Exception as e:
+                logger.error('Error deleting Floating IP')
 
     def _add_floating_ip(self, port_ip, timeout=30, poll_interval=POLL_INTERVAL):
         """
@@ -114,7 +122,7 @@ class OpenStackVmInstance:
                 self.vm.add_floating_ip(self.floating_ip, port_ip)
                 logger.info('Added floating IP to port IP - ' + port_ip)
                 return
-            except:
+            except Exception as e:
                 logger.warn('Error adding floating IP to instance')
                 time.sleep(poll_interval)
                 pass
@@ -223,6 +231,9 @@ class OpenStackVmInstance:
         if not instance:
             logger.warn('Cannot find instance with id - ' + self.vm.id)
             return False
+
+        if instance.status == 'ERROR':
+            raise Exception('Instance had an error during deployment')
         logger.debug('Instance status is - ' + instance.status)
         return instance.status == 'ACTIVE'
 
@@ -251,13 +262,17 @@ class OpenStackVmInstance:
         Returns True when can create a SSH session else False
         :return: T/F
         """
-        runner = Runner(module_name='ping', inventory=Inventory(host_list=[self.floating_ip.ip]), pattern='all',
-                        remote_user=self.remote_user,
-                        private_key_file=self.keypair_creator.keypair_settings.private_filepath)
-        result = runner.run()
-        if result.get('contacted'):
-            logger.debug("Contacted host via SSH with ip - " + self.floating_ip.ip)
-            return True
+        ssh = SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        proxy = None
+        if self.os_creds.proxy:
+            tokens = re.split(':', self.os_creds.proxy)
+            proxy = paramiko.ProxyCommand('ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' '
+                                          + self.floating_ip.ip + ' 22')
 
-        logger.debug("Could not contact host via SSH with ip - " + self.floating_ip.ip)
-        return False
+        try:
+            ssh.connect(self.floating_ip.ip, username=self.remote_user,
+                        key_filename=self.keypair_creator.keypair_settings.private_filepath, sock=proxy)
+            return True
+        except Exception as e:
+            return False

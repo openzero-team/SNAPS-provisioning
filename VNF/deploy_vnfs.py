@@ -24,7 +24,8 @@ def get_os_credentials(os_conn_config):
     return os_credentials.OSCreds(os_conn_config.get('username'),
                                   os_conn_config.get('password'),
                                   os_conn_config.get('auth_url'),
-                                  os_conn_config.get('tenant_name'))
+                                  os_conn_config.get('tenant_name'),
+                                  os_conn_config.get('http_proxy'))
 
 
 def create_image(os_conn_config, image_config):
@@ -211,7 +212,8 @@ def create_instances(os_conn_config, instances_config, images, network_dict, key
                     nova = nova_utils.nova_client(os_credentials.OSCreds(os_conn_config.get('username'),
                                                                          os_conn_config.get('password'),
                                                                          os_conn_config.get('auth_url'),
-                                                                         os_conn_config.get('tenant_name')))
+                                                                         os_conn_config.get('tenant_name'),
+                                                                         os_conn_config.get('http_proxy')))
                     inst_image = nova.images.find(name=instance.get('imageName'))
                 if inst_image:
                     vm_dict[instance['name']] = create_vm_instance(os_conn_config, instance_config,

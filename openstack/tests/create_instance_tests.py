@@ -18,10 +18,10 @@ os_creds = openstack_tests.get_credentials()
 priv_net_config = openstack_tests.get_priv_net_config()
 pub_net_config = openstack_tests.get_pub_net_config()
 
-flavor = 'm1.medium'
+flavor = 'm1.small'
 
-ip_1 = '10.0.1.100'
-ip_2 = '10.0.1.200'
+ip_1 = '15.0.1.100'
+ip_2 = '15.0.1.200'
 vm_inst_name = 'test-openstack-vm-instance-1'
 keypair_name = 'testKP'
 keypair_pub_filepath = '/tmp/testKP.pub'
@@ -124,6 +124,7 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
 class CreateInstancePubPrivNetTests(unittest.TestCase):
     """
     Test for the CreateInstance class with two NIC/Ports, eth0 with floating IP and eth1 w/o
+    These tests require a Centos image and will fail on OS installations that cannot fire-up m1.medium VM instances
     """
 
     def setUp(self):

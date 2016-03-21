@@ -61,7 +61,7 @@ class OpenStackImage:
             # TODO/FIXME - Certain scenarios, such as when the name has whitespace,
             # the image with a given name is not found....
             image_dict = nova.images.find(name=self.image_name)
-        except:
+        except Exception as e:
             logger.info('No existing image found with name - ' + self.image_name)
             pass
 
@@ -107,4 +107,5 @@ class OpenStackImage:
         :return: the image file object
         """
         if not file_utils.file_exists(self.image_file_path):
+            logger.info('Downloading Image from - ' + self.image_url)
             return file_utils.download(self.image_url, self.download_path)
