@@ -10,6 +10,7 @@ import openstack_tests
 
 
 
+
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -20,8 +21,8 @@ logging.basicConfig(level=logging.DEBUG)
 os_creds = openstack_tests.get_credentials()
 
 port_name = 'test-port-name'
-ip_1 = '15.0.1.100'
-ip_2 = '15.0.1.200'
+ip_1 = '10.55.1.100'
+ip_2 = '10.55.1.200'
 
 
 class NeutronUtilsTests(unittest.TestCase):

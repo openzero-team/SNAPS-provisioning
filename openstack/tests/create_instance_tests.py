@@ -20,8 +20,8 @@ pub_net_config = openstack_tests.get_pub_net_config()
 
 flavor = 'm1.small'
 
-ip_1 = '15.0.1.100'
-ip_2 = '15.0.1.200'
+ip_1 = '10.55.1.100'
+ip_2 = '10.55.1.200'
 vm_inst_name = 'test-openstack-vm-instance-1'
 keypair_name = 'testKP'
 keypair_pub_filepath = 'tmp/testKP.pub'

@@ -27,11 +27,11 @@ def get_instance_image_settings():
 
 
 def get_priv_net_config():
-    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '15.1.1.0/24', 'test-priv')
+    return OSNetworkConfig('test-priv-net', 'test-priv-subnet', '10.55.0.0/24', 'test-priv')
 
 
 def get_pub_net_config():
-    return OSNetworkConfig('test-pub-net', 'test-pub-subnet', '15.0.1.0/24', 'test-pub',
+    return OSNetworkConfig('test-pub-net', 'test-pub-subnet', '10.55.1.0/24', 'test-pub',
                            external_gateway='external')
 
 
