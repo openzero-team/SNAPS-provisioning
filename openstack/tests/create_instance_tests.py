@@ -83,7 +83,6 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         if self.network_creator:
             self.network_creator.clean()
 
-        # This is a big image file so we probably do not want to remove from OS after each test
         if self.image_creator:
             self.image_creator.clean()
 

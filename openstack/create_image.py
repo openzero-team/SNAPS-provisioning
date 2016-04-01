@@ -74,7 +74,9 @@ class OpenStackImage:
         self.image_file = self.__get_image_file()
         self.image = self.glance.images.create(name=self.image_name, disk_format=self.image_format,
                                                container_format="bare")
+        logger.info('Uploading image file')
         self.glance.images.upload(self.image.id, open(self.image_file.name, 'rb'))
+        logger.info('Image file upload complete')
         return self.image
 
     def clean(self):
@@ -99,6 +101,7 @@ class OpenStackImage:
         else:
             if not os.path.exists(self.download_path):
                 os.makedirs(self.download_path)
+            logger.info('Found existing image file')
             return self.__download_image_file()
 
     def __download_image_file(self):
