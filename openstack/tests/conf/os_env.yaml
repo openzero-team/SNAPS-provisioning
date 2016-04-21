@@ -1,26 +1,42 @@
 # Lab 1
-#username: test
-#password: test
+#username: admin
+#password: cable123
 #os_auth_url: http://10.197.103.50:5000/v2.0/
-#tenant_name: test
+#tenant_name: admin
 #ext_net: external
 #http_proxy: localhost:3128
 
 # Lab 2
-#username: test
-#password: test
-#os_auth_url: http://10.197.123.50:5000/v2.0/
-#tenant_name: test
-#ext_net: external
-#http_proxy:
-
-# Lab 2a
 username: admin
 password: cable123
-os_auth_url: http://192.168.57.10:5000/v2.0
+os_auth_url: http://10.197.123.50:5000/v2.0/
 tenant_name: admin
 ext_net: external
-http_proxy: 10.197.123.20:3128
+http_proxy:
+
+# Lab 2a
+#username: admin
+#password: cable123
+#os_auth_url: http://192.168.57.10:5000/v2.0
+#tenant_name: admin
+#ext_net: external
+#http_proxy: 10.197.123.20:3128
+
+# Lab 2b
+#username: admin
+#password: cable123
+#os_auth_url: http://192.168.67.10:5000/v2.0
+#tenant_name: admin
+#ext_net: external
+#http_proxy: 10.197.123.27:3128
+
+# Lab 2c
+#username: admin
+#password: cable123
+#os_auth_url: http://192.168.77.10:5000/v2.0
+#tenant_name: admin
+#ext_net: external
+#http_proxy: 10.197.123.28:3128
 
 # Laptop Lab
 #username: admin
