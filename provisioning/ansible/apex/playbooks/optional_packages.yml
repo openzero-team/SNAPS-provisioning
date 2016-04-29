@@ -1,0 +1,8 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - yum: name=net-tools
+   - yum: name=vim
+   - yum: name=screen

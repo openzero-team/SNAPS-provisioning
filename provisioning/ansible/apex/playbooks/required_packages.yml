@@ -1,0 +1,29 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - yum: name=net-tools
+   - yum: name=wget
+   - yum: name=vim
+   - yum: name=squid
+   - yum: name=git
+   - yum: name=screen
+
+   - git: repo=https://nougat.cablelabs.com/VNE/OPNFV.git dest=~/
+
+   - name: Transfer Squid Configuration
+     copy: src=../conf/squid.conf dest=/etc/squid/squid.conf
+
+   - name : Restart Squid
+     command: systemctl restart squid
+
+   - name : Enable Squid
+     command: systemctl restart squid
+
+   - name : Stop Firewall
+     command: systemctl stop firewalld
+
+   - name : Disable Firewall
+     command: systemctl disable firewalld
+

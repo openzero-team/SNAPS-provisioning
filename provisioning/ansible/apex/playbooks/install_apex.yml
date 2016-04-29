@@ -1,0 +1,21 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - name : Download Apex Common
+     command: wget -O ~/opnfv-apex-common.rpm http://artifacts.opnfv.org/apex/brahmaputra/opnfv-apex-common-2.1-brahmaputra.1.0.noarch.rpm
+
+   - name : Download Apex Undercloud
+     command: wget -O ~/opnfv-apex-undercloud.rpm http://artifacts.opnfv.org/apex/brahmaputra/opnfv-apex-undercloud-2.1-brahmaputra.1.0.noarch.rpm
+
+   - name : Download Apex
+     command: wget -O ~/opnfv-apex.rpm http://artifacts.opnfv.org/apex/brahmaputra/opnfv-apex-2.1-brahmaputra.1.0.noarch.rpm
+
+   - name : Install
+     command: yum install -y ~/opnfv-apex-undercloud.rpm ~/opnfv-apex-common.rpm ~/opnfv-apex.rpm
+
+   - name : Reboot
+     command: reboot
+
+
