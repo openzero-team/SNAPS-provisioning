@@ -6,3 +6,8 @@
    - yum: name=net-tools
    - yum: name=vim
    - yum: name=screen
+   - yum: name=samba
+   #TODO - add script to configure smb
+
+   - name: Disable firewalld
+     command: systemctl disable firewalld

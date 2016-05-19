@@ -1,0 +1,21 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - yum: name=squid
+
+   - name: Transfer Squid Configuration
+     copy: src=../conf/squid.conf dest=/etc/squid/squid.conf
+
+   - name : Restart Squid
+     command: systemctl restart squid
+
+   - name : Enable Squid
+     command: systemctl restart squid
+
+   - name : Stop Firewall
+     command: systemctl stop firewalld
+
+   - name : Disable Firewall
+     command: systemctl disable firewalld

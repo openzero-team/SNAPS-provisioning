@@ -1,0 +1,10 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - name: Transfer Squid Configuration
+     copy: src=../scripts/python-3.4-virtenv-setup.sh dest=~/python-3.4-virtenv-setup.sh
+
+   - name : Run Python 3.4 Setup
+     command: sh ~/python-3.4-virtenv-setup.sh

@@ -5,25 +5,29 @@
   tasks:
    - yum: name=net-tools
    - yum: name=wget
-   - yum: name=vim
-   - yum: name=squid
    - yum: name=git
-   - yum: name=screen
+   - yum: name=libvirt-python
+   - yum: name=python-docutils
+   - yum: name=libvirt
+   - yum: name=qemu-kvm
+   - yum: name=libguestfs-tools
+   - yum: name=rpm-build
 
-   - git: repo=https://nougat.cablelabs.com/VNE/OPNFV.git dest=~/
+   - name: Yum Config Manager
+     command: yum-config-manager --enable rhelosp-rhel-7-server-opt
 
-   - name: Transfer Squid Configuration
-     copy: src=../conf/squid.conf dest=/etc/squid/squid.conf
+   - yum: name=epel-release
 
-   - name : Restart Squid
-     command: systemctl restart squid
+   # This should probably reflect Mikita
+   - name: Liberty Repo
+     command: curl -o /etc/yum.repos.d/delorean-liberty.repo https://trunk.rdoproject.org/centos7-liberty/current/delorean.repo
 
-   - name : Enable Squid
-     command: systemctl restart squid
+   - yum: name=yum-plugin-priorities
+   - yum: name=openstack-tripleo
 
-   - name : Stop Firewall
-     command: systemctl stop firewalld
+   - name: Install PIP
+     command: easy_install pip
 
-   - name : Disable Firewall
-     command: systemctl disable firewalld
+   - pip: virtualenv
+
 

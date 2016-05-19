@@ -1,0 +1,15 @@
+---
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - name: Transfer make-python-3.4.sh
+     copy: src=../scripts/make-python-3.4.sh dest=~/make-python-3.4.sh mode=0777
+
+   - name: Execute make-python-3.4.sh
+     command: bash ~/make-python-3.4.sh
+
+#   - pip: name=ipaddress
+#   - pip: name=virtualenv
+#   - pip: name=libvirt-python
+

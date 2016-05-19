@@ -1,5 +1,6 @@
 ---
+- include: ../openvswitch/main.yml
 - include: playbooks/required_packages.yml
 - include: playbooks/optional_packages.yml
-- include: ../openvswitch/main.yml
+- include: playbooks/install_proxy.yml
 - include: playbooks/install_apex.yml
