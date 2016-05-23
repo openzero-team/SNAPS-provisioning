@@ -2,8 +2,15 @@ Python scripts for creating virtual environments on OpenStack with Ansible playb
 
 Environment Setup
   * Python 2.7 (recommend leveraging a Virtual Python runtime)
-    * Ansible 1.9.4
     * OpenStack clients 2.0.0
+      * neutron
+      * glance
+      * keystone
+      * nova
+    * shutil
+    * time
+    * Crypto
+    * ansible (1.9.4)
 
 To run unit tests.
   * cd python
