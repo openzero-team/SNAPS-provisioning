@@ -17,13 +17,14 @@ To run unit tests.
   * python unit_test_suite.py
 
 To deploy virtual environments
-  * export PYTHONPATH=<path to repo>/python
+  * cd <repo dir> python
     (CWD must be here now as there are some post-deployment Ansible scripts located in python/provisioning/ansible
      called by create_instance.py
+  * export PYTHONPATH=$PYTHONPATH:$(pwd)
   * python deploy_venv.py <path to deployment configuration YAML file>
     * i.e. python deploy_venv.py <path to repo>/ansible/yardstick/deploy-yardstick.yaml
       (deployment of a virtual environment where the VM has Yardstick installed)
 
-Development...
+Development
 
 (More to come...)
