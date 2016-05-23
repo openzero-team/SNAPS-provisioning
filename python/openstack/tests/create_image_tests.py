@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import os
 import unittest
@@ -23,6 +21,8 @@ import file_utils
 import openstack.create_image as create_image
 import openstack_tests
 from openstack import os_credentials
+
+__author__ = 'spisarski'
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

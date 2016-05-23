@@ -33,4 +33,5 @@ config = {
     'name': 'provisioning'
 }
 
-setup(**config, requires=['ansible', 'Crypto', 'python-keystoneclient', 'scp', 'PyYAML'])
+# setup(**config, requires=['ansible', 'Crypto', 'python-keystoneclient', 'scp', 'PyYAML'])
+setup(**config)

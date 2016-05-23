@@ -58,7 +58,7 @@ openstack:
           ext_net: external
           port_name: yard-net-port
 ansible:
-    - playbook_location: provisioning/ansible/yardstick/main.yml
+    - playbook_location: ../ansible/yardstick/main.yml
       hosts:
         - yardstick-app
       variables:

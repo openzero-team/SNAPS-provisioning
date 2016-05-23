@@ -12,14 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import os
 
 import file_utils
 
 from openstack import create_network
 from openstack import os_credentials
+
+__author__ = 'spisarski'
 
 username = 'admin'
 tenant_name = 'admin'

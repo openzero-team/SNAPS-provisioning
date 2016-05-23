@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 
 from tempfile import NamedTemporaryFile
@@ -24,15 +22,18 @@ from ansible.callbacks import PlaybookRunnerCallbacks
 from ansible.callbacks import PlaybookCallbacks
 from ansible import utils
 
+__author__ = 'spisarski'
+
 logger = logging.getLogger('ansible_utils')
 
 
-def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, variables=None, sudo_user='root',
-                   sudo=True):
+def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, variables=None):
     """
     Executes an Ansible playbook to the given host
     :param hosts_inv: a list of hostnames/ip addresses to which to apply the Ansible playbook
     :param playbook_path: the (relative) path to the Ansible playbook
+    :param host_user: A sudo user for the host instances
+    :param ssh_priv_key_file_path: the file location of the ssh key
     :param variables: a dictionary containing any variables needed by the Jinga 2 templates
     :return: None
     """

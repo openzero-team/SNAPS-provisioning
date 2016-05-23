@@ -12,14 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import os
 
 from Crypto.PublicKey import RSA
 
 import nova_utils
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('OpenStackKeypair')
 

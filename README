@@ -1,0 +1,20 @@
+Python scripts for creating virtual environments on OpenStack with Ansible playbooks for provisioning.
+
+Environment Setup
+  * Python 2.7 (recommend leveraging a Virtual Python runtime)
+    * Ansible 1.9.4
+    * OpenStack clients 2.0.0
+
+To run unit tests.
+  * cd python
+  * python unit_test_suite.py
+
+To deploy virtual environments
+  * export PYTHONPATH=<path to repo>/python
+    (CWD must be here now as there are some post-deployment Ansible scripts located in python/provisioning/ansible
+     called by create_instance.py
+  * python deploy_venv.py <path to deployment configuration YAML file>
+    * i.e. python deploy_venv.py <path to repo>/ansible/yardstick/deploy-yardstick.yaml
+      (deployment of a virtual environment where the VM has Yardstick installed)
+
+(More to come...)

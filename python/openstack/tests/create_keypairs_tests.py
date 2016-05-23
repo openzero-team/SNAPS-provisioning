@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import os
 import unittest
@@ -23,6 +21,8 @@ from Crypto.PublicKey import RSA
 import openstack.create_keypairs as create_keypairs
 import openstack.nova_utils as nova_utils
 import openstack_tests
+
+__author__ = 'spisarski'
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -81,7 +81,7 @@ class CreateKeypairsTests(unittest.TestCase):
         """
         self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
-                                                                                                public_filepath=pub_file_path))
+                                                                                        public_filepath=pub_file_path))
         self.keypair_creator.create()
 
         keypair = nova_utils.keypair_exists(self.keypair_creator.nova, self.keypair_creator.keypair)
@@ -97,8 +97,8 @@ class CreateKeypairsTests(unittest.TestCase):
         """
         self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
-                                                                                                public_filepath=pub_file_path,
-                                                                                                private_filepath=priv_file_path))
+                                                                                    public_filepath=pub_file_path,
+                                                                                    private_filepath=priv_file_path))
         self.keypair_creator.create()
 
         keypair = nova_utils.keypair_exists(self.keypair_creator.nova, self.keypair_creator.keypair)
@@ -118,7 +118,7 @@ class CreateKeypairsTests(unittest.TestCase):
         nova_utils.save_keys_to_files(keys=keys, pub_file_path=pub_file_path)
         self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
-                                                                                                public_filepath=pub_file_path))
+                                                                                        public_filepath=pub_file_path))
         self.keypair_creator.create()
 
         keypair = nova_utils.keypair_exists(self.keypair_creator.nova, self.keypair_creator.keypair)

@@ -12,14 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import unittest
 
 import neutron_utils_tests
 import openstack.create_network as create_network
 import openstack_tests
+
+__author__ = 'spisarski'
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

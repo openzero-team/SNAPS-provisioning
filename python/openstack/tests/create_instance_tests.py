@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import os
 import unittest
@@ -24,6 +22,8 @@ import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
 import openstack_tests
 from openstack import create_image
+
+__author__ = 'spisarski'
 
 VM_BOOT_TIMEOUT = 600
 
@@ -70,8 +70,8 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
 
         self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
-                                                                                                public_filepath=keypair_pub_filepath,
-                                                                                                private_filepath=keypair_priv_filepath))
+                                                                                public_filepath=keypair_pub_filepath,
+                                                                                private_filepath=keypair_priv_filepath))
         self.keypair_creator.create()
 
         self.ports = list()
@@ -179,8 +179,8 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
 
         self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
-                                                                                                public_filepath=keypair_pub_filepath,
-                                                                                                private_filepath=keypair_priv_filepath))
+                                                                                public_filepath=keypair_pub_filepath,
+                                                                                private_filepath=keypair_priv_filepath))
         self.keypair_creator.create()
 
         self.ports = list()

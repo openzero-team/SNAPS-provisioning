@@ -16,17 +16,17 @@
 # limitations under the License.
 #
 # This script is responsible for deploying a VM running virtual CMTS emulator instances
-__author__ = 'spisarski'
-
 import logging
 import os
 import sys
 
-from provisioning.ansible import ansible_utils
-from python import file_utils
-from python.openstack import neutron_utils
-from python.openstack import nova_utils
-from python.openstack import os_credentials
+from provisioning import ansible_utils
+import file_utils
+from openstack import neutron_utils
+from openstack import nova_utils
+from openstack import os_credentials
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('deploy_vnfs')
 
@@ -50,7 +50,7 @@ def create_image(os_conn_config, image_config):
     :param image_config: The image configuration
     :return: A reference to the image creator object from which the image object can be accessed
     """
-    from python.openstack import OpenStackImage
+    from openstack.create_image import OpenStackImage
     image_creator = OpenStackImage(get_os_credentials(os_conn_config), image_config.get('image_user'),
                                    image_config.get('format'), image_config.get('download_url'),
                                    image_config.get('name'), image_config.get('local_download_path'))
@@ -69,10 +69,10 @@ def create_network(os_conn_config, network_config):
     # Check for OS for network existence
     # If exists return network instance data
     # Else, create network and return instance data
-    from python.openstack import OpenStackNetwork
-    from python.openstack import NetworkSettings
-    from python.openstack import SubnetSettings
-    from python.openstack import RouterSettings
+    from openstack.create_network import OpenStackNetwork
+    from openstack.create_network import NetworkSettings
+    from openstack.create_network import SubnetSettings
+    from openstack.create_network import RouterSettings
 
     config = network_config['network']
 
@@ -95,8 +95,8 @@ def create_keypair(os_conn_config, keypair_config):
     :param keypair_config: The keypair configuration
     :return: A reference to the keypair creator object
     """
-    from python.openstack import OpenStackKeypair
-    from python.openstack import KeypairSettings
+    from openstack.create_keypairs import OpenStackKeypair
+    from openstack.create_keypairs import KeypairSettings
 
     keypair_creator = OpenStackKeypair(get_os_credentials(os_conn_config), KeypairSettings(keypair_config))
     keypair_creator.create()
@@ -113,8 +113,8 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict, key
     :param keypair_creator: The object responsible for creating the keypair associated with this VM instance.
     :return: A reference to the VM instance object
     """
-    from python.openstack import PortSettings
-    from python.openstack import OpenStackVmInstance
+    from openstack.create_network import PortSettings
+    from openstack.create_instance import OpenStackVmInstance
 
     os_creds = get_os_credentials(os_conn_config)
     neutron = neutron_utils.neutron_client(os_creds)
@@ -144,7 +144,7 @@ def create_vm_instance(os_conn_config, instance_config, image, network_dict, key
                 logger.warn('Cannot create port as associated network name of [' + network_name + '] not configured.')
                 raise Exception
 
-    from python.openstack import OpenStackImage
+    from openstack.create_image import OpenStackImage
     # TODO - need to configure in the image username
     image_creator = OpenStackImage(image=image, image_user='centos')
     vm_inst = OpenStackVmInstance(os_creds, config['name'], config['flavor'], image_creator, ports, config['sudo_user'],
@@ -360,7 +360,7 @@ def main():
     [defaults]
     host_key_checking = False
 
-    CWD must be one directory up from where this script is located (SDN - name to be changed eventually).
+    CWD must be this directory where this script is located.
 
     :return: To the OS
     """

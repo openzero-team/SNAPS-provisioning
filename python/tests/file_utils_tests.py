@@ -12,22 +12,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import os
 import unittest
 import shutil
 
 import file_utils
 
+__author__ = 'spisarski'
 
-class SdnUtilsTests(unittest.TestCase):
+
+class FileUtilsTests(unittest.TestCase):
     """
     Tests the methods in file_utils.py
     """
 
     def setUp(self):
-        self.tmpDir = '/tmp/sdntests'
+        self.tmpDir = '/tmp/file_utils_tests'
         if not os.path.exists(self.tmpDir):
             os.makedirs(self.tmpDir)
 
@@ -41,7 +41,7 @@ class SdnUtilsTests(unittest.TestCase):
 
     def testFileIsDirectory(self):
         """
-        Ensure the sdn_util.fileExists() method returns false with a directory
+        Ensure the file_utils.fileExists() method returns false with a directory
         """
         result = file_utils.file_exists(self.tmpDir)
         self.assertFalse(result)
@@ -49,14 +49,14 @@ class SdnUtilsTests(unittest.TestCase):
 
     def testFileNotExist(self):
         """
-        Ensure the sdn_util.fileExists() method returns false with a bogus file
+        Ensure the file_utils.fileExists() method returns false with a bogus file
         """
         result = file_utils.file_exists('/foo/bar.txt')
         self.assertFalse(result)
 
     def testFileExists(self):
         """
-        Ensure the sdn_util.fileExists() method returns false with a directory
+        Ensure the file_utils.fileExists() method returns false with a directory
         """
         if not os.path.exists(self.tmpFile):
             os.makedirs(self.tmpFile)
@@ -66,24 +66,24 @@ class SdnUtilsTests(unittest.TestCase):
 
     def testDownloadBadUrl(self):
         """
-        Tests the sdn_util.download() method when given a bad URL
+        Tests the file_utils.download() method when given a bad URL
         """
         with self.assertRaises(Exception):
             file_utils.download('http://bunkUrl.com/foo/bar.iso', self.tmpDir)
 
     def testDownloadBadDir(self):
         """
-        Tests the sdn_util.download() method when given a bad URL
+        Tests the file_utils.download() method when given a bad URL
         """
         with self.assertRaises(Exception):
             file_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img', '/foo/bar')
 
     def testCirrosImageDownload(self):
         """
-        Tests the sdn_util.download() method when given a good Cirros QCOW2 URL
+        Tests the file_utils.download() method when given a good Cirros QCOW2 URL
         """
-        imageFile = file_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
-                                       self.tmpDir)
-        self.assertIsNotNone(imageFile)
-        self.assertTrue(imageFile.name.endswith("cirros-0.3.4-x86_64-disk.img"))
-        self.assertTrue(imageFile.name.startswith(self.tmpDir))
+        image_file = file_utils.download('http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img',
+                                         self.tmpDir)
+        self.assertIsNotNone(image_file)
+        self.assertTrue(image_file.name.endswith("cirros-0.3.4-x86_64-disk.img"))
+        self.assertTrue(image_file.name.startswith(self.tmpDir))

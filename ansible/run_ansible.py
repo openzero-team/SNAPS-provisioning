@@ -24,6 +24,8 @@ import logging
 from ansible.runner import Runner
 from ansible.inventory import Inventory
 
+__author__ = 'spisarski'
+
 logger = logging.getLogger('run_playbook')
 
 

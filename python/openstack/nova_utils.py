@@ -12,12 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import os
 import logging
 
 import novaclient.v2.client as novaclient
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('nova_utils')
 
@@ -46,7 +46,7 @@ def save_keys_to_files(keys=None, pub_file_path=None, priv_file_path=None):
     Saves the generated RSA generated keys to the filesystem
     :param keys: the keys to save
     :param pub_file_path: the path to the public keys
-    :param pub_file_path: the path to the private keys
+    :param priv_file_path: the path to the private keys
     :return: None
     """
     if keys:

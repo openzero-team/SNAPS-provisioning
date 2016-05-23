@@ -26,8 +26,8 @@ from openstack import create_image
 from paramiko import SSHClient
 from scp import SCPClient
 
-from provisioning.ansible import ansible_utils
-from python.openstack.tests import openstack_tests
+from provisioning import ansible_utils
+from openstack.tests import openstack_tests
 
 VM_BOOT_TIMEOUT = 600
 
@@ -155,7 +155,7 @@ class AnsibleProvisioningTests(unittest.TestCase):
         priv_key = self.inst_creator.keypair_creator.keypair_settings.private_filepath
         ip = self.inst_creator.floating_ip.ip
         user = self.inst_creator.remote_user
-        ansible_utils.apply_playbook('provisioning/ansible/tests/playbooks/simple_playbook.yml', [ip], user, priv_key)
+        ansible_utils.apply_playbook('provisioning/tests/playbooks/simple_playbook.yml', [ip], user, priv_key)
 
         ssh = SSHClient()
         ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
@@ -179,7 +179,7 @@ class AnsibleProvisioningTests(unittest.TestCase):
         priv_key = self.inst_creator.keypair_creator.keypair_settings.private_filepath
         ip = self.inst_creator.floating_ip.ip
         user = self.inst_creator.remote_user
-        ansible_utils.apply_playbook('provisioning/ansible/tests/playbooks/template_playbook.yml', [ip], user, priv_key,
+        ansible_utils.apply_playbook('provisioning/tests/playbooks/template_playbook.yml', [ip], user, priv_key,
                                      variables={'name': 'Foo'})
 
         ssh = SSHClient()

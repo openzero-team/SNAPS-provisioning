@@ -12,11 +12,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 
 from neutronclient.v2_0 import client as neutronclient
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('neutron_utils')
 

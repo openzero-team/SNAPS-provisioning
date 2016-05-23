@@ -12,13 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 from glanceclient import Client
 from keystoneclient.auth.identity import v2 as identity
 from keystoneclient import session
 import keystoneclient.v2_0.client as ksclient
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('glance_utils')
 

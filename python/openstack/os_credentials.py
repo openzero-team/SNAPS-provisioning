@@ -14,6 +14,7 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
+
 class OSCreds:
     """
     Represents the credentials required to connect with OpenStack servers

@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-__author__ = 'spisarski'
-
 import logging
 import re
 import time
@@ -22,6 +20,8 @@ import paramiko
 from paramiko import SSHClient
 
 import nova_utils
+
+__author__ = 'spisarski'
 
 logger = logging.getLogger('create_instance')
 
@@ -161,7 +161,7 @@ class OpenStackVmInstance:
         """
         Although ports/NICs can contain multiple IPs, this code currently only supports the first.
 
-        Your CWD at this point must be the SDN directory.
+        Your CWD at this point must be the <repo dir>/python directory.
         TODO - fix this restriction.
 
         :param nic_name: Name of the interface
@@ -202,7 +202,7 @@ class OpenStackVmInstance:
         pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
 
         # TODO - need to find a better means of finding this playbook.
-        runner = PlayBook(playbook='../provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
+        runner = PlayBook(playbook='provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
                           host_list=hosts.name,
                           remote_user=self.remote_user,
                           private_key_file=self.keypair_creator.keypair_settings.private_filepath,
@@ -283,8 +283,8 @@ class OpenStackVmInstance:
         proxy = None
         if self.os_creds.proxy:
             tokens = re.split(':', self.os_creds.proxy)
-            proxy = paramiko.ProxyCommand('ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' '
-                                          + self.floating_ip.ip + ' 22')
+            proxy = paramiko.ProxyCommand('ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
+                                          self.floating_ip.ip + ' 22')
 
         try:
             ssh.connect(self.floating_ip.ip, username=self.remote_user,
