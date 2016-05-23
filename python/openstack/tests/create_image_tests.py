@@ -14,16 +14,15 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
-import unittest
-import os
 import logging
+import os
+import unittest
 
 import file_utils
+
 import openstack.create_image as create_image
-from openstack import os_credentials
 import openstack_tests
-
-
+from openstack import os_credentials
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

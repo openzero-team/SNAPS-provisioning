@@ -14,14 +14,12 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
-import unittest
 import logging
+import unittest
 
-import openstack.create_network as create_network
 import neutron_utils_tests
+import openstack.create_network as create_network
 import openstack_tests
-
-
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

@@ -14,19 +14,15 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
-import unittest
 import logging
 import os
-
-from Crypto.PublicKey import RSA
+import unittest
 
 import file_utils
+from Crypto.PublicKey import RSA
+
 import openstack.nova_utils as nova_utils
 import openstack_tests
-
-
-
-
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

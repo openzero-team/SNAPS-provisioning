@@ -14,9 +14,9 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
-import unittest
 import logging
 import os
+import unittest
 
 from Crypto.PublicKey import RSA
 

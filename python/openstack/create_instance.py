@@ -14,12 +14,12 @@
 # limitations under the License.
 __author__ = 'spisarski'
 
-import time
 import logging
 import re
+import time
 
-from paramiko import SSHClient
 import paramiko
+from paramiko import SSHClient
 
 import nova_utils
 
@@ -202,7 +202,7 @@ class OpenStackVmInstance:
         pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
 
         # TODO - need to find a better means of finding this playbook.
-        runner = PlayBook(playbook='provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
+        runner = PlayBook(playbook='../provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
                           host_list=hosts.name,
                           remote_user=self.remote_user,
                           private_key_file=self.keypair_creator.keypair_settings.private_filepath,

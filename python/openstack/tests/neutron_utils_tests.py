@@ -18,14 +18,8 @@ import logging
 import unittest
 
 import openstack.neutron_utils as neutron_utils
-from openstack import create_network
 import openstack_tests
-
-
-
-
-
-
+from openstack import create_network
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)

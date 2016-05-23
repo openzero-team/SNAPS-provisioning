@@ -16,9 +16,10 @@ __author__ = 'spisarski'
 
 import os
 
+import file_utils
+
 from openstack import create_network
 from openstack import os_credentials
-import file_utils
 
 username = 'admin'
 tenant_name = 'admin'

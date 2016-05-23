@@ -19,6 +19,7 @@ import os
 import shutil
 
 import file_utils
+
 import glance_utils
 
 logger = logging.getLogger('create_image')

@@ -14,20 +14,20 @@
 # limitations under the License.
 
 import logging
-import unittest
 import os
+import unittest
 
+import openstack.create_instance as create_instance
+import openstack.create_keypairs as create_keypairs
+import openstack.create_network as create_network
+import openstack.neutron_utils as neutron_utils
 import paramiko
+from openstack import create_image
 from paramiko import SSHClient
 from scp import SCPClient
 
-from openstack import create_image
-import openstack.create_instance as create_instance
-import openstack.create_network as create_network
-import openstack.neutron_utils as neutron_utils
-import openstack.create_keypairs as create_keypairs
-from openstack.tests import openstack_tests
 from provisioning.ansible import ansible_utils
+from python.openstack.tests import openstack_tests
 
 VM_BOOT_TIMEOUT = 600
 
