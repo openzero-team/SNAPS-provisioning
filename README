@@ -17,4 +17,6 @@ To deploy virtual environments
     * i.e. python deploy_venv.py <path to repo>/ansible/yardstick/deploy-yardstick.yaml
       (deployment of a virtual environment where the VM has Yardstick installed)
 
+Development...
+
 (More to come...)
