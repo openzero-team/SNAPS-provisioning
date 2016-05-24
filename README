@@ -25,6 +25,8 @@ To deploy virtual environments
     * i.e. python deploy_venv.py <path to repo>/ansible/yardstick/deploy-yardstick.yaml
       (deployment of a virtual environment where the VM has Yardstick installed)
 
-Development
+Also see the [CableLabs project wiki page]
+(https://community.cablelabs.com/wiki/display/SNAPS/OpenStack+Instantiation%2C+Provisioning%2C+and+Testing)
+for more information on these scripts.
 
 (More to come...)
