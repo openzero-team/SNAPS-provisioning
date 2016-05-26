@@ -25,6 +25,4 @@ if [ ! -f /usr/local/bin/easy_install-3.4 ]; then
     ln -s /usr/local/bin/easy_install-3.4 /usr/bin/easy_install-3.4
 fi
 
-
-#rm /usr/bin/python
-#ln -s python3.4 /usr/bin/python
+ln -s /usr/local/bin/python3.4 /bin/python3.4

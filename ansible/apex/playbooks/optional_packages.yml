@@ -21,7 +21,9 @@
    - yum: name=vim
    - yum: name=screen
    - yum: name=samba
-   #TODO - add script to configure smb
 
    - name: Disable firewalld
      command: systemctl disable firewalld
+
+   - name: Stop firewalld
+     command: systemctl stop firewalld
