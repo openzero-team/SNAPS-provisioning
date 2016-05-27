@@ -14,27 +14,12 @@
 # limitations under the License.
 ---
 - hosts: all
-  sudo: yes
+  sudo: no
 
   tasks:
-   - yum: name=net-tools
-   - yum: name=vim
-   - yum: name=screen
+   - git: repo=https://gerrit.opnfv.org/gerrit/apex dest=~/apex
 
-   - yum: name=squid # May need to reconfigure by removing all lines containing the string 'deny'
-   - name: Enable Squid
-     command: systemctl enable squid
-   - name: Start Squid
-     command: systemctl start squid
+   - name: Create link
+     command: ln -s ~/apex/lib ~/apex/build/lib
 
-   - yum: name=samba # Remember to call "smbpasswd" and create a /etc/samba/smbusers file
-   - name: Enable Samba
-     command: systemctl enable smb
-   - name: Start Samba
-     command: systemctl start smb
-
-   - name: Disable firewalld
-     command: systemctl disable firewalld
-
-   - name: Stop firewalld
-     command: systemctl stop firewalld
+   # Must reboot for apex/ci/deploy.sh to work

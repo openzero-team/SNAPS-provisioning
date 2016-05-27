@@ -39,9 +39,18 @@
    - yum: name=yum-plugin-priorities
    - yum: name=openstack-tripleo
 
-   - name: Install PIP
-     command: easy_install pip
+   - name: Enable repolist
+     command: yum repolist enabled
 
-   - pip: virtualenv
+   # TODO - Determine why the "yum:" target will not for the 3 Python 3.4 libraries below
+   - name: Install Python 3.4
+     command: yum -y install python34
+#   - yum: python34
 
+   - name: Install Python 3.4 Setup Tools
+     command: yum -y install python34-setuptools
+#   - yum: python34-setuptools
 
+   - name: Install Python 3.4 PyYAML
+     command: yum -y install python34-PyYAML
+#   - yum: python34-PyYAML

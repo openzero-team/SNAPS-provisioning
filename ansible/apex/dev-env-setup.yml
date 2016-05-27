@@ -16,5 +16,6 @@
 - include: ../openvswitch/main.yml
 - include: playbooks/required_packages.yml
 - include: playbooks/optional_packages.yml
-- include: playbooks/python-3.4.yml
-#- include: playbooks/create-virt-py-env.yml
+- include: playbooks/setup-apex-source.yml
+# must ensure ifcfg-* files for the NICs contains the following line:
+# NETMASK=255.255.255.0
