@@ -105,7 +105,7 @@ class OpenStackVmInstance:
                 if port['port']['name'] == self.floating_ip_conf['port_name']:
                     self.floating_ip = nova_utils.create_floating_ip(self.nova, self.floating_ip_conf['ext_net'])
                     logger.info('Created floating IP ' + self.floating_ip.ip)
-                    self._add_floating_ip(port['port']['dns_assignment'][0]['ip_address'])
+                    self._add_floating_ip(port['port']['fixed_ips'][0]['ip_address'])
 
         return self.vm
 
