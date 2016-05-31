@@ -1,0 +1,94 @@
+---
+openstack:
+  connection:
+    # Note - when http_proxy is set, you must also configure ssh for proxy tunneling on your host.
+    username: mmakati
+    password: mufaddal
+    auth_url: http://10.197.103.50:5000/v2.0/
+    tenant_name: vLTE
+    http_proxy: localhost:3128
+  images:
+    - image:
+        name: Ubuntu
+        format: qcow2
+        image_user: ubuntu
+#        download_url: http://uec-images.ubuntu.com/releases/14.04.3/14.04.3/ubuntu-14.04-server-cloudimg-amd64-disk1.img
+        download_url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
+        local_download_path: /tmp/create_image_tests
+
+  networks:
+    - network:
+        name: ext-net
+        subnet:
+          name: ext-subnet
+          cidr: 192.168.100.0/24
+          dns_nameservers: [8.8.8.8]
+        router:
+          name: ext-router
+          external_gateway: external
+    - network:
+        name: int-net
+        subnet:
+          name: int-subnet
+          cidr: 10.115.0.0/16
+          gateway_ip: 10.115.0.1
+          dns_nameservers: [8.8.8.8]
+        router:
+          name: int-router
+  keypairs:
+    - keypair:
+        name: vlte-key
+        public_filepath: /Users/mmakati/.ssh/vlte-key.pub
+        private_filepath: /Users/mmakati/.ssh/vlte-key
+  instances:
+    - instance:
+        name: gateway
+        flavor: m1.medium
+        imageName: Ubuntu
+        keypair_name: vlte-key
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: ext-port
+              network_name: ext-net
+              ip: 192.168.100.100
+          - port:
+              name: int-port
+              network_name: int-net
+              ip: 10.115.0.1
+        floating_ip:
+          ext_net: external
+          port_name: ext-port
+    - instance:
+        name: vlte-app1
+        flavor: m1.xlarge
+        imageName: Ubuntu
+        keypair_name: vlte-key
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: net-port1
+              network_name: int-net
+              ip: 10.115.0.2
+    - instance:
+        name: vlte-app2
+        flavor: m1.medium
+        imageName: Ubuntu
+        keypair_name: vlte-key
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: net-port2
+              network_name: int-net
+              ip: 10.115.0.3
+    - instance:
+        name: vlte-app3
+        flavor: m1.medium
+        imageName: Ubuntu
+        keypair_name: vlte-key
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: net-port3
+              network_name: int-net
+              ip: 10.115.0.4
