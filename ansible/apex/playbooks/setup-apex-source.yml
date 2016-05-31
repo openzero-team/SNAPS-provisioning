@@ -14,12 +14,13 @@
 # limitations under the License.
 ---
 - hosts: all
-  sudo: no
+  sudo: yes
 
   tasks:
    - git: repo=https://gerrit.opnfv.org/gerrit/apex dest=~/apex
 
-   - name: Create link
-     command: ln -s ~/apex/lib ~/apex/build/lib
+   - name: Setup $CONFIG build environment variables
+     shell: echo "export CONFIG=/root/apex/build" >> /root/.bashrc
 
-   # Must reboot for apex/ci/deploy.sh to work
+   - name: Setup $LIB build environment variables
+     shell: echo "export LIB=/root/apex/lib" >> /root/.bashrc
