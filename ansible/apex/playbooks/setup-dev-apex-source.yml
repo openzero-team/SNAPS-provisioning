@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-- include: ../openvswitch/main.yml
-- include: playbooks/required_packages.yml
-- include: playbooks/optional_packages.yml
-- include: playbooks/setup-dev-apex-source.yml
-# must ensure ifcfg-* files for the NICs contains the following line:
-# NETMASK=255.255.255.0
+- hosts: all
+  sudo: no
+
+  tasks:
+   - git: repo=https://gerrit.opnfv.org/gerrit/apex dest=~/apex
