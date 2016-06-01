@@ -24,3 +24,6 @@
 
    - name: Setup $LIB build environment variables
      shell: echo "export LIB=/root/apex/lib" >> /root/.bashrc
+
+   - name: Setup $PYTHONPATH build environment variables
+     shell: echo "export PYTHONPATH=$PYTHONPATH:/root/apex/lib/python" >> /root/.bashrc
