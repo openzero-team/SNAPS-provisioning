@@ -283,7 +283,7 @@ class OpenStackVmInstance:
         proxy = None
         if self.os_creds.proxy:
             tokens = re.split(':', self.os_creds.proxy)
-            proxy = paramiko.ProxyCommand('ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
+            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
                                           self.floating_ip.ip + ' 22')
 
         try:
