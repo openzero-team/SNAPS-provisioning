@@ -73,3 +73,19 @@ def read_yaml(config_file_path):
     config_file.close()
     logger.info('Closing configuration file')
     return config
+
+
+def read_os_env_file(os_env_filename):
+    """
+    Reads the OS environment source file and returns a map of each key/value
+    :param os_env_filename: The name of the OS environment file to read
+    :return: a dictionary
+    """
+    if os_env_filename:
+        logger.info('Attempting to read OS environment file - ' + os_env_filename)
+        out = {}
+        lines = [line.lstrip('export ').strip() for line in open(os_env_filename)]
+        for line in lines:
+            tokens = line.split('=')
+            out[tokens[0]] = tokens[1]
+        return out

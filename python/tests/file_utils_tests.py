@@ -87,3 +87,14 @@ class FileUtilsTests(unittest.TestCase):
         self.assertIsNotNone(image_file)
         self.assertTrue(image_file.name.endswith("cirros-0.3.4-x86_64-disk.img"))
         self.assertTrue(image_file.name.startswith(self.tmpDir))
+
+    def testReadOSEnvFile(self):
+        """
+        Tests that the OS Environment file is correctly parsed
+        :return:
+        """
+        os_env_dict = file_utils.read_os_env_file('openstack/tests/conf/overcloudrc_test')
+        self.assertEquals('test_pw', os_env_dict['OS_PASSWORD'])
+        self.assertEquals('http://foo:5000/v2.0/', os_env_dict['OS_AUTH_URL'])
+        self.assertEquals('admin', os_env_dict['OS_USERNAME'])
+        self.assertEquals('admin', os_env_dict['OS_TENANT_NAME'])

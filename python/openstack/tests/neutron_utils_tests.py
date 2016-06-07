@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import unittest
 
 import openstack.neutron_utils as neutron_utils
 import openstack_tests
 from openstack import create_network
+from openstack.tests.os_source_file_test import OSSourceFileTestsCase
 
 __author__ = 'spisarski'
 
@@ -28,14 +28,12 @@ logging.basicConfig(level=logging.DEBUG)
 # To run these tests, the CWD must be set to the top level directory of this project
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-os_creds = openstack_tests.get_credentials()
-
 port_name = 'test-port-name'
 ip_1 = '10.55.1.100'
 ip_2 = '10.55.1.200'
 
 
-class NeutronUtilsTests(unittest.TestCase):
+class NeutronUtilsTests(OSSourceFileTestsCase):
     """
     Test for the CreateImage class defined in create_image.py
     """
@@ -45,7 +43,7 @@ class NeutronUtilsTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.neutron = neutron_utils.neutron_client(os_creds)
+        self.neutron = neutron_utils.neutron_client(self.os_creds)
         self.network = None
         self.subnet = None
         self.port = None

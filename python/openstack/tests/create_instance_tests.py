@@ -14,7 +14,6 @@
 # limitations under the License.
 import logging
 import os
-import unittest
 
 import openstack.create_instance as create_instance
 import openstack.create_keypairs as create_keypairs
@@ -22,6 +21,7 @@ import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
 import openstack_tests
 from openstack import create_image
+from openstack.tests.os_source_file_test import OSSourceFileTestsCase
 
 __author__ = 'spisarski'
 
@@ -30,7 +30,6 @@ VM_BOOT_TIMEOUT = 600
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-os_creds = openstack_tests.get_credentials()
 priv_net_config = openstack_tests.get_priv_net_config()
 pub_net_config = openstack_tests.get_pub_net_config()
 
@@ -44,7 +43,7 @@ keypair_pub_filepath = 'tmp/testKP.pub'
 keypair_priv_filepath = 'tmp/testKP'
 
 
-class CreateInstanceSingleNetworkTests(unittest.TestCase):
+class CreateInstanceSingleNetworkTests(OSSourceFileTestsCase):
     """
     Test for the CreateInstance class with a single NIC/Port
     """
@@ -56,19 +55,19 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         """
         # Create Image
         self.os_image_settings = openstack_tests.get_image_test_settings()
-        self.image_creator = create_image.OpenStackImage(os_creds, self.os_image_settings.image_user,
+        self.image_creator = create_image.OpenStackImage(self.os_creds, self.os_image_settings.image_user,
                                                          self.os_image_settings.format, self.os_image_settings.url,
                                                          self.os_image_settings.name,
                                                          self.os_image_settings.download_file_path)
         self.image_creator.create()
 
         # Create Network
-        self.network_creator = create_network.OpenStackNetwork(os_creds, pub_net_config.network_settings,
+        self.network_creator = create_network.OpenStackNetwork(self.os_creds, pub_net_config.network_settings,
                                                                pub_net_config.subnet_settings,
                                                                pub_net_config.router_settings)
         self.network_creator.create()
 
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
                                                                                 public_filepath=keypair_pub_filepath,
                                                                                 private_filepath=keypair_priv_filepath))
@@ -109,7 +108,7 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         port_settings = create_network.PortSettings(name='test-port-1')
         self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
                                                     self.network_creator.network))
-        self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
+        self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
                                                                 self.image_creator, self.ports,
                                                                 self.os_image_settings.image_user)
         vm_inst = self.inst_creator.create()
@@ -129,7 +128,7 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
                                                     self.network_creator.network))
         floating_ip_conf = {'port_name': 'test-port-1', 'ext_net': pub_net_config.router_settings.external_gateway}
-        self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
+        self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
                                                                 self.image_creator, self.ports,
                                                                 self.os_image_settings.image_user,
                                                                 floating_ip_conf=floating_ip_conf)
@@ -144,7 +143,7 @@ class CreateInstanceSingleNetworkTests(unittest.TestCase):
         self.assertEquals(vm_inst, self.inst_creator.vm)
 
 
-class CreateInstancePubPrivNetTests(unittest.TestCase):
+class CreateInstancePubPrivNetTests(OSSourceFileTestsCase):
     """
     Test for the CreateInstance class with two NIC/Ports, eth0 with floating IP and eth1 w/o
     These tests require a Centos image and will fail on OS installations that cannot fire-up m1.medium VM instances
@@ -157,7 +156,7 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
         """
         # Create Image
         self.os_image_settings = openstack_tests.get_instance_image_settings()
-        self.image_creator = create_image.OpenStackImage(os_creds, self.os_image_settings.image_user,
+        self.image_creator = create_image.OpenStackImage(self.os_creds, self.os_image_settings.image_user,
                                                          self.os_image_settings.format,
                                                          self.os_image_settings.url,
                                                          self.os_image_settings.name,
@@ -167,17 +166,17 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
         # Create Network
         self.network_creators = list()
         # First network is public
-        self.network_creators.append(create_network.OpenStackNetwork(os_creds, pub_net_config.network_settings,
+        self.network_creators.append(create_network.OpenStackNetwork(self.os_creds, pub_net_config.network_settings,
                                                                      pub_net_config.subnet_settings,
                                                                      pub_net_config.router_settings))
         # Second network is private
-        self.network_creators.append(create_network.OpenStackNetwork(os_creds, priv_net_config.network_settings,
+        self.network_creators.append(create_network.OpenStackNetwork(self.os_creds, priv_net_config.network_settings,
                                                                      priv_net_config.subnet_settings,
                                                                      priv_net_config.router_settings))
         for network_creator in self.network_creators:
             network_creator.create()
 
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
                                                                                 public_filepath=keypair_pub_filepath,
                                                                                 private_filepath=keypair_priv_filepath))
@@ -231,7 +230,7 @@ class CreateInstancePubPrivNetTests(unittest.TestCase):
                                                         network_creator.network))
 
         # Create instance
-        self.inst_creator = create_instance.OpenStackVmInstance(os_creds, vm_inst_name, flavor,
+        self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
                                                                 self.image_creator, self.ports,
                                                                 self.os_image_settings.image_user,
                                                                 keypair_creator=self.keypair_creator,

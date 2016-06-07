@@ -17,6 +17,7 @@ import re
 import time
 
 import paramiko
+from novaclient.exceptions import NotFound
 from paramiko import SSHClient
 
 import nova_utils
@@ -26,7 +27,11 @@ __author__ = 'spisarski'
 logger = logging.getLogger('create_instance')
 
 VM_BOOT_TIMEOUT = 1200
+VM_DELETE_TIMEOUT = 600
+SSH_TIMEOUT = 120
 POLL_INTERVAL = 3
+STATUS_ACTIVE = 'ACTIVE'
+STATUS_DELETED = 'DELETED'
 
 
 class OpenStackVmInstance:
@@ -113,12 +118,17 @@ class OpenStackVmInstance:
         """
         Destroys the VM instance
         """
-
         if self.vm:
             try:
                 self.nova.servers.delete(self.vm)
             except Exception as e:
-                logger.error('Error deleting VM')
+                logger.error('Error deleting VM - ')
+
+            # Block until instance cannot be found or returns the status of DELETED
+            if self.vm_deleted(block=True, timeout=VM_DELETE_TIMEOUT):
+                logger.info('VM has been properly deleted')
+            else:
+                logger.error('VM not deleted within the timeout period of ' + str(VM_DELETE_TIMEOUT) + ' seconds')
 
         if self.floating_ip:
             try:
@@ -139,7 +149,7 @@ class OpenStackVmInstance:
                 logger.info('Added floating IP to port IP - ' + port_ip)
                 return
             except Exception as e:
-                logger.warn('Error adding floating IP to instance')
+                logger.warn('Error adding floating IP to instance - ' + e.message)
                 time.sleep(poll_interval)
                 pass
         logger.error('Timeout attempting to add the floating IP to instance.')
@@ -218,29 +228,63 @@ class OpenStackVmInstance:
         else:
             logger.warn("No status returned for IP in question")
 
+    def vm_deleted(self, block=False, timeout=VM_DELETE_TIMEOUT, poll_interval=POLL_INTERVAL):
+        """
+        Returns true when the VM status returns the value of expected_status_code or instance retrieval throws
+        a NotFound exception.
+        :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
+        :param timeout: The timeout value
+        :param poll_interval: The polling interval in seconds
+        :return: T/F
+        """
+        try:
+            return self._vm_status_check(STATUS_DELETED, block, timeout, poll_interval)
+        except NotFound as e:
+            logger.info("Instance not found when querying status for " + STATUS_DELETED)
+            return True
+
     def vm_active(self, block=False, timeout=VM_BOOT_TIMEOUT, poll_interval=POLL_INTERVAL):
         """
-        Returns true when the VM status returns 'ACTIVE'
+        Returns true when the VM status returns the value of expected_status_code
+        :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
+        :param timeout: The timeout value
+        :param poll_interval: The polling interval in seconds
+        :return: T/F
+        """
+        return self._vm_status_check(STATUS_ACTIVE, block, timeout, poll_interval)
+
+    def _vm_status_check(self, expected_status_code, block, timeout, poll_interval):
+        """
+        Returns true when the VM status returns the value of expected_status_code
+        :param expected_status_code: instance status evaluated with this string value
         :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
         :param timeout: The timeout value
         :param poll_interval: The polling interval in seconds
         :return: T/F
         """
         # sleep and wait for VM status change
-        count = timeout / poll_interval
-        while count > 0:
-            if not block:
-                count = 0
-            status = self._active()
+        if block:
+            start = time.time()
+        else:
+            start = time.time() - timeout
+
+        while timeout > time.time() - start:
+            status = self._status(expected_status_code)
             if status:
+                logger.info('VM is active')
                 return True
+
+            logger.debug('Retry querying VM status in ' + str(poll_interval) + ' seconds')
             time.sleep(poll_interval)
-            count -= 1
+            logger.debug('VM status query timeout in ' + str(timeout - (time.time() - start)))
+
+        logger.error('Timeout checking for VM status for ' + expected_status_code)
         return False
 
-    def _active(self):
+    def _status(self, expected_status_code):
         """
         Returns True when active else False
+        :param expected_status_code: instance status evaluated with this string value
         :return: T/F
         """
         instance = self.nova.servers.get(self.vm.id)
@@ -251,9 +295,9 @@ class OpenStackVmInstance:
         if instance.status == 'ERROR':
             raise Exception('Instance had an error during deployment')
         logger.debug('Instance status is - ' + instance.status)
-        return instance.status == 'ACTIVE'
+        return instance.status == expected_status_code
 
-    def vm_ssh_active(self, block=False, timeout=VM_BOOT_TIMEOUT, poll_interval=POLL_INTERVAL):
+    def vm_ssh_active(self, block=False, timeout=SSH_TIMEOUT, poll_interval=POLL_INTERVAL):
         """
         Returns true when the VM can be accessed via SSH
         :param block: When true, thread will block until active or timeout value in seconds has been exceeded (False)
@@ -262,15 +306,25 @@ class OpenStackVmInstance:
         :return: T/F
         """
         # sleep and wait for VM status change
-        count = timeout / poll_interval
-        while count > 0:
-            if not block:
-                count = 0
-            status = self._ssh_active()
-            if status:
-                return True
-            time.sleep(poll_interval)
-            count -= 1
+        logger.info('Checking if VM is active')
+
+        if self.vm_active(block=True):
+            if block:
+                start = time.time()
+            else:
+                start = time.time() - timeout
+
+            while timeout > time.time() - start:
+                status = self._ssh_active()
+                if status:
+                    logger.info('SSH is active for VM instance')
+                    return True
+
+                logger.debug('Retry SSH connection in ' + str(poll_interval) + ' seconds')
+                time.sleep(poll_interval)
+                logger.debug('SSH connection timeout in ' + str(timeout - (time.time() - start)))
+
+        logger.error('Timeout attempting to connect with VM via SSH')
         return False
 
     def _ssh_active(self):
@@ -278,17 +332,21 @@ class OpenStackVmInstance:
         Returns True when can create a SSH session else False
         :return: T/F
         """
+        logger.debug('Retrieving SSH client')
         ssh = SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         proxy = None
         if self.os_creds.proxy:
+            logger.debug('Setting up SSH proxy settings')
             tokens = re.split(':', self.os_creds.proxy)
             proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
                                           self.floating_ip.ip + ' 22')
 
         try:
+            logger.info('Attempting to connect to VM @ ' + self.floating_ip.ip)
             ssh.connect(self.floating_ip.ip, username=self.remote_user,
                         key_filename=self.keypair_creator.keypair_settings.private_filepath, sock=proxy)
             return True
         except Exception as e:
+            logger.warn('Unable to connect via SSH with message - ' + e.message)
             return False

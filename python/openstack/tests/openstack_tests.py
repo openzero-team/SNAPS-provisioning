@@ -21,16 +21,23 @@ from openstack import os_credentials
 
 __author__ = 'spisarski'
 
-username = 'admin'
-tenant_name = 'admin'
 
+def get_credentials(os_env_file, proxy_settings):
+    if proxy_settings:
+        os.environ['HTTP_PROXY'] = proxy_settings
 
-def get_credentials():
-    config = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')
-    if config.get('http_proxy'):
-        os.environ['HTTP_PROXY'] = config['http_proxy']
-    return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'], config['tenant_name'],
-                                  config.get('http_proxy'))
+    if os_env_file:
+        config = file_utils.read_os_env_file(os_env_file)
+        return os_credentials.OSCreds(config['OS_USERNAME'], config['OS_PASSWORD'], config['OS_AUTH_URL'],
+                                      config['OS_TENANT_NAME'], proxy_settings)
+    else:
+        config = file_utils.read_yaml('openstack/tests/conf/os_env.yaml')
+        if config.get('http_proxy'):
+            os.environ['HTTP_PROXY'] = config['http_proxy']
+        return os_credentials.OSCreds(config['username'], config['password'], config['os_auth_url'],
+                                      config['tenant_name'], config.get('http_proxy'))
+
+    # TODO - Add ability to read environment variables here
 
 
 def get_image_test_settings():

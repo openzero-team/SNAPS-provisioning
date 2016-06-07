@@ -13,23 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import unittest
 
 import neutron_utils_tests
 import openstack.create_network as create_network
 import openstack_tests
+from openstack.tests.os_source_file_test import OSSourceFileTestsCase
 
 __author__ = 'spisarski'
 
 # Initialize Logging
 logging.basicConfig(level=logging.DEBUG)
 
-os_creds = openstack_tests.get_credentials()
-
 net_config = openstack_tests.get_pub_net_config()
 
 
-class CreateNetworkSuccessTests(unittest.TestCase):
+class CreateNetworkSuccessTests(OSSourceFileTestsCase):
     """
     Test for the CreateImage class defined in create_image.py
     """
@@ -39,7 +37,7 @@ class CreateNetworkSuccessTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.net_creator = create_network.OpenStackNetwork(os_creds, net_config.network_settings,
+        self.net_creator = create_network.OpenStackNetwork(self.os_creds, net_config.network_settings,
                                                            net_config.subnet_settings,
                                                            net_config.router_settings)
 

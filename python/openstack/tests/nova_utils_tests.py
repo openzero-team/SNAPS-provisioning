@@ -14,13 +14,12 @@
 # limitations under the License.
 import logging
 import os
-import unittest
 
 import file_utils
 from Crypto.PublicKey import RSA
 
 import openstack.nova_utils as nova_utils
-import openstack_tests
+from openstack.tests.os_source_file_test import OSSourceFileTestsCase
 
 __author__ = 'spisarski'
 
@@ -31,8 +30,6 @@ logger = logging.getLogger('nova_utils_tests')
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # To run these tests, the CWD must be set to the top level directory of this project
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-os_creds = openstack_tests.get_credentials()
 
 priv_key_file_path = 'tmp/nova_utils_tests'
 pub_key_file_path = priv_key_file_path + '.pub'
@@ -45,7 +42,7 @@ else:
     ext_net_name = 'external'
 
 
-class NovaUtilsKeypairTests(unittest.TestCase):
+class NovaUtilsKeypairTests(OSSourceFileTestsCase):
     """
     Test for the CreateImage class defined in create_image.py
     """
@@ -55,7 +52,7 @@ class NovaUtilsKeypairTests(unittest.TestCase):
         Instantiates the CreateImage object that is responsible for downloading and creating an OS image file
         within OpenStack
         """
-        self.nova = nova_utils.nova_client(os_creds)
+        self.nova = nova_utils.nova_client(self.os_creds)
         self.keys = RSA.generate(1024)
         self.public_key = self.keys.publickey().exportKey('OpenSSH')
         self.keypair_name = 'testKP'

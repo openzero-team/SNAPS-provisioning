@@ -14,13 +14,12 @@
 # limitations under the License.
 import logging
 import os
-import unittest
 
 from Crypto.PublicKey import RSA
 
 import openstack.create_keypairs as create_keypairs
 import openstack.nova_utils as nova_utils
-import openstack_tests
+from openstack.tests.os_source_file_test import OSSourceFileTestsCase
 
 __author__ = 'spisarski'
 
@@ -30,14 +29,13 @@ logging.basicConfig(level=logging.DEBUG)
 # To run these tests, the CWD must be set to the top level directory of this project
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-os_creds = openstack_tests.get_credentials()
 keypair_name = 'create_kp_tests'
 
 pub_file_path = 'tmp/create_kp_tests.pub'
 priv_file_path = 'tmp/create_kp_tests'
 
 
-class CreateKeypairsTests(unittest.TestCase):
+class CreateKeypairsTests(OSSourceFileTestsCase):
     """
     Tests for the OpenStackKeypair class
     """
@@ -67,7 +65,7 @@ class CreateKeypairsTests(unittest.TestCase):
         Tests the creation of a generated keypair without saving to file
         :return:
         """
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name))
         self.keypair_creator.create()
 
@@ -79,7 +77,7 @@ class CreateKeypairsTests(unittest.TestCase):
         Tests the creation of a generated keypair and saves the public key only
         :return:
         """
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
                                                                                         public_filepath=pub_file_path))
         self.keypair_creator.create()
@@ -95,7 +93,7 @@ class CreateKeypairsTests(unittest.TestCase):
         Tests the creation of a generated keypair and saves both private and public key files[
         :return:
         """
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
                                                                                     public_filepath=pub_file_path,
                                                                                     private_filepath=priv_file_path))
@@ -116,7 +114,7 @@ class CreateKeypairsTests(unittest.TestCase):
         """
         keys = RSA.generate(1024)
         nova_utils.save_keys_to_files(keys=keys, pub_file_path=pub_file_path)
-        self.keypair_creator = create_keypairs.OpenStackKeypair(os_creds,
+        self.keypair_creator = create_keypairs.OpenStackKeypair(self.os_creds,
                                                                 create_keypairs.KeypairSettings(name=keypair_name,
                                                                                         public_filepath=pub_file_path))
         self.keypair_creator.create()
