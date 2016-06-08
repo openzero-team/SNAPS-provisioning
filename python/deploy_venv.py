@@ -18,8 +18,7 @@
 # This script is responsible for deploying a VM running virtual CMTS emulator instances
 import logging
 import os
-import sys
-
+import argparse
 from provisioning import ansible_utils
 import file_utils
 from openstack import neutron_utils
@@ -29,6 +28,8 @@ from openstack import os_credentials
 __author__ = 'spisarski'
 
 logger = logging.getLogger('deploy_vnfs')
+
+ARG_NOT_SET = "argument not set"
 
 
 def get_os_credentials(os_conn_config):
@@ -47,6 +48,7 @@ def get_os_credentials(os_conn_config):
 def create_image(os_conn_config, image_config):
     """
     Creates an image in OpenStack if necessary
+    :param os_conn_config: The OS credentials from config
     :param image_config: The image configuration
     :return: A reference to the image creator object from which the image object can be accessed
     """
@@ -352,7 +354,7 @@ def __get_variable_value(var_config_values, vm_dict):
     return None
 
 
-def main():
+def main(arguments):
     """
     Will need to set environment variable ANSIBLE_HOST_KEY_CHECKING=False or ...
     Create a file located in /etc/ansible/ansible/cfg or ~/.ansible.cfg containing the following content:
@@ -366,14 +368,17 @@ def main():
     """
     logging.basicConfig(level=logging.DEBUG)
     logger.info('Starting to Deploy')
-    config = None
-    if len(sys.argv) > 1:
-        logger.info('Reading configuration')
-        config = file_utils.read_yaml(sys.argv[1])
+    config = file_utils.read_yaml(arguments.environment)
+    logger.info('Read configuration file - ' + arguments.environment)
 
     if config:
         os_config = config.get('openstack')
-        vm_dict = dict()
+
+        image_dict = {}
+        network_dict = {}
+        keypairs_dict = {}
+        vm_dict = {}
+
         if os_config:
             os_conn_config = os_config.get('connection')
 
@@ -382,7 +387,7 @@ def main():
                 os.environ['HTTP_PROXY'] = os_conn_config['http_proxy']
 
             # Create images
-            images = create_images(os_conn_config, os_config.get('images'))
+            image_dict = create_images(os_conn_config, os_config.get('images'))
 
             # Create network
             network_dict = create_networks(os_conn_config, os_config.get('networks'))
@@ -393,7 +398,8 @@ def main():
             # Create instance
             # instances_config = os_config.get('instances')
             # instance_config = None
-            vm_dict = create_instances(os_conn_config, os_config.get('instances'), images, network_dict, keypairs_dict)
+            vm_dict = create_instances(os_conn_config, os_config.get('instances'), image_dict, network_dict,
+                                       keypairs_dict)
             logger.info('Completed creating all configured instances')
 
             # TODO - Need to support other Linux flavors!
@@ -402,15 +408,45 @@ def main():
                 vm.config_rpm_nics()
             logger.info('Completed RPM NIC configuration')
 
-        # Provision VMs
-        ansible_config = config.get('ansible')
-        if ansible_config and vm_dict:
-            apply_ansible_playbooks(ansible_config, vm_dict)
+        # Must enter either block
+        if arguments.clean is not ARG_NOT_SET:
+            # Clean environment
+            for key, vm_inst in vm_dict.iteritems():
+                vm_inst.clean()
+            for key, kp_inst in keypairs_dict.iteritems():
+                kp_inst.clean()
+            for key, net_inst in network_dict.iteritems():
+                net_inst.clean()
+            if arguments.clean_image is not ARG_NOT_SET:
+                for key, image_inst in image_dict.iteritems():
+                    image_inst.clean()
+        elif arguments.deploy is not ARG_NOT_SET:
+            # Provision VMs
+            ansible_config = config.get('ansible')
+            if ansible_config and vm_dict:
+                apply_ansible_playbooks(ansible_config, vm_dict)
     else:
-        logger.error('Unable to read configuration file - ' + sys.argv[1])
+        logger.error('Unable to read configuration file - ' + arguments.environment)
         exit(1)
     exit(0)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--deploy', dest='deploy', nargs='?', default=ARG_NOT_SET,
+                        help='When used, environment will be deployed and provisioned')
+    parser.add_argument('-c', '--clean', dest='clean', nargs='?', default=ARG_NOT_SET,
+                        help='When used, the environment will be removed')
+    parser.add_argument('-i', '--clean-image', dest='clean_image', nargs='?', default=ARG_NOT_SET,
+                        help='When cleaning, if this is set, the image will be cleaned too')
+    parser.add_argument('-e', '--env', dest='environment', required=True,
+                        help='The environment configuration YAML file - REQUIRED')
+    args = parser.parse_args()
+
+    if args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET:
+        print 'Must enter either -d for deploy or -c for cleaning up and environment'
+        exit(1)
+    if args.deploy is not ARG_NOT_SET and args.clean is not ARG_NOT_SET:
+        print 'Cannot enter both options -d/--deploy and -c/--clean'
+        exit(1)
+    main(args)

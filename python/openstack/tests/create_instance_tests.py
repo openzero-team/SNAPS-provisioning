@@ -73,7 +73,6 @@ class CreateInstanceSingleNetworkTests(OSSourceFileTestsCase):
                                                                                 private_filepath=keypair_priv_filepath))
         self.keypair_creator.create()
 
-        self.ports = list()
         self.inst_creator = None
 
     def tearDown(self):
@@ -92,9 +91,6 @@ class CreateInstanceSingleNetworkTests(OSSourceFileTestsCase):
         if os.path.isfile(keypair_priv_filepath):
             os.remove(keypair_priv_filepath)
 
-        for port in self.ports:
-            neutron_utils.delete_port(self.network_creator.neutron, port)
-
         if self.network_creator:
             self.network_creator.clean()
 
@@ -106,10 +102,9 @@ class CreateInstanceSingleNetworkTests(OSSourceFileTestsCase):
         Tests the creation of an OpenStack instance with a single port with a DHCP assigned IP.
         """
         port_settings = create_network.PortSettings(name='test-port-1')
-        self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
-                                                    self.network_creator.network))
+        ports = [neutron_utils.create_port(self.network_creator.neutron, port_settings, self.network_creator.network)]
         self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
-                                                                self.image_creator, self.ports,
+                                                                self.image_creator, ports,
                                                                 self.os_image_settings.image_user)
         vm_inst = self.inst_creator.create()
 
@@ -125,11 +120,10 @@ class CreateInstanceSingleNetworkTests(OSSourceFileTestsCase):
         Tests the creation of an OpenStack instance with a single port with a static IP.
         """
         port_settings = create_network.PortSettings(name='test-port-1', ip_address=ip_1)
-        self.ports.append(neutron_utils.create_port(self.network_creator.neutron, port_settings,
-                                                    self.network_creator.network))
+        ports = [neutron_utils.create_port(self.network_creator.neutron, port_settings, self.network_creator.network)]
         floating_ip_conf = {'port_name': 'test-port-1', 'ext_net': pub_net_config.router_settings.external_gateway}
         self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
-                                                                self.image_creator, self.ports,
+                                                                self.image_creator, ports,
                                                                 self.os_image_settings.image_user,
                                                                 floating_ip_conf=floating_ip_conf)
         vm_inst = self.inst_creator.create()
@@ -182,7 +176,6 @@ class CreateInstancePubPrivNetTests(OSSourceFileTestsCase):
                                                                                 private_filepath=keypair_priv_filepath))
         self.keypair_creator.create()
 
-        self.ports = list()
         self.inst_creator = None
 
     def tearDown(self):
@@ -201,9 +194,6 @@ class CreateInstancePubPrivNetTests(OSSourceFileTestsCase):
         if os.path.isfile(keypair_priv_filepath):
             os.remove(keypair_priv_filepath)
 
-        for port in self.ports:
-            neutron_utils.delete_port(self.network_creators[0].neutron, port)
-
         for network_creator in self.network_creators:
             network_creator.clean()
 
@@ -218,6 +208,7 @@ class CreateInstancePubPrivNetTests(OSSourceFileTestsCase):
         """
         floating_ip_conf = dict()
         # Create ports/NICs for instance
+        ports = []
         for network_creator in self.network_creators:
             idx = self.network_creators.index(network_creator)
             # port_name = 'test-port-' + `idx`
@@ -226,12 +217,11 @@ class CreateInstancePubPrivNetTests(OSSourceFileTestsCase):
                 floating_ip_conf = {'port_name': port_name, 'ext_net': pub_net_config.router_settings.external_gateway}
 
             port_settings = create_network.PortSettings(name=port_name)
-            self.ports.append(neutron_utils.create_port(network_creator.neutron, port_settings,
-                                                        network_creator.network))
+            ports.append(neutron_utils.create_port(network_creator.neutron, port_settings, network_creator.network))
 
         # Create instance
         self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
-                                                                self.image_creator, self.ports,
+                                                                self.image_creator, ports,
                                                                 self.os_image_settings.image_user,
                                                                 keypair_creator=self.keypair_creator,
                                                                 floating_ip_conf=floating_ip_conf)

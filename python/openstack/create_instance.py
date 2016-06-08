@@ -21,6 +21,7 @@ from novaclient.exceptions import NotFound
 from paramiko import SSHClient
 
 import nova_utils
+from openstack import neutron_utils
 
 __author__ = 'spisarski'
 
@@ -61,6 +62,8 @@ class OpenStackVmInstance:
         self.remote_user = remote_user
         self.keypair_creator = keypair_creator
         self.floating_ip_conf = floating_ip_conf
+
+        # TODO - need to potentially support multiple floating IPs
         self.floating_ip = None
         self.userdata = userdata
         self.vm = None
@@ -82,35 +85,40 @@ class OpenStackVmInstance:
             if server.name == self.name:
                 self.vm = server
                 logger.info('Found existing machine with name - ' + self.name)
+                fips = self.nova.floating_ips.list()
+                for fip in fips:
+                    if fip.instance_id == server.id:
+                        self.floating_ip = fip
                 return self.vm
 
-        nics = []
-        for port in self.ports:
-            kv = dict()
-            kv['port-id'] = port['port']['id']
-            nics.append(kv)
-
-        logger.info('Creating VM with name - ' + self.name)
-        keypair_name = None
-        if self.keypair_creator:
-            keypair_name = self.keypair_creator.keypair_settings.name
-
-        self.vm = self.nova.servers.create(
-            name=self.name,
-            flavor=self.flavor,
-            image=self.image_creator.image,
-            nics=nics,
-            key_name=keypair_name,
-            userdata=self.userdata)
-
-        logger.info('Created instance with name - ' + self.name)
-
-        if self.floating_ip_conf:
+        if not self.vm:
+            nics = []
             for port in self.ports:
-                if port['port']['name'] == self.floating_ip_conf['port_name']:
-                    self.floating_ip = nova_utils.create_floating_ip(self.nova, self.floating_ip_conf['ext_net'])
-                    logger.info('Created floating IP ' + self.floating_ip.ip)
-                    self._add_floating_ip(port['port']['fixed_ips'][0]['ip_address'])
+                kv = dict()
+                kv['port-id'] = port['port']['id']
+                nics.append(kv)
+
+            logger.info('Creating VM with name - ' + self.name)
+            keypair_name = None
+            if self.keypair_creator:
+                keypair_name = self.keypair_creator.keypair_settings.name
+
+            self.vm = self.nova.servers.create(
+                name=self.name,
+                flavor=self.flavor,
+                image=self.image_creator.image,
+                nics=nics,
+                key_name=keypair_name,
+                userdata=self.userdata)
+
+            logger.info('Created instance with name - ' + self.name)
+
+            if self.floating_ip_conf:
+                for port in self.ports:
+                    if port['port']['name'] == self.floating_ip_conf['port_name']:
+                        self.floating_ip = nova_utils.create_floating_ip(self.nova, self.floating_ip_conf['ext_net'])
+                        logger.info('Created floating IP ' + self.floating_ip.ip)
+                        self._add_floating_ip(port['port']['fixed_ips'][0]['ip_address'])
 
         return self.vm
 
@@ -122,7 +130,7 @@ class OpenStackVmInstance:
             try:
                 self.nova.servers.delete(self.vm)
             except Exception as e:
-                logger.error('Error deleting VM - ')
+                logger.error('Error deleting VM - ' + e.message)
 
             # Block until instance cannot be found or returns the status of DELETED
             if self.vm_deleted(block=True, timeout=VM_DELETE_TIMEOUT):
@@ -134,7 +142,11 @@ class OpenStackVmInstance:
             try:
                 nova_utils.delete_floating_ip(self.nova, self.floating_ip)
             except Exception as e:
-                logger.error('Error deleting Floating IP')
+                logger.error('Error deleting Floating IP - ' + e.message)
+
+        neutron = neutron_utils.neutron_client(self.os_creds)
+        for port in self.ports:
+            neutron_utils.delete_port(neutron, port)
 
     def _add_floating_ip(self, port_ip, timeout=30, poll_interval=POLL_INTERVAL):
         """
@@ -240,7 +252,7 @@ class OpenStackVmInstance:
         try:
             return self._vm_status_check(STATUS_DELETED, block, timeout, poll_interval)
         except NotFound as e:
-            logger.info("Instance not found when querying status for " + STATUS_DELETED)
+            logger.info("Instance not found when querying status for " + STATUS_DELETED + ' with message ' + e.message)
             return True
 
     def vm_active(self, block=False, timeout=VM_BOOT_TIMEOUT, poll_interval=POLL_INTERVAL):

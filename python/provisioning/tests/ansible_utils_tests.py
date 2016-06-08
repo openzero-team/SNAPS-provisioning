@@ -86,9 +86,8 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
         self.keypair_creator.create()
 
         floating_ip_conf = dict()
-        # Create ports/NICs for instance
-        self.ports = list()
 
+        ports = []
         for network_creator in self.network_creators:
             idx = self.network_creators.index(network_creator)
             # port_name = 'test-port-' + `idx`
@@ -97,12 +96,11 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
                 floating_ip_conf = {'port_name': port_name, 'ext_net': pub_net_config.router_settings.external_gateway}
 
             port_settings = create_network.PortSettings(name=port_name)
-            self.ports.append(neutron_utils.create_port(network_creator.neutron, port_settings,
-                                                        network_creator.network))
+            ports = [neutron_utils.create_port(network_creator.neutron, port_settings, network_creator.network)]
 
         # Create instance
         self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
-                                                                self.image_creator, self.ports,
+                                                                self.image_creator, ports,
                                                                 self.os_image_settings.image_user,
                                                                 keypair_creator=self.keypair_creator,
                                                                 floating_ip_conf=floating_ip_conf)
@@ -127,9 +125,6 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
 
         if os.path.isfile(keypair_priv_filepath):
             os.remove(keypair_priv_filepath)
-
-        for port in self.ports:
-            neutron_utils.delete_port(self.network_creators[0].neutron, port)
 
         for network_creator in self.network_creators:
             network_creator.clean()
