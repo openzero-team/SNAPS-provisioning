@@ -15,6 +15,7 @@
 
 import logging
 import os
+import re
 
 import openstack.create_instance as create_instance
 import openstack.create_keypairs as create_keypairs
@@ -96,7 +97,7 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
                 floating_ip_conf = {'port_name': port_name, 'ext_net': pub_net_config.router_settings.external_gateway}
 
             port_settings = create_network.PortSettings(name=port_name)
-            ports = [neutron_utils.create_port(network_creator.neutron, port_settings, network_creator.network)]
+            ports.append(neutron_utils.create_port(network_creator.neutron, port_settings, network_creator.network))
 
         # Create instance
         self.inst_creator = create_instance.OpenStackVmInstance(self.os_creds, vm_inst_name, flavor,
@@ -149,7 +150,14 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
 
         ssh = SSHClient()
         ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-        ssh.connect(ip, username=user, key_filename=priv_key)
+
+        proxy = None
+        if self.os_creds.proxy:
+            tokens = re.split(':', self.os_creds.proxy)
+            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
+                                          ip + ' 22')
+
+        ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
         scp = SCPClient(ssh.get_transport())
         scp.get(self.test_file_remote_path, self.test_file_local_path)
 
@@ -177,8 +185,14 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
 
         ssh = SSHClient()
         ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-        # ssh.load_host_keys(priv_key)
-        ssh.connect(ip, username=user, key_filename=priv_key)
+
+        proxy = None
+        if self.os_creds.proxy:
+            tokens = re.split(':', self.os_creds.proxy)
+            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
+                                          ip + ' 22')
+
+        ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
         scp = SCPClient(ssh.get_transport())
         scp.get(self.test_file_remote_path, self.test_file_local_path)
 
