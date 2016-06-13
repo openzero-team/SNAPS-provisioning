@@ -13,10 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-- include: ../openvswitch/main.yml
-- include: playbooks/required_packages.yml
-- include: playbooks/optional_packages.yml
-- include: playbooks/setup-dev-apex-source.yml
-- include: playbooks/os-test-setup.yml
-# must ensure ifcfg-* files for the NICs contains the following line:
-# NETMASK=255.255.255.0
+- hosts: all
+  sudo: yes
+
+  tasks:
+   - yum: name=libffi
+   - yum: name=libffi-devel
+   - pip: name=python-keystoneclient
+   - pip: name=python-glanceclient
+   - pip: name=python-neutronclient
+   - pip: name=python-novaclient
+   - pip: name=scp
+   - pip: name=PyYAML
+   - pip: name=ansible==1.9.4
+   - pip: name=Crypto

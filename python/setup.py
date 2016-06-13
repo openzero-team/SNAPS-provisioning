@@ -26,8 +26,8 @@ config = {
     'download_url': 'Where to download it.',
     'author_email': 's.pisarski@cablelabs.com',
     'version': '0.1',
-    'install_requires': ['ansible', 'Crypto', 'python-novaclient', 'python-glanceclient', 'python-neutronclient',
-                         'python-keystoneclient', 'scp', 'PyYAML'],
+    'install_requires': ['python-keystoneclient', 'python-glanceclient', 'python-neutronclient', 'python-novaclient',
+                         'scp', 'PyYAML', 'ansible==1.9.4', 'Crypto', ],
     'packages': ['NAME'],
     'scripts': [],
     'name': 'provisioning'
