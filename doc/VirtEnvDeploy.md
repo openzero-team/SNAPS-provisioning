@@ -23,6 +23,7 @@ tasks. A fully formed sample can be found in the ./provisioning/ansible/unimgr/d
 from here.
 
 *** Please note that many of the more esoteric optional supported attributes still have not been fully tested. ***
+*** Some of the nested bullets are being hidden by GitLabs, please see doc/VirtEnvDeploy.md.***
 
   * openstack: the top level tag that denotes configuration for the OpenStack components
       * connection: - contains the credentials and endpoints required to connect with OpenStack
