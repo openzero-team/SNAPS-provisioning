@@ -13,12 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import re
 import time
 
-import paramiko
 from novaclient.exceptions import NotFound
-from paramiko import SSHClient
 from provisioning import ansible_utils
 
 import nova_utils
@@ -307,21 +304,9 @@ class OpenStackVmInstance:
         Returns True when can create a SSH session else False
         :return: T/F
         """
-        logger.debug('Retrieving SSH client')
-        ssh = SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-        proxy = None
-        if self.os_creds.proxy:
-            logger.debug('Setting up SSH proxy settings')
-            tokens = re.split(':', self.os_creds.proxy)
-            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
-                                          self.floating_ip.ip + ' 22')
 
-        try:
-            logger.info('Attempting to connect to VM @ ' + self.floating_ip.ip)
-            ssh.connect(self.floating_ip.ip, username=self.remote_user,
-                        key_filename=self.keypair_creator.keypair_settings.private_filepath, sock=proxy)
+        ssh = ansible_utils.ssh_client(self.floating_ip.ip, self.remote_user,
+                                       self.keypair_creator.keypair_settings.private_filepath, self.os_creds.proxy)
+        if ssh:
             return True
-        except Exception as e:
-            logger.warn('Unable to connect via SSH with message - ' + e.message)
-            return False
+        return False

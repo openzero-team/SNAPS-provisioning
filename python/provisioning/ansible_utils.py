@@ -90,3 +90,32 @@ def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, 
         raise Exception('Playbook not applied - ' + playbook_path)
 
     return retval
+
+
+def ssh_client(ip, user, private_key_filepath, proxy_settings=None):
+    """
+    Retrieves and attemts an SSH connection
+    :param ip: the IP of the host to connect
+    :param user: the user with which to connect
+    :param private_key_filepath: the path to the private key file
+    :param proxy_settings: optional proxy settings in the form <hostname|IP>:<port>
+    :return: the SSH client if can connect else false
+    """
+    import paramiko
+
+    logger.debug('Retrieving SSH client')
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
+    proxy = None
+    if proxy_settings:
+        logger.debug('Setting up SSH proxy settings')
+        tokens = re.split(':', proxy_settings)
+        proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
+                                      ip + ' 22')
+        logger.info('Attempting to connect to ' + ip)
+
+    try:
+        ssh.connect(ip, username=user, key_filename=private_key_filepath, sock=proxy)
+        return ssh
+    except Exception as e:
+        logger.warn('Unable to connect via SSH with message - ' + e.message)

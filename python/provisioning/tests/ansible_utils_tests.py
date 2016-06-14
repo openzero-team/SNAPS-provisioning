@@ -15,15 +15,12 @@
 
 import logging
 import os
-import re
 
 import openstack.create_instance as create_instance
 import openstack.create_keypairs as create_keypairs
 import openstack.create_network as create_network
 import openstack.neutron_utils as neutron_utils
-import paramiko
 from openstack import create_image
-from paramiko import SSHClient
 from scp import SCPClient
 
 from provisioning import ansible_utils
@@ -148,16 +145,8 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
         retval = ansible_utils.apply_playbook('provisioning/tests/playbooks/simple_playbook.yml', [ip], user, priv_key)
         self.assertEquals(0, retval)
 
-        ssh = SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-
-        proxy = None
-        if self.os_creds.proxy:
-            tokens = re.split(':', self.os_creds.proxy)
-            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
-                                          ip + ' 22')
-
-        ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
+        ssh = ansible_utils.ssh_client(ip, user, priv_key, self.os_creds.proxy)
+        self.assertIsNotNone(ssh)
         scp = SCPClient(ssh.get_transport())
         scp.get('~/hello.txt', self.test_file_local_path)
 
@@ -184,16 +173,8 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
         ansible_utils.apply_playbook('provisioning/tests/playbooks/template_playbook.yml', [ip], user, priv_key,
                                      variables={'name': 'Foo'})
 
-        ssh = SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-
-        proxy = None
-        if self.os_creds.proxy:
-            tokens = re.split(':', self.os_creds.proxy)
-            proxy = paramiko.ProxyCommand('../ansible/conf/ssh/corkscrew ' + tokens[0] + ' ' + tokens[1] + ' ' +
-                                          ip + ' 22')
-
-        ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
+        ssh = ansible_utils.ssh_client(ip, user, priv_key, self.os_creds.proxy)
+        self.assertIsNotNone(ssh)
         scp = SCPClient(ssh.get_transport())
         scp.get('/tmp/hello.txt', self.test_file_local_path)
 
