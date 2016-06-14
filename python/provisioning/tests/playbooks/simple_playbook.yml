@@ -14,9 +14,8 @@
 # limitations under the License.
 ---
 - hosts: all
-  remote_user: centos
 
   tasks:
    - name: Transfer the test file
-     copy: src=../scripts/hello.txt dest=/home/centos/hello.txt mode=0777
+     copy: src=../scripts/hello.txt dest=~/hello.txt mode=0777
 

@@ -14,62 +14,79 @@
 # limitations under the License.
 import logging
 
-from tempfile import NamedTemporaryFile
+from collections import namedtuple
 
-from ansible.playbook import PlayBook
-from ansible.callbacks import AggregateStats
-from ansible.callbacks import PlaybookRunnerCallbacks
-from ansible.callbacks import PlaybookCallbacks
-from ansible import utils
+import re
+import os
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
+from ansible.inventory import Inventory
+from ansible.executor.playbook_executor import PlaybookExecutor
 
 __author__ = 'spisarski'
 
 logger = logging.getLogger('ansible_utils')
 
 
-def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, variables=None):
+def apply_playbook(playbook_path, hosts_inv, host_user, ssh_priv_key_file_path, variables=None, proxy_setting=None):
     """
     Executes an Ansible playbook to the given host
-    :param hosts_inv: a list of hostnames/ip addresses to which to apply the Ansible playbook
     :param playbook_path: the (relative) path to the Ansible playbook
-    :param host_user: A sudo user for the host instances
+    :param hosts_inv: a list of hostnames/ip addresses to which to apply the Ansible playbook
+    :param host_user: A user for the host instances (must be a password-less sudo user if playbook has "sudo: yes"
     :param ssh_priv_key_file_path: the file location of the ssh key
-    :param variables: a dictionary containing any variables needed by the Jinga 2 templates
-    :return: None
+    :param variables: a dictionary containing any substitution variables needed by the Jinga 2 templates
+    :param proxy_setting: string containing host:port of the proxy server in use
+    :return: the results
     """
-    hosts_inv = __create_inventory(hosts_inv, variables)
-    logger.info("Hosts Inventory for applying playbook - " + hosts_inv)
+    if not os.path.isfile(playbook_path):
+        raise Exception('Requested playbook not found - ' + playbook_path)
+    if not os.path.isfile(ssh_priv_key_file_path):
+        raise Exception('Requested private SSH key not found - ' + ssh_priv_key_file_path)
 
-    stats = AggregateStats()
-    run_cb = PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
-    pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
+    import ansible.constants
+    ansible.constants.HOST_KEY_CHECKING = False
 
-    # TODO - need to find a better means of finding this playbook.
-    runner = PlayBook(playbook=playbook_path, host_list=hosts_inv, remote_user=host_user,
-                      private_key_file=ssh_priv_key_file_path, callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
-    # TODO - check status and log
-    data = runner.run()
-    return data
+    variable_manager = VariableManager()
+    if variables:
+        variable_manager.extra_vars = variables
 
+    loader = DataLoader()
+    inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=hosts_inv)
+    variable_manager.set_inventory(inventory)
+    loader = DataLoader()
 
-def __create_inventory(hosts, variables):
-    """
-    Returns an inventory object to be used by the playbook
-    :param hosts: a list of hostnames/IPs
-    :param variables: a dictionary of substitution variables
-    :return: the value to place into the PlayBook's constructor argument host_list
-    """
-    inventory_contents = "[this]"
-    for host in hosts:
-        inventory_contents += '\n' + host
+    ssh_common_args = None
+    ssh_extra_args = None
+    ssh_connection = 'ssh'
+    proxy_command = None
+    if proxy_setting:
+        tokens = re.split(':', proxy_setting)
+        # TODO - Need to configure the proxy settings to avoid adding entries into the host's ~/.ssh/config file
 
-    if variables and len(variables) > 0:
-        inventory_contents += '\n[this:vars]'
-        for key, value in variables.iteritems():
-            inventory_contents += '\n' + key + '=' + value
+    options = namedtuple('Options', ['listtags', 'listtasks', 'listhosts', 'syntax', 'connection', 'module_path',
+                                     'forks', 'remote_user', 'private_key_file', 'ssh_common_args', 'ssh_extra_args',
+                                     'sftp_extra_args', 'scp_extra_args', 'become', 'become_method', 'become_user',
+                                     'verbosity', 'check', 'host_key_checking', 'transport', 'proxy_command'])
+    ansible_opts = options(listtags=False, listtasks=False, listhosts=False, syntax=False, connection=ssh_connection,
+                           module_path=None, forks=100, remote_user=host_user, private_key_file=ssh_priv_key_file_path,
+                           ssh_common_args=ssh_common_args, ssh_extra_args=ssh_extra_args, sftp_extra_args=None,
+                           scp_extra_args=None, become=None, become_method=None, become_user='root', verbosity=1111,
+                           check=False, host_key_checking=True, transport='paramiko', proxy_command=proxy_command)
+    logger.debug('Setting up Ansible Playbook Executor')
+    executor = PlaybookExecutor(
+        playbooks=[playbook_path],
+        inventory=inventory,
+        variable_manager=variable_manager,
+        loader=loader,
+        options=ansible_opts,
+        passwords=None)
 
-    hosts = NamedTemporaryFile(delete=False)
-    hosts.write(inventory_contents)
-    hosts.close()
+    logger.debug('Executing Ansible Playbook - ' + playbook_path)
+    retval = executor.run()
 
-    return hosts.name
+    if retval != 0:
+        logger.error('Playbook application failed [' + playbook_path + '] with return value of - ' + str(retval))
+        raise Exception('Playbook not applied - ' + playbook_path)
+
+    return retval

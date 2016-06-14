@@ -2,14 +2,15 @@
 
 ## Runtime Environment Setup
   * Python 2.7 (recommend leveraging a Virtual Python runtime)
-    * OpenStack clients 2.0.0
-      * glance (python-glanceclient)
-      * neutron (python-neutronclient)
-      * keystone (python-keystoneclient)
-      * nova (python-novaclient)
-    * scp
-    * ansible (1.9.4) - soon to be 2.0.0
-      * Crypto (installed by ansible)
+    * OpenStack clients
+      * python-glanceclient - tested with 2.0.0
+      * python-neutronclient - tested with 4.2.0
+      * python-keystoneclient - tested with 3.1.0
+      * python-novaclient - tested with 4.0.0
+    * scp - tested with 0.10.2
+    * ansible 2.1.0
+      * cryptography 1.4 (installed by ansible)
+      * pycrypto 2.6.1 (installed by ansible)
   * set PYTHONPATH
     * cd <path to repo>/python
     * export PYTHONPATH=$PYTHONPATH:$(pwd)

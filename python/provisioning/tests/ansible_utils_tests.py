@@ -44,8 +44,8 @@ ip_1 = '10.0.1.100'
 ip_2 = '10.0.1.200'
 vm_inst_name = 'test-openstack-vm-instance-1'
 keypair_name = 'testKP'
-keypair_pub_filepath = '/tmp/testKP.pub'
-keypair_priv_filepath = '/tmp/testKP'
+keypair_pub_filepath = 'tmp/testKP.pub'
+keypair_priv_filepath = 'tmp/testKP'
 
 
 class AnsibleProvisioningTests(OSSourceFileTestsCase):
@@ -107,8 +107,6 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
                                                                 floating_ip_conf=floating_ip_conf)
         self.inst_creator.create()
 
-        self.inst_creator.config_rpm_nics()
-        self.test_file_remote_path = '/home/centos/hello.txt'
         self.test_file_local_path = '/tmp/hello.txt'
 
     def tearDown(self):
@@ -141,12 +139,14 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
         Should this not be performed, the creation of the host ssh key will cause your ansible calls to fail.
         """
         # Block until VM's ssh port has been opened
+        self.inst_creator.config_rpm_nics()
         self.assertTrue(self.inst_creator.vm_ssh_active(block=True))
 
         priv_key = self.inst_creator.keypair_creator.keypair_settings.private_filepath
         ip = self.inst_creator.floating_ip.ip
         user = self.inst_creator.remote_user
-        ansible_utils.apply_playbook('provisioning/tests/playbooks/simple_playbook.yml', [ip], user, priv_key)
+        retval = ansible_utils.apply_playbook('provisioning/tests/playbooks/simple_playbook.yml', [ip], user, priv_key)
+        self.assertEquals(0, retval)
 
         ssh = SSHClient()
         ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
@@ -159,7 +159,7 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
 
         ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
         scp = SCPClient(ssh.get_transport())
-        scp.get(self.test_file_remote_path, self.test_file_local_path)
+        scp.get('~/hello.txt', self.test_file_local_path)
 
         self.assertTrue(os.path.isfile(self.test_file_local_path))
 
@@ -175,6 +175,7 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
         Should this not be performed, the creation of the host ssh key will cause your ansible calls to fail.
         """
         # Block until VM's ssh port has been opened
+        self.inst_creator.config_rpm_nics()
         self.assertTrue(self.inst_creator.vm_ssh_active(block=True))
 
         priv_key = self.inst_creator.keypair_creator.keypair_settings.private_filepath
@@ -194,7 +195,7 @@ class AnsibleProvisioningTests(OSSourceFileTestsCase):
 
         ssh.connect(ip, username=user, key_filename=priv_key, sock=proxy)
         scp = SCPClient(ssh.get_transport())
-        scp.get(self.test_file_remote_path, self.test_file_local_path)
+        scp.get('/tmp/hello.txt', self.test_file_local_path)
 
         self.assertTrue(os.path.isfile(self.test_file_local_path))
 

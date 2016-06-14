@@ -20,14 +20,14 @@ except ImportError:
     from distutils.core import setup
 
 config = {
-    'description': 'Virtual Environment Creation Framework',
+    'description': 'Virtual Environment Deployment, Provisioning, and Testing Framework',
     'author': 'Steve Pisarski',
     'url': 'URL to get it at.',
     'download_url': 'Where to download it.',
     'author_email': 's.pisarski@cablelabs.com',
     'version': '0.1',
     'install_requires': ['python-keystoneclient', 'python-glanceclient', 'python-neutronclient', 'python-novaclient',
-                         'scp', 'PyYAML', 'ansible==1.9.4', 'Crypto', ],
+                         'scp', 'PyYAML', 'ansible==2.1.0', 'Crypto', ],
     'packages': ['NAME'],
     'scripts': [],
     'name': 'provisioning'

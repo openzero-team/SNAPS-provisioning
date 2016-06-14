@@ -19,6 +19,7 @@ import time
 import paramiko
 from novaclient.exceptions import NotFound
 from paramiko import SSHClient
+from provisioning import ansible_utils
 
 import nova_utils
 from openstack import neutron_utils
@@ -130,7 +131,7 @@ class OpenStackVmInstance:
             try:
                 self.nova.servers.delete(self.vm)
             except Exception as e:
-                logger.error('Error deleting VM - ' + e.message)
+                logger.error('Error deleting VM - ' + str(e))
 
             # Block until instance cannot be found or returns the status of DELETED
             if self.vm_deleted(block=True, timeout=VM_DELETE_TIMEOUT):
@@ -189,56 +190,18 @@ class OpenStackVmInstance:
         :param nic_name: Name of the interface
         :param port: The port information containing the expected IP values.
         """
-        from ansible.playbook import PlayBook
-        from ansible.callbacks import AggregateStats
-        from ansible.callbacks import PlaybookRunnerCallbacks
-        from ansible.callbacks import PlaybookCallbacks
-        from ansible import utils
-        import jinja2
-        from tempfile import NamedTemporaryFile
-
         ip = port['port']['fixed_ips'][0]['ip_address']
 
-        inventory = """
-        [this]
-        {{ floating_ip }}
-
-        [this:vars]
-        nic_name={{nic_name}}
-        nic_ip={{nic_ip}}
-        """
-
-        inventory_template = jinja2.Template(inventory)
-        rendered_inventory = inventory_template.render({
+        variables = {
             'floating_ip': self.floating_ip.ip,
             'nic_name': nic_name,
             'nic_ip': ip
-        })
+        }
 
-        hosts = NamedTemporaryFile(delete=False)
-        hosts.write(rendered_inventory)
-        hosts.close()
-
-        stats = AggregateStats()
-        run_cb = PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
-        pb_cb = PlaybookCallbacks(verbose=utils.VERBOSITY)
-
-        # TODO - need to find a better means of finding this playbook.
-        runner = PlayBook(playbook='provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
-                          host_list=hosts.name,
-                          remote_user=self.remote_user,
-                          private_key_file=self.keypair_creator.keypair_settings.private_filepath,
-                          callbacks=pb_cb, runner_callbacks=run_cb, stats=stats)
-        data = runner.run()
-        if data.get(ip):
-            if data[ip]['ok'] > 0:
-                logger.info("Configure network status OK - " + repr(data[ip]['ok']))
-            if data[ip]['failures'] > 0:
-                logger.warn("Configure network status FAILURES - " + repr(data[ip]['failures']))
-            if data[ip]['unreachable'] > 0:
-                logger.warn("Configure network status UNREACHABLE - " + repr(data[ip]['unreachable']))
-        else:
-            logger.warn("No status returned for IP in question")
+        ansible_utils.apply_playbook('provisioning/ansible/centos-network-setup/playbooks/configure_host.yml',
+                                     [self.floating_ip.ip], self.remote_user,
+                                     self.keypair_creator.keypair_settings.private_filepath, variables,
+                                     self.os_creds.proxy)
 
     def vm_deleted(self, block=False, timeout=VM_DELETE_TIMEOUT, poll_interval=POLL_INTERVAL):
         """
@@ -346,7 +309,7 @@ class OpenStackVmInstance:
         """
         logger.debug('Retrieving SSH client')
         ssh = SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
         proxy = None
         if self.os_creds.proxy:
             logger.debug('Setting up SSH proxy settings')
