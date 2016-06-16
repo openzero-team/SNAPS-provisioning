@@ -26,4 +26,3 @@
    - pip: name=scp
    - pip: name=PyYAML
    - pip: name=ansible==2.1.0
-   - pip: name=Crypto
