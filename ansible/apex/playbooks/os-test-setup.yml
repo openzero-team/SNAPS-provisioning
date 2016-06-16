@@ -25,5 +25,5 @@
    - pip: name=python-novaclient
    - pip: name=scp
    - pip: name=PyYAML
-   - pip: name=ansible==1.9.4
+   - pip: name=ansible==2.1.0
    - pip: name=Crypto
