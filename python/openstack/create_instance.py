@@ -77,7 +77,6 @@ class OpenStackVmInstance:
         Creates a VM instance
         :return: The VM reference object
         """
-        # TODO - need to query instances and not deploy if one exists
         servers = self.nova.servers.list()
         for server in servers:
             if server.name == self.name:
