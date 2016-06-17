@@ -114,10 +114,10 @@ from here.
               * ansible:
                   * playbook_location: The absolute or relative path to the playbook to execute (required)
                   * hosts: A list of hosts to which the playbook will be executed (required)
-                  * variables: Should your Ansible scripts require any substitution values to be applied with Jinga2 templates, the values defined here will be used to for substitution
+                  * variables: Should your Ansible scripts require any substitution values to be applied with Jinga2templates, the values defined here will be used to for substitution
                       * tag name = substitution variable names. For instance, for any file being pushed to the host being provisioned containing a value such as {{ foo }}, you must specify a tag name of "foo"
                           * vm_name:
-                          * type: string|port
+                          * type: string|port (note: will need to make changes to deploy_venv.py#__get_variable_value() for additional support)
                               * when type == string, an tag name "value" must exist and its value will be used for template substituion
                               * when type == port, custom code has been written to extract certain assigned values to the port:
                                   * port_name: The name of the port from which to extract the substitution values (required)
