@@ -15,6 +15,13 @@ environment by leveraging the original YAML file.
 ```
 python deploy_venv.py -e <path to repo>/ansible/yardstick/deploy-yardstick.yaml -d
 ```
+  * Clean
+    * python deploy_venv.py -e <path to deployment configuration YAML file> -c
+    * Working example (cleanup of a previously deployed virtual environment where the VM has Yardstick installed):
+
+```
+python deploy_venv.py -e <path to repo>/ansible/yardstick/deploy-yardstick.yaml -c
+```
       
 # Environment Configuration YAML File
 The configuration file used to deploy and provision a virtual environment has been designed to describe the required
