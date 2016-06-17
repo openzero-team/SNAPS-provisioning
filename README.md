@@ -15,7 +15,8 @@
     * cd <path to repo>/python
     * export PYTHONPATH=$PYTHONPATH:$(pwd)
 
-## [Host SSH settings (until Ansible 2.0 upgrade has been completed)](doc/HostSSHConfig.md)
+## [Host SSH settings (required for clouds running behind a proxy)](doc/HostSSHConfig.md)
+### (note: Ansible 2.x should allow for the ProxyCommand to be set programatically but is currently not working.)
 ## [Unit Testing](doc/UnitTesting.md)
 ## [Virtual Environment Deployment](doc/VirtEnvDeploy.md)
 
