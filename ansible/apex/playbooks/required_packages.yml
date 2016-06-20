@@ -54,3 +54,11 @@
    - name: Install Python 3.4 PyYAML
      command: yum -y install python34-PyYAML
 #   - yum: python34-PyYAML
+
+   - yum: ipxe-roms-qemu
+
+   - name: Update ipxe-roms-qemu
+     command: yum update -y ipxe-roms-qemu
+
+   - name: Restart libvirtd
+     command: systemctl restart libvirtd
