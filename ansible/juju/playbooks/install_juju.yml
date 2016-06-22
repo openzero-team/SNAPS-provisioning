@@ -14,10 +14,9 @@
 # limitations under the License.
 ---
 - hosts: all
+  sudo: yes
 
   tasks:
-   - name: Apply template and transfer the config_osm_server.sh script
-     action: template mode=744 src=../scripts/config_osm_server.sh dest=/tmp/config_osm_server.sh
-
-   - name: Execute config_osm_server.sh
-     command: sh /tmp/config_osm_server.sh
+   - apt_repository: repo='ppa:juju/stable'
+   - apt: update_cache=yes
+   - apt: name=juju-core

@@ -16,8 +16,8 @@
 - hosts: all
 
   tasks:
-   - name: Apply template and transfer the config_osm_server.sh script
-     action: template mode=744 src=../scripts/config_osm_server.sh dest=/tmp/config_osm_server.sh
+   - name: Create ~/.juju directory
+     command: mkdir ~/.juju
 
-   - name: Execute config_osm_server.sh
-     command: sh /tmp/config_osm_server.sh
+   - name: Copy Juju environment config
+     action: template mode=600 src=../config/environments.yaml dest=~/.juju/environments.yaml

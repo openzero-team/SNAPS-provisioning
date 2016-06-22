@@ -57,24 +57,51 @@ openstack:
         floating_ip:
           ext_net: external
           port_name: osm-net-port
+    - instance:
+        name: juju-inst
+        flavor: m1.large
+        imageName: Ubuntu
+        keypair_name: osm-kp
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: juju-net-port
+              network_name: osm-net
+        floating_ip:
+          ext_net: external
+          port_name: juju-net-port
 ansible:
     - playbook_location: ../ansible/openmano/main.yml
       hosts:
         - openmano-inst
-#      variables:
-#        external_network_name:
-#          type: string
-#          value: external
-#        os_user:
-#          type: os_creds
-#          value: username
-#        os_pass:
-#          type: os_creds
-#          value: password
-#        os_auth_url:
-#          type: os_creds
-#          value: auth_url
-#        os_tenant:
-#          type: os_creds
-#          value: tenant_name
+      variables:
+        tenant_name:
+          type: string
+          value: SNAPS-Tenant
+        datacenter_name:
+          type: string
+          value: openstack-site
+        os_user:
+          type: os_creds
+          value: username
+        os_pass:
+          type: os_creds
+          value: password
+        os_auth_url:
+          type: os_creds
+          value: auth_url
+        os_tenant:
+          type: os_creds
+          value: tenant_name
+    - playbook_location: ../ansible/juju/main.yml
+      hosts:
+        - juju-inst
+      variables:
+        juju_env_name:
+          type: string
+          value: osm-ansible
+        floating_ip:
+          type: vm-attr
+          vm_name: juju-inst
+          value: floating_ip
 

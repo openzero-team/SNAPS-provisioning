@@ -315,43 +315,93 @@ def __get_variables(var_config, vm_dict):
 
 
 def __get_variable_value(var_config_values, vm_dict):
+    """
+    Returns the associated variable value for use by Ansible for substitution purposes
+    :param var_config_values: the configuration dictionary
+    :param vm_dict: the dictionary containing all VMs where the key is the VM's name
+    :return:
+    """
     if var_config_values['type'] == 'string':
-        return var_config_values['value']
+        return __get_string_variable_value(var_config_values)
+    if var_config_values['type'] == 'vm-attr':
+        return __get_vm_attr_variable_value(var_config_values, vm_dict)
     if var_config_values['type'] == 'os_creds':
-        logger.info("Retrieving OS Credentials")
-        vm = vm_dict.values()[0]
-        if var_config_values['value'] == 'username':
-            logger.info("Returning OS username")
-            return vm.os_creds.username
-        elif var_config_values['value'] == 'password':
-            logger.info("Returning OS password")
-            return vm.os_creds.password
-        elif var_config_values['value'] == 'auth_url':
-            logger.info("Returning OS auth_url")
-            return vm.os_creds.auth_url
-        elif var_config_values['value'] == 'tenant_name':
-            logger.info("Returning OS tenant_name")
-            return vm.os_creds.tenant_name
-
-        logger.info("Returning none")
-        return None
+        return __get_os_creds_variable_value(var_config_values, vm_dict)
     if var_config_values['type'] == 'port':
-        port_name = var_config_values.get('port_name')
-        vm_name = var_config_values.get('vm_name')
-        if port_name and vm_name:
-            vm = vm_dict.get(vm_name)
-            if vm:
-                ports = vm.ports
-                for port in ports:
-                    if port['port']['name'] == port_name:
-                        port_value_id = var_config_values.get('port_value')
-                        if port_value_id:
-                            if port_value_id == 'mac_address':
-                                return port['port']['mac_address']
-                            if port_value_id == 'ip_address':
-                                # Currently only supporting the first IP assigned to a given port
-                                return port['port']['dns_assignment'][0]['ip_address']
+        return __get_vm_port_variable_value(var_config_values, vm_dict)
     return None
+
+
+def __get_string_variable_value(var_config_values):
+    """
+    Returns the associated string value
+    :param var_config_values: the configuration dictionary
+    :return: the value contained in the dictionary with the key 'value'
+    """
+    return var_config_values['value']
+
+
+def __get_vm_attr_variable_value(var_config_values, vm_dict):
+    """
+    Returns the associated value contained on a VM instance
+    :param var_config_values: the configuration dictionary
+    :param vm_dict: the dictionary containing all VMs where the key is the VM's name
+    :return: the value
+    """
+    vm = vm_dict.get(var_config_values['vm_name'])
+    if vm:
+        if var_config_values['value'] == 'floating_ip':
+            return vm.floating_ip.ip
+
+
+def __get_os_creds_variable_value(var_config_values, vm_dict):
+    """
+    Returns the associated OS credentials value
+    :param var_config_values: the configuration dictionary
+    :param vm_dict: the dictionary containing all VMs where the key is the VM's name
+    :return: the value
+    """
+    logger.info("Retrieving OS Credentials")
+    vm = vm_dict.values()[0]
+    if var_config_values['value'] == 'username':
+        logger.info("Returning OS username")
+        return vm.os_creds.username
+    elif var_config_values['value'] == 'password':
+        logger.info("Returning OS password")
+        return vm.os_creds.password
+    elif var_config_values['value'] == 'auth_url':
+        logger.info("Returning OS auth_url")
+        return vm.os_creds.auth_url
+    elif var_config_values['value'] == 'tenant_name':
+        logger.info("Returning OS tenant_name")
+        return vm.os_creds.tenant_name
+
+    logger.info("Returning none")
+    return None
+
+
+def __get_vm_port_variable_value(var_config_values, vm_dict):
+    """
+    Returns the associated OS credentials value
+    :param var_config_values: the configuration dictionary
+    :param vm_dict: the dictionary containing all VMs where the key is the VM's name
+    :return: the value
+    """
+    port_name = var_config_values.get('port_name')
+    vm_name = var_config_values.get('vm_name')
+    if port_name and vm_name:
+        vm = vm_dict.get(vm_name)
+        if vm:
+            ports = vm.ports
+            for port in ports:
+                if port['port']['name'] == port_name:
+                    port_value_id = var_config_values.get('port_value')
+                    if port_value_id:
+                        if port_value_id == 'mac_address':
+                            return port['port']['mac_address']
+                        if port_value_id == 'ip_address':
+                            # Currently only supporting the first IP assigned to a given port
+                            return port['port']['dns_assignment'][0]['ip_address']
 
 
 def main(arguments):
