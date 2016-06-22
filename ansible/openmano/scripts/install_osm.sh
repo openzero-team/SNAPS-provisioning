@@ -4,4 +4,4 @@ wget -O /tmp/install-openmano.sh "https://osm.etsi.org/gitweb/?p=osm/openmano.gi
 
 chmod +x /tmp/install-openmano.sh
 
-/tmp/install-openmano.sh -u root -p cable123 -q | tee /tmp/install-openmano.out
+/tmp/install-openmano.sh -q | tee /tmp/install-openmano.out
