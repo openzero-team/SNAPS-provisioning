@@ -17,8 +17,8 @@
   sudo: yes
 
   tasks:
-   - name: Transfer install_osm.sh
-     copy: src=../scripts/config_osm_server.sh dest=/root/config_osm_server.sh mode=0744
+   - name: Transfer config_osm_server.sh
+     copy: src=../scripts/config_osm_server.sh dest=/tmp/config_osm_server.sh mode=0744
 
-   - name: Execute install_osm.sh
-     command: sh /root/config_osm_server.sh
+   - name: Execute config_osm_server.sh
+     command: sh /tmp/config_osm_server.sh

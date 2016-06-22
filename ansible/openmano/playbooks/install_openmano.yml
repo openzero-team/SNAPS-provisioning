@@ -18,7 +18,7 @@
 
   tasks:
    - name: Transfer install_osm.sh
-     copy: src=../scripts/install_osm.sh dest=/root/install_osm.sh mode=0744
+     copy: src=../scripts/install_osm.sh dest=/tmp/install_osm.sh mode=0744
 
    - name: Execute install_osm.sh
-     command: sh /root/install_osm.sh
+     command: sh /tmp/install_osm.sh

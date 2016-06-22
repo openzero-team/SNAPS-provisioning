@@ -46,7 +46,7 @@ openstack:
   instances:
     - instance:
         name: openmano-inst
-        flavor: m1.medium
+        flavor: m1.large
         imageName: Ubuntu
         keypair_name: osm-kp
         sudo_user: ubuntu
