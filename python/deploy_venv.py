@@ -269,12 +269,10 @@ def apply_ansible_playbook(ansible_config, vm_dict):
     :return:
     """
     if ansible_config:
-        # FIXME - Grab the first VM instance as the credentials and username MUST be the same for all machines
-        vm = vm_dict.itervalues().next()
-        floating_ips = __get_floating_ips(ansible_config, vm_dict)
+        remote_user, floating_ips, private_key_filepath = __get_floating_ips(ansible_config, vm_dict)
         if floating_ips:
-            ansible_utils.apply_playbook(ansible_config['playbook_location'], floating_ips, vm.remote_user,
-                                         vm.keypair_creator.keypair_settings.private_filepath,
+            ansible_utils.apply_playbook(ansible_config['playbook_location'], floating_ips, remote_user,
+                                         private_key_filepath,
                                          variables=__get_variables(ansible_config.get('variables'), vm_dict))
 
 
@@ -283,17 +281,23 @@ def __get_floating_ips(ansible_config, vm_dict):
     Returns a list of floating IP addresses
     :param ansible_config: the configuration settings
     :param vm_dict: the dictionary of VMs where the VM name is the key
-    :return: list or None
+    :return: tuple where the first element is the user and the second is a list of floating IPs and the third is the
+    private key file location
+    (note: in order to work, each of the hosts need to have the same sudo_user and private key file location values)
     """
     if ansible_config.get('hosts'):
         hosts = ansible_config['hosts']
         if len(hosts) > 0:
             floating_ips = list()
+            remote_user = None
+            private_key_filepath = None
             for host in hosts:
                 vm = vm_dict.get(host)
                 if vm:
+                    remote_user = vm.remote_user
                     floating_ips.append(vm.floating_ip.ip)
-            return floating_ips
+                    private_key_filepath = vm.keypair_creator.keypair_settings.private_filepath
+            return remote_user, floating_ips, private_key_filepath
     return None
 
 
