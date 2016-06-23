@@ -26,6 +26,5 @@
    - apt: name=juju-local
    - apt: name=juju-quickstart
    - apt: name=charm-tools
-   - pip: name=passlib
    - name: Create osm user
      user: name=osm password={{ "osm" | password_hash('sha512') }}
