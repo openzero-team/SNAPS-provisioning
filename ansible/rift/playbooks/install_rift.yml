@@ -14,18 +14,24 @@
 # limitations under the License.
 ---
 - hosts: all
-  become: yes
-  become_method: sudo
-  become_user: root
+  sudo: yes
 
   tasks:
-   - apt_repository: repo='ppa:juju/stable'
-   - apt: update_cache=yes
-   - apt: name=juju
-   - apt: name=juju-core
-   - apt: name=juju-local
-   - apt: name=juju-quickstart
-   - apt: name=charm-tools
-   - pip: name=passlib
-   - name: Create osm user
-     user: name=osm password={{ "osm" | password_hash('sha512') }}
+   - name: Echo
+     command: echo $(whoami)
+
+#   - name: Configure YUM repo
+#     command: rpm -Uvh http://repo.riftio.com/releases/riftware-release-latest.rpm
+#
+#   - name: YUM config manager - disable RIFT.ware 4.1
+#     command: yum-config-manager --disable RIFT.ware-4.1
+#
+#   - name: YUM config manager - enable RIFT.ware 4.2
+#     command: yum-config-manager --enable RIFT.ware-4.2
+#
+#   - yum: name=riftware-loganalyzer
+#   - yum: name=riftware-launchpad
+#
+#   - name: Start Rift
+#     command: systemctl start rwlp
+

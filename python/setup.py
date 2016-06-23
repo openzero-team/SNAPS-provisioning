@@ -27,7 +27,7 @@ config = {
     'author_email': 's.pisarski@cablelabs.com',
     'version': '0.1',
     'install_requires': ['python-keystoneclient', 'python-glanceclient', 'python-neutronclient', 'python-novaclient',
-                         'scp', 'PyYAML', 'ansible==2.1.0', 'Crypto', ],
+                         'scp', 'PyYAML', 'ansible==2.1.0', 'Crypto', 'passlib',],
     'packages': ['NAME'],
     'scripts': [],
     'name': 'provisioning'

@@ -13,19 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-- hosts: all
-  become: yes
-  become_method: sudo
-  become_user: root
-
-  tasks:
-   - apt_repository: repo='ppa:juju/stable'
-   - apt: update_cache=yes
-   - apt: name=juju
-   - apt: name=juju-core
-   - apt: name=juju-local
-   - apt: name=juju-quickstart
-   - apt: name=charm-tools
-   - pip: name=passlib
-   - name: Create osm user
-     user: name=osm password={{ "osm" | password_hash('sha512') }}
+- include: playbooks/install_rift.yml
+- include: playbooks/config_rift.yml
