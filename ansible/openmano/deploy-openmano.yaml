@@ -100,8 +100,16 @@ ansible:
         juju_env_name:
           type: string
           value: osm-ansible
-        floating_ip:
-          type: vm-attr
-          vm_name: juju-inst
-          value: floating_ip
+        os_user:
+          type: os_creds
+          value: username
+        os_pass:
+          type: os_creds
+          value: password
+        os_auth_url:
+          type: os_creds
+          value: auth_url
+        os_tenant:
+          type: os_creds
+          value: tenant_name
 

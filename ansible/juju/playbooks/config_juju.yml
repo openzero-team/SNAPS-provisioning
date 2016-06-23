@@ -16,8 +16,11 @@
 - hosts: all
 
   tasks:
-   - name: Create ~/.juju directory
-     command: mkdir ~/.juju
+   - name: Remove generated environments.yaml file
+     command: rm -f ~/.juju/environments.yaml
+
+   - name: Initialize Juju
+     command: juju init
 
    - name: Copy Juju environment config
      action: template mode=600 src=../config/environments.yaml dest=~/.juju/environments.yaml

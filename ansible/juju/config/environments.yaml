@@ -1,12 +1,7 @@
-default: {{ juju_env_name }}
-environments:
-  {{ juju_env_name }}:
-    admin-secret: osm
-    bootstrap-host: {{ floating_ip }}
-    bootstrap-user: osm
-    default-series: trusty
-    type: manual
-    enable-os-refresh-update: False
-    enable-os-upgrade: False
-    apt-http-proxy: http://10.0.3.1:8000
-    apt-https-proxy: http://10.0.3.1:8000
+{{ juju_env_name }}:
+  type: openstack
+  auth-url: {{ os_auth_url }}
+  auth-mode: userpass
+  username: {{ os_user }}
+  password: {{ os_pass }}
+  tenant-name: {{ os_tenant }}
