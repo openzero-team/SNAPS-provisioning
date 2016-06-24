@@ -19,12 +19,29 @@
   become_user: root
 
   tasks:
+   # TODO try using a substitution varaiable here instead of hardcoding (also see environments.yaml)
+   - name: Create osm user
+     user: name=osm password={{ "osm" | password_hash('sha512') }}
+   - name: Grant osm user sudo access
+     command: usermod -a -G sudo osm
+
    - apt_repository: repo='ppa:juju/stable'
+   - apt: name=systemd-services
+   - apt: name=ssh
+   - apt: name=lxc
    - apt: update_cache=yes
    - apt: name=juju
    - apt: name=juju-core
    - apt: name=juju-local
    - apt: name=juju-quickstart
    - apt: name=charm-tools
-   - name: Create osm user
-     user: name=osm password={{ "osm" | password_hash('sha512') }}
+
+   - apt: name=squid-deb-proxy
+
+   - name: Transfer configure_squid.sh
+     copy: src=../scripts/configure_squid.sh dest=/tmp/configure_squid.sh mode=0744
+   - name: Execute configure_squid.sh
+     command: sh /tmp/configure_squid.sh
+
+   - name: Restart Squid Proxy Service
+     service: name=squid-deb-proxy enabled=yes state=restarted

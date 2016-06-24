@@ -122,27 +122,9 @@ ansible:
       hosts:
         - juju-inst
       variables:
-        juju_os_env_name:
-          type: string
-          value: OS-Lab-2
         juju_default_env_name:
           type: string
           value: osm-ansible
-        os_region:
-          type: string
-          value: regionOne
-        os_user:
-          type: os_creds
-          value: username
-        os_pass:
-          type: os_creds
-          value: password
-        os_auth_url:
-          type: os_creds
-          value: auth_url
-        os_tenant:
-          type: os_creds
-          value: tenant_name
         floating_ip:
           type: vm-attr
           vm_name: juju-inst
