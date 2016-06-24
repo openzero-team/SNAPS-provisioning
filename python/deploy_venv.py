@@ -243,22 +243,26 @@ def create_instances(os_conn_config, instances_config, images, network_dict, key
     return dict()
 
 
-def apply_ansible_playbooks(ansible_configs, vm_dict):
+def __apply_ansible_playbooks(ansible_configs, vm_dict):
     """
-    Applies
+    Applies ansible playbooks to running VMs with floating IPs
     :param ansible_configs: a list of Ansible configurations
     :param vm_dict: the dictionary of newly instantiated VMs where the VM name is the key
-    :return:
+    :return: t/f - true if successful
     """
+    logger.info("Applying Ansible Playbooks")
     if ansible_configs:
         # Ensure all hosts are accepting SSH session requests
         for vm_inst in vm_dict.values():
             if not vm_inst.vm_ssh_active(block=True):
-                return
+                logger.warn("Timeout waiting for instance to respond to SSH requests")
+                return False
 
         # Apply playbooks
         for ansible_config in ansible_configs:
             apply_ansible_playbook(ansible_config, vm_dict)
+
+    return True
 
 
 def apply_ansible_playbook(ansible_config, vm_dict):
@@ -478,7 +482,8 @@ def main(arguments):
             # Provision VMs
             ansible_config = config.get('ansible')
             if ansible_config and vm_dict:
-                apply_ansible_playbooks(ansible_config, vm_dict)
+                if not __apply_ansible_playbooks(ansible_config, vm_dict):
+                    logger.error("Problem applying ansible playbooks")
     else:
         logger.error('Unable to read configuration file - ' + arguments.environment)
         exit(1)
