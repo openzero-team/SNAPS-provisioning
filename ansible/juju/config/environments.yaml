@@ -1,14 +1,14 @@
 default: {{ juju_default_env_name }}
 environments:
   {{ juju_default_env_name }}:
-    admin-secret: osm
+    admin-secret: {{ osm_pass }}
     bootstrap-host: {{ floating_ip }}
-    bootstrap-user: osm
+    bootstrap-user: {{ osm_user }}
     default-series: trusty
     type: manual
     enable-os-refresh-update: False
     enable-os-upgrade: False
 
-    # TODO - need to inspect host after lxc install to determine the IP of the lxcbr0 interface
+    # TODO - Use the IP value located in property LXC_ADDR found in the file /etc/default/lxc-net
     apt-http-proxy: http://10.0.2.1:8000
     apt-https-proxy: http://10.0.2.1:8000

@@ -124,11 +124,17 @@ ansible:
       variables:
         juju_default_env_name:
           type: string
-          value: osm-ansible
+          value: osm0-manual
         floating_ip:
           type: vm-attr
           vm_name: juju-inst
           value: floating_ip
+        osm_user:
+          type: string
+          value: osm
+        osm_pass:
+          type: string
+          value: osm
     - playbook_location: ../ansible/rift/main.yml
       hosts:
         - rift-inst

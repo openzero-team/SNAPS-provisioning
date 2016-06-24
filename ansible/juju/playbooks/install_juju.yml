@@ -19,11 +19,10 @@
   become_user: root
 
   tasks:
-   # TODO try using a substitution varaiable here instead of hardcoding (also see environments.yaml)
-   - name: Create osm user
-     user: name=osm password={{ "osm" | password_hash('sha512') }}
-   - name: Grant osm user sudo access
-     command: usermod -a -G sudo osm
+   - name: Create osm user {{ osm_user }}
+     user: name={{ osm_user }} password={{ osm_pass | password_hash('sha512') }}
+   - name: Grant {{ osm_user }} user sudo access
+     command: usermod -a -G sudo {{ osm_user }}
 
    - apt_repository: repo='ppa:juju/stable'
    - apt: name=systemd-services
