@@ -25,7 +25,7 @@ __author__ = 'spisarski'
 
 logger = logging.getLogger('create_instance')
 
-VM_BOOT_TIMEOUT = 1200
+VM_BOOT_TIMEOUT = 1500
 VM_DELETE_TIMEOUT = 600
 SSH_TIMEOUT = 120
 POLL_INTERVAL = 3
