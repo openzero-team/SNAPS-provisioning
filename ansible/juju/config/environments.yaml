@@ -9,6 +9,4 @@ environments:
     enable-os-refresh-update: False
     enable-os-upgrade: False
 
-    # TODO - Use the IP value located in property LXC_ADDR found in the file /etc/default/lxc-net
-    apt-http-proxy: http://10.0.2.1:8000
-    apt-https-proxy: http://10.0.2.1:8000
+    # Proxy settings set via juju_proxy_environments.sh

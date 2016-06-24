@@ -24,3 +24,8 @@
 
    - name: Copy Juju environment config
      action: template mode=600 src=../config/environments.yaml dest=~/.juju/environments.yaml
+
+   - name: Transfer configure_squid.sh
+     copy: src=../scripts/juju_proxy_environment.sh dest=/tmp/juju_proxy_environment.sh mode=0744
+   - name: Execute juju_proxy_environment.sh
+     command: sh /tmp/juju_proxy_environment.sh
