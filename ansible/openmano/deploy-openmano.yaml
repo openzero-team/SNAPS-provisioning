@@ -34,6 +34,12 @@ openstack:
         image_user: centos
         download_url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
         local_download_path: /tmp/create_image_tests
+    - image:
+        name: riftio-snap
+        format: qcow2
+        image_user: root
+        download_url: http://repo.riftio.com/releases/open.riftio.com/4.2.0/rift-build-latest.qcow2
+        local_download_path: /tmp/create_image_tests
   networks:
     - network:
         name: osm-net
@@ -79,9 +85,9 @@ openstack:
     - instance:
         name: rift-inst
         flavor: m1.xlarge
-        imageName: Centos7
+        imageName: riftio-snap
         keypair_name: osm-kp
-        sudo_user: centos
+        sudo_user: fedora
         ports:
           - port:
               name: rift-net-port
