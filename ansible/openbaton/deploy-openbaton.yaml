@@ -61,4 +61,17 @@ ansible:
     - playbook_location: ../ansible/openbaton/main.yml
       hosts:
         - openbaton-inst
+      variables:
+        rabbit_broker_ip:
+          type: string
+          value: ''
+        rabbit_mgmt_port:
+          type: string
+          value: ''
+        rabbit_enable_security:
+          type: string
+          value: N
+        rabbit_enable_https:
+          type: string
+          value: N
 

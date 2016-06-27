@@ -19,8 +19,11 @@
   become_user: root
 
   tasks:
-   - name: Transfer install_openbaton.sh
-     copy: src=../scripts/install_openbaton.sh dest=/tmp/install_openbaton.sh mode=0744
+   - name: Apply template and transfer the install_openbaton.sh script
+     action: template mode=744 src=../scripts/install_openbaton.sh dest=/tmp/install_openbaton.sh
 
    - name: Execute install_openbaton.sh
      command: bash /tmp/install_openbaton.sh
+
+   - name: Start OpenBaton
+     command: bash /opt/openbaton/nfvo/openbaton.sh start
