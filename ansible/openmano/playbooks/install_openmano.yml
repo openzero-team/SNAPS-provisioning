@@ -14,7 +14,9 @@
 # limitations under the License.
 ---
 - hosts: all
-  sudo: yes
+  become: yes
+  become_method: sudo
+  become_user: root
 
   tasks:
    - name: Transfer install_osm.sh
