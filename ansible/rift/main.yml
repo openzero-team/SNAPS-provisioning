@@ -14,4 +14,3 @@
 # limitations under the License.
 ---
 - include: playbooks/install_rift.yml
-- include: playbooks/config_rift.yml
