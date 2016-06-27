@@ -13,6 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-- include: playbooks/install_juju.yml
-- include: playbooks/config_juju.yml
-- include: playbooks/start_juju_services.yml
+- hosts: all
+
+  tasks:
+  # TODO/FIXME - Problems with configuration will cause this command to fail. Once fixed remove ignore_errors
+   - name: Start Juju
+     command: juju bootstrap -v
+     ignore_errors: yes
+
+  # TODO/FIXME - Problems with configuration will cause this command to fail. Once fixed remove ignore_errors
+   - name: Deploy Juju UI
+     command: juju deploy juju-gui --to 0
+     ignore_errors: yes
