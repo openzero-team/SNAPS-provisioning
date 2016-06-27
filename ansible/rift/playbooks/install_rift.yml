@@ -17,21 +17,14 @@
   sudo: yes
 
   tasks:
-   - name: Echo
-     command: echo $(whoami)
+   - git: repo=https://osm.etsi.org/gerrit/osm/riftware.git dest=~/rift
 
-#   - name: Configure YUM repo
-#     command: rpm -Uvh http://repo.riftio.com/releases/riftware-release-latest.rpm
-#
-#   - name: YUM config manager - disable RIFT.ware 4.1
-#     command: yum-config-manager --disable RIFT.ware-4.1
-#
-#   - name: YUM config manager - enable RIFT.ware 4.2
-#     command: yum-config-manager --enable RIFT.ware-4.2
-#
-#   - yum: name=riftware-loganalyzer
-#   - yum: name=riftware-launchpad
-#
-#   - name: Start Rift
-#     command: systemctl start rwlp
+   - name: Transfer make-rift.sh
+     copy: src=../scripts/make-rift.sh dest=~/
+
+   - name : Make Rift
+     command: sh ~/make-rift.sh
+
+
+
 
