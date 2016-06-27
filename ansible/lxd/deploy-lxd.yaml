@@ -1,0 +1,63 @@
+# Copyright (c) 2016 Cable Television Laboratories, Inc. ("CableLabs")
+#                    and others.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+openstack:
+  connection:
+    # Note - when http_proxy is set, you must also configure ssh for proxy tunneling on your host.
+    username: admin
+    password: cable123
+    auth_url: http://10.197.103.50:5000/v2.0/
+    tenant_name: LXD
+    http_proxy: localhost:3128
+  images:
+    - image:
+        name: Ubuntu15.04
+        format: qcow2
+        image_user: ubuntu
+        download_url: http://uec-images.ubuntu.com/releases/15.04/release/ubuntu-15.04-server-cloudimg-amd64-disk1.img
+        local_download_path: /tmp/create_image_tests
+  networks:
+    - network:
+        name: lxd-net
+        subnet:
+          name: lxd-subnet
+          cidr: 10.0.1.0/24
+          dns_nameservers: [8.8.8.8]
+        router:
+          name: lxd-router
+          external_gateway: external
+  keypairs:
+    - keypair:
+        name: lxd-kp
+        public_filepath: /tmp/lxd-kp.pub
+        private_filepath: /tmp/lxd-kp
+  instances:
+    - instance:
+        name: lxd-inst
+        flavor: m1.large
+        imageName: Ubuntu15.04
+        keypair_name: lxd-kp
+        sudo_user: ubuntu
+        ports:
+          - port:
+              name: lxd-net-port
+              network_name: lxd-net
+        floating_ip:
+          ext_net: external
+          port_name: lxd-net-port
+ansible:
+    - playbook_location: ../ansible/lxd/main.yml
+      hosts:
+        - lxd-inst
